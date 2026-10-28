@@ -1,0 +1,97 @@
+{
+  "country": "EG",
+  "currency": "ج.م",
+  "status": "Built from seed data: catalog export, NOT supplier-verified. Drafts from these facts are drafts only.",
+  "policy_lines": {
+    "payment": "الدفع كاش للمندوب وقت الاستلام. بعد الدفع تقدري تفتحي الشحنة، والفاتورة هتلاقيها جوّاها.",
+    "confirm_call": "هيوصلك اتصال خلال 24 ساعة لتأكيد الطلب والعنوان. ممكن المكالمة تيجي من رقم مش متسجل عندك، فياريت تردّي علشان نقدر نبعت الطلب. لو طلبتي قبل 7 مساءً، بيتأكد في نفس اليوم.",
+    "one_fee": "رسوم التوصيل بتتحسب مرة واحدة على الطلب كله، مهما كان عدد المنتجات.",
+    "returns": "لو المنتج وصلك فيه عيب، تقدري تطلبي استبدال أو استرجاع خلال 14 يوم من الاستلام."
+  },
+  "products": [
+    {
+      "offers": [
+        {
+          "sku": "EG030106MKKT99",
+          "price": 399,
+          "label": "طقم واحد",
+          "note": "قطعتين: طويلة + صغيرة"
+        },
+        {
+          "sku": "EG030108BUND99",
+          "price": 749,
+          "label": "طقمين",
+          "note": "4 قطع، للمطبخ والحمام"
+        }
+      ],
+      "sku": "EG030106MKKT99",
+      "name": "طقم موكيت فائق الامتصاص",
+      "slug": "absorbent-mats",
+      "known_specs": {
+        "في الطقم": "قطعتين"
+      },
+      "unknown_specs": [
+        "المقاسات",
+        "الخامة",
+        "الغسيل"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "EG030106STPG99",
+          "price": 649,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "EG030106STPG99",
+      "name": "ستاند ملابس زوجي بعجل",
+      "slug": "double-clothes-rack",
+      "known_specs": {},
+      "unknown_specs": [
+        "الارتفاع والعرض",
+        "الخامة",
+        "أقصى وزن"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "EG030301HAEE99",
+          "price": 799,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "EG030301HAEE99",
+      "name": "دفاية كهربائية 2 في 1 بريموت",
+      "slug": "heater-2in1-remote",
+      "known_specs": {},
+      "unknown_specs": [
+        "القدرة (وات)",
+        "الضمان",
+        "الفولت"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "EG030401GB99",
+          "price": 629,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "EG030401GB99",
+      "name": "بطانية تتلبس",
+      "slug": "wearable-blanket",
+      "known_specs": {},
+      "unknown_specs": [
+        "المقاس",
+        "الخامة",
+        "الغسيل"
+      ]
+    }
+  ]
+}

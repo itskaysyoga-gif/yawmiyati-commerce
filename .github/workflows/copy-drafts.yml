@@ -1,0 +1,44 @@
+# Drafts product copy with the Anthropic API and pushes the drafts to a branch for review.
+# Manual only. Uses the ANTHROPIC_API_KEY repository secret. Drafts are never published by this workflow.
+name: copy-drafts
+on:
+  workflow_dispatch:
+    inputs:
+      country:
+        description: eg or iq
+        required: true
+        default: eg
+      skus:
+        description: space-separated SKUs (empty = all products)
+        required: false
+        default: ''
+permissions:
+  contents: write
+jobs:
+  draft:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Facts
+        run: node tools/copy/facts.mjs "${{ inputs.country }}"
+      - name: Draft
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node tools/copy/draft.mjs "${{ inputs.country }}" ${{ inputs.skus }}
+      - name: Check drafts
+        run: node tools/copy/validate.mjs "${{ inputs.country }}" || echo "CHECK_FAILED=1" >> "$GITHUB_ENV"
+      - name: Push drafts to a review branch
+        run: |
+          branch="copy-drafts/${{ inputs.country }}-${{ github.run_id }}"
+          git config user.name "copy-drafts bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add tools/copy/facts tools/copy/drafts
+          git commit -m "Copy drafts ${{ inputs.country }} (run ${{ github.run_id }}): draft, not reviewed"
+          git push origin "$branch"
+          echo "Drafts on branch $branch" >> "$GITHUB_STEP_SUMMARY"
+          cat "tools/copy/drafts/${{ inputs.country }}/REPORT.md" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,131 @@
+{
+  "country": "IQ",
+  "currency": "د.ع",
+  "status": "Built from seed data: catalog export, NOT supplier-verified. Drafts from these facts are drafts only.",
+  "policy_lines": {
+    "payment": "الدفع كاش للمندوب وقت الاستلام. بعد الدفع تكدرين تفتحين الكرتونة، والفاتورة داخلها.",
+    "confirm_call": "راح يوصلج اتصال خلال 24 ساعة حتى نأكد الطلب والعنوان، بين 9 الصبح و5 العصر. يمكن الرقم ما يكون محفوظ عندج، فإذا تكدرين جاوبي حتى نكدر ندز الطلب. إذا طلبتي قبل 3 العصر، يتأكد طلبج بنفس اليوم.",
+    "one_fee": "أجور التوصيل تنحسب مرة وحدة على الطلب كله، مهما كان عدد المنتجات.",
+    "returns": null
+  },
+  "products": [
+    {
+      "offers": [
+        {
+          "sku": "IQ030403SENK99",
+          "price": 43000,
+          "label": "الرف لوحده",
+          "note": "المجموع مع التوصيل 50,000 د.ع"
+        },
+        {
+          "sku": "IQ030501SDMN99",
+          "price": 58000,
+          "label": "الرف + طقم موكيت قطعتين",
+          "note": "المجموع مع التوصيل 65,000 د.ع"
+        }
+      ],
+      "sku": "IQ030403SENK99",
+      "name": "رف فوق السنك",
+      "slug": "sink-rack",
+      "known_specs": {},
+      "unknown_specs": [
+        "العرض المناسب للسنك",
+        "الخامة",
+        "محتويات الكرتونة",
+        "التركيب"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "IQ030106MATT99",
+          "price": 18000,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "IQ030106MATT99",
+      "name": "طقم موكيت فائق الامتصاص قطعتين",
+      "slug": "absorbent-mats",
+      "known_specs": {
+        "بالطقم": "قطعتين"
+      },
+      "unknown_specs": [
+        "المقاسات",
+        "الخامة"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "IQ030301SOBA99",
+          "price": 32000,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "IQ030301SOBA99",
+      "name": "صوبة كهربائية 180 درجة",
+      "slug": "heater-180",
+      "known_specs": {},
+      "unknown_specs": [
+        "القدرة (واط)",
+        "الضمان"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "IQ030106MONZ99",
+          "price": 28000,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "IQ030106MONZ99",
+      "name": "منظم ملابس زاوية",
+      "slug": "corner-clothes-organizer",
+      "known_specs": {},
+      "unknown_specs": [
+        "الارتفاع",
+        "عدد الرفوف",
+        "الخامة"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "IQ030107MASA99",
+          "price": 18000,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "IQ030107MASA99",
+      "name": "مساحة زجاج مغناطيسية مزدوجة",
+      "slug": "magnetic-window-cleaner",
+      "known_specs": {},
+      "unknown_specs": [
+        "سمك الزجاج المناسب"
+      ]
+    },
+    {
+      "offers": [
+        {
+          "sku": "IQ030104STAN99",
+          "price": 30000,
+          "label": null,
+          "note": null
+        }
+      ],
+      "sku": "IQ030104STAN99",
+      "name": "ستاند ملابس زوجي",
+      "slug": "double-clothes-rack",
+      "known_specs": {},
+      "unknown_specs": [
+        "الارتفاع والعرض",
+        "الخامة"
+      ]
+    }
+  ]
+}
