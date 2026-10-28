@@ -31,7 +31,18 @@ Return ONLY a JSON object with these keys:
   "offer_labels": object mapping each offer SKU to a short label (max 24 characters)
   "used_facts": list of the exact facts you relied on`;
 
-async function draft(product) {
+async function draft(product, attempt = 1) {
+  try {
+    return await draftOnce(product);
+  } catch (e) {
+    console.error(`${product.sku}: attempt ${attempt} failed: ${String(e.message).slice(0, 300)}`);
+    if (attempt >= 3) throw e;
+    await new Promise((r) => setTimeout(r, 5000 * attempt));
+    return draft(product, attempt + 1);
+  }
+}
+
+async function draftOnce(product) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },

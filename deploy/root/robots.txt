@@ -1,0 +1,15 @@
+# yawmiyati.shop root. Each country store is its own WordPress install under /eg/ and /iq/.
+# Crawlers only read robots.txt at the domain root, so the stores' private paths are listed here.
+User-agent: *
+Disallow: /eg/cart/
+Disallow: /eg/checkout/
+Disallow: /eg/my-account/
+Disallow: /iq/cart/
+Disallow: /iq/checkout/
+Disallow: /iq/my-account/
+Disallow: /*?add-to-cart=
+Disallow: /*/wp-admin/
+Allow: /*/wp-admin/admin-ajax.php
+
+Sitemap: https://yawmiyati.shop/eg/wp-sitemap.xml
+Sitemap: https://yawmiyati.shop/iq/wp-sitemap.xml
