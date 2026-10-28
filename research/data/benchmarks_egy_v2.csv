@@ -1,0 +1,16 @@
+slug,identical_n,identical_likely_n,identical_price_min,identical_price_median,identical_price_max,identical_delivery_known_n,identical_delivered_median,similar_n,similar_likely_n,similar_price_min,similar_price_median,similar_price_max,similar_delivery_known_n,similar_delivered_median,unavailable_excluded,other_excluded
+absorbent-mats,1,0,580.0,580.0,580.0,0,,2,,259.0,379.0,499.0,0,,0,2
+dish-drying-mat,7,1,200.0,470.0,689.0,4,452.0,2,,261.2,280.1,299.0,0,,0,0
+double-clothes-rack,4,3,650.0,842.0,965.0,0,,2,,670.0,684.5,699.0,0,,3,0
+easy-squeeze-mop,1,0,750.0,750.0,750.0,0,,5,,152.0,180.0,550.0,0,,0,1
+foldable-extendable-mop,2,0,524.0,549.0,574.0,2,549.0,4,,89.0,160.5,235.0,0,,0,0
+heater-180,3,0,749.0,899.0,919.0,1,919.0,2,,850.0,924.5,999.0,1,970.0,0,0
+lint-remover-usb,3,0,350.0,405.0,534.0,2,442.0,2,,270.0,484.5,699.0,0,,1,0
+portable-clothes-dryer,1,0,899.0,899.0,899.0,0,,0,,,,,0,,2,1
+portable-steam-iron,3,2,330.0,360.0,425.0,1,425.0,5,,275.0,299.0,440.0,0,,0,0
+reusable-kitchen-towel-roll,0,0,,,,0,,3,,139.0,179.55,198.0,0,,2,1
+shoe-storage-cabinet,0,0,,,,0,,0,,,,,0,,1,2
+spice-drawer-rack,4,0,450.0,499.5,604.0,2,527.0,0,,,,,0,,0,1
+spray-mop,0,0,,,,0,,4,,70.0,132.495,261.0,0,,2,2
+wearable-blanket,3,0,622.0,739.0,746.0,1,739.0,3,,390.0,529.0,800.0,0,,0,1
+wrinkle-release-spray,2,0,410.0,480.0,550.0,0,,1,,244.0,244.0,244.0,1,274.0,0,1

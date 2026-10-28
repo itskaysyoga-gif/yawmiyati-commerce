@@ -1,3 +1,5 @@
+> Superseded by `launch_assortment_v2.md` (28 Oct 2026). Kept for history.
+
 # Launch assortment v1 — 28 Oct 2026
 
 Source data: `data/taager_catalog_export.csv` (pre-28 Oct, re-verify before publishing), `data/competitors_egy.csv`, `data/competitors_irq.csv` (opened 28 Oct). Full table with reasons: `data/launch_assortment_v1.csv`. Economics: `scripts/economics.py`.

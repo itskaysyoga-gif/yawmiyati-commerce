@@ -1,0 +1,16 @@
+slug,identical_n,identical_likely_n,identical_price_min,identical_price_median,identical_price_max,identical_delivery_known_n,identical_delivered_median,similar_n,similar_likely_n,similar_price_min,similar_price_median,similar_price_max,similar_delivery_known_n,similar_delivered_median,unavailable_excluded,other_excluded
+absorbent-mats,1,0,22500.0,22500.0,22500.0,0,,0,,,,,0,,0,3
+bathroom-corner-shelf-4,1,0,29999.0,29999.0,29999.0,1,29999.0,0,,,,,0,,0,3
+corner-clothes-organizer,3,0,34000.0,36999.0,37000.0,2,35499.5,1,,125000.0,125000.0,125000.0,0,,0,0
+double-clothes-rack,1,0,53799.0,53799.0,53799.0,1,53799.0,0,,,,,0,,1,0
+easy-squeeze-mop-bundle,0,0,,,,0,,0,,,,,0,,0,1
+foldable-extendable-mop,1,0,27499.0,27499.0,27499.0,1,27499.0,1,,10250.0,10250.0,10250.0,0,,0,1
+heater-180,1,0,40599.0,40599.0,40599.0,1,40599.0,3,,31000.0,31500.0,49000.0,2,41750.0,0,0
+lint-remover,1,0,26999.0,26999.0,26999.0,1,26999.0,4,,8000.0,14000.0,19000.0,1,20000.0,0,0
+magnetic-window-cleaner,2,0,26499.0,27749.5,29000.0,1,29000.0,0,,,,,0,,0,2
+portable-clothes-dryer,0,0,,,,0,,3,,25000.0,28000.0,28500.0,2,31250.0,0,0
+shoe-cabinet-3in1,1,0,35999.0,35999.0,35999.0,1,35999.0,2,,20000.0,20000.0,20000.0,2,23000.0,0,0
+sink-rack,2,0,50799.0,60649.5,70500.0,1,50799.0,0,,,,,0,,0,2
+spray-mop,1,0,28499.0,28499.0,28499.0,1,28499.0,0,,,,,0,,0,1
+steam-iron-4in1,2,0,29000.0,33899.5,38799.0,1,38799.0,3,,22000.0,24500.0,31000.0,1,27500.0,0,3
+wrinkle-release-spray,1,0,19000.0,19000.0,19000.0,0,,0,,,,,0,,1,0
