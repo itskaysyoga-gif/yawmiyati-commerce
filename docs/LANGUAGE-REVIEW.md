@@ -83,7 +83,7 @@ Status values: draft · reviewed · changed · approved.
 | Key | Egypt (draft) | Iraq (draft) | Status | Reviewer notes |
 | --- | --- | --- | --- | --- |
 | `thanks` | وصلنا طلبك، شكرًا ليكي | وصلنا طلبج، شكرًا إلج | draft | |
-| `thanks_line` | %1$s. رقم الطلب %2$s. | %1$s. رقم الطلب %2$s. | draft | |
+| `thanks_line` | رقم طلبك %2$s. | رقم طلبج %2$s. | draft | |
 | `delivery_address` | عنوان التوصيل | عنوان التوصيل | draft | |
 | `order_details` | تفاصيل الطلب | تفاصيل الطلب | draft | |
 
@@ -107,6 +107,13 @@ Status values: draft · reviewed · changed · approved.
 | `consent_no` | الضروري بس | الضروري بس | draft | |
 | `consent_change` | إعدادات الكوكيز | إعدادات الكوكيز | draft | |
 | `delivery_title` | التوصيل والدفع | التوصيل والدفع | draft | |
+
+## Added later
+
+| Key | Egypt (draft) | Iraq (draft) | Status | Reviewer notes |
+| --- | --- | --- | --- | --- |
+| `delivery_word` | التوصيل | التوصيل | draft | |
+| `privacy_note` | بنستخدم بياناتك علشان نوصّلك الطلب بس. التفاصيل في [privacy_policy]. | نستخدم معلوماتج حتى نوصّلج الطلب بس. التفاصيل بـ [privacy_policy]. | draft | |
 
 ## Pages
 

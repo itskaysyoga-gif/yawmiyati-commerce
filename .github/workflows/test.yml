@@ -46,9 +46,14 @@ jobs:
       - name: Report failing tests as annotations
         if: failure()
         run: |
-          # Each failing test becomes an annotation (readable through the checks API without log access).
-          awk '/^not ok/{name=$0; getline; n=0} /error:|expected:|actual:|elapsed/{ if (name!="" && n<4) { printf "::error title=%s::%s\n", substr(name,1,120), substr($0,1,300); n++ } }' e2e.log | head -40
+          # Each failing test becomes one annotation with its error block (readable through the checks API).
+          node -e '
+            const lines = require("fs").readFileSync("e2e.log", "utf8").split("\n");
+            for (let i = 0; i < lines.length; i++) {
+              if (!/^not ok/.test(lines[i])) continue;
+              const block = [];
+              for (let j = i + 1; j < lines.length && !/^  \.\.\./.test(lines[j]) && block.length < 25; j++) block.push(lines[j].trim());
+              const msg = block.filter((l) => !/^(duration_ms|type|location|failureType|code|---)/.test(l)).join(" | ").replace(/%/g, "%25").replace(/\r?\n/g, " ");
+              console.log(`::error title=${lines[i].slice(0, 120)}::${msg.slice(0, 1500)}`);
+            }'
           grep -E "^# (pass|fail|skipped)" e2e.log | sed 's/^/::notice::/'
-      - name: Store logs on failure
-        if: failure()
-        run: tail -n 200 dev/.cache/serve-*.log dev/sites/*/wp-content/debug.log 2>/dev/null || true

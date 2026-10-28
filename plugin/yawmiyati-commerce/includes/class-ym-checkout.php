@@ -34,6 +34,8 @@ final class YM_Checkout {
 		add_action( 'woocommerce_before_checkout_process', array( __CLASS__, 'early_replay' ), 1 );
 		add_action( 'template_redirect', array( __CLASS__, 'guard_received' ) );
 		add_filter( 'gettext', array( __CLASS__, 'strings' ), 10, 3 );
+		add_filter( 'woocommerce_order_shipping_to_display_shipped_via', '__return_empty_string' );
+		add_filter( 'woocommerce_get_privacy_policy_text', fn( $text, $type ) => 'checkout' === $type ? YM_Country::copy( 'privacy_note' ) : $text, 10, 2 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
 		add_action( 'ym_cleanup_tokens', array( __CLASS__, 'cleanup_tokens' ) );
 		if ( ! wp_next_scheduled( 'ym_cleanup_tokens' ) ) {
@@ -314,6 +316,8 @@ final class YM_Checkout {
 		}
 		$map = array(
 			'Billing address'  => YM_Country::copy( 'delivery_address' ),
+			'Shipping'         => YM_Country::copy( 'delivery_word' ),
+			'Shipping:'        => YM_Country::copy( 'delivery_word' ) . ':',
 			'Order details'    => YM_Country::copy( 'order_details' ),
 		);
 		return $map[ $text ] ?? $translation;

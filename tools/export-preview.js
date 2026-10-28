@@ -38,6 +38,10 @@ async function capture(page, cc, base) {
 // Rewrite absolute local URLs to paths relative to the saved page, and page links to their index.html.
 function relocate(html, base, depth, { stripScripts }) {
   const up = depth ? '../'.repeat(depth) : './';
+  // Links to the other country's store point at its folder in the snapshot.
+  for (const [other, st] of Object.entries(STORES)) {
+    if (st.base !== base) html = html.split(st.base + '/').join(up + '../' + other + '/');
+  }
   html = html.split(base + '/').join(up);
   html = html.split(base.replace(/\//g, '\\/') + '\\/').join(up.replace(/\//g, '\\/'));
   html = html.replace(/(href|src)="([^"]*?)\?ver=[^"]*"/g, '$1="$2"');
@@ -72,6 +76,7 @@ async function save(page, cc, base, rel, opts = {}) {
   for (const [cc, s] of Object.entries(STORES)) {
     for (const [w, label] of [[390, 'mobile']]) {
       const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, locale: 'ar' });
+      await ctx.addCookies([{ name: 'ym_consent', value: 'denied', url: s.base }]);
       const page = await ctx.newPage();
       await capture(page, cc, s.base);
       await page.goto(s.base + '/', { waitUntil: 'networkidle' });
@@ -83,6 +88,11 @@ async function save(page, cc, base, rel, opts = {}) {
         await page.waitForLoadState('networkidle');
         await save(page, cc, s.base, `product/${slug}`);
         links.push([await page.locator('h1').first().innerText(), `${cc}/product/${slug}/index.html`]);
+      }
+      for (const [slug, label] of [['delivery', 'التوصيل والدفع'], ['returns', 'الاستبدال والاسترجاع'], ['faq', 'أسئلة'], ['contact', 'تواصل'], ['privacy', 'الخصوصية']]) {
+        await page.goto(`${s.base}/${slug}/`, { waitUntil: 'networkidle' });
+        await save(page, cc, s.base, slug);
+        links.push([label, `${cc}/${slug}/index.html`]);
       }
       await page.goto(`${s.base}/product/${s.buy}/`, { waitUntil: 'networkidle' });
       await Promise.all([page.waitForURL(/\/checkout\//), page.locator('button[value="buy"]').click()]);
