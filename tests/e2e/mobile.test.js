@@ -30,6 +30,10 @@ async function flow(engine, device, cc, slug, offer, total) {
     await Promise.all([page.waitForURL(/order-received\/(\d+)/, { timeout: 30000 }), page.locator('#place_order').tap()]);
     const id = Number(page.url().match(/order-received\/(\d+)/)[1]);
     assert.equal(h.order(cc, id).total, total);
+    // No horizontal scrolling on the confirmation page either (its order summary box once overflowed by 14 px).
+    await page.waitForLoadState('networkidle');
+    const sw = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
+    assert.ok(sw[0] <= sw[1] + 1, `confirmation page ${sw[0]} px wide on a ${sw[1]} px screen`);
     await ctx.close();
   } finally {
     await browser.close();

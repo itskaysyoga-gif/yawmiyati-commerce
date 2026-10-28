@@ -245,7 +245,7 @@ body:has(.ym-consent:not([hidden])) .ym-sticky { display: none; }
 /* Order received */
 .woocommerce-order { font-size: 16px; }
 .woocommerce-order .woocommerce-thankyou-order-received { padding: 16px; border-radius: var(--ym-radius); background: var(--ym-sage); color: var(--ym-sage-ink); font-size: 17px; line-height: 1.8; }
-.woocommerce ul.order_details { list-style: none; padding: 0 14px; margin: 16px 0; display: grid; gap: 0; background: var(--ym-paper); border: 1px solid var(--ym-rule); border-radius: var(--ym-radius-sm); }
+.woocommerce ul.order_details { box-sizing: border-box; list-style: none; padding: 0 14px; margin: 16px 0; display: grid; gap: 0; background: var(--ym-paper); border: 1px solid var(--ym-rule); border-radius: var(--ym-radius-sm); }
 .woocommerce ul.order_details::before, .woocommerce ul.order_details::after { display: none; }
 .woocommerce ul.order_details li { float: none; display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 9px 0; border: 0; border-bottom: 1px solid var(--ym-rule); font-size: 14px; text-transform: none; color: var(--ym-muted); }
 .woocommerce ul.order_details li:last-child { border-bottom: 0; }
