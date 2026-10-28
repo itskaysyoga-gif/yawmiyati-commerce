@@ -5,7 +5,7 @@ _Last updated: 2026-10-28 (evening session)_
 Status words used everywhere in this repo:
 - **Designed**: exists only on the design canvas.
 - **Implemented**: code in this repo runs on the local stores.
-- **Tested**: an automated check passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions. No Taager involved.
+- **Tested**: an automated check passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions (42 end-to-end tests green in CI on 28 Oct, including the iPhone/WebKit flow, which is skipped locally). No Taager involved.
 - **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog, or a written answer). A support chat answer is recorded as "Taager said", not verified.
 
 Nothing is supplier-verified. There is no live store, no Taager link and no real order.
