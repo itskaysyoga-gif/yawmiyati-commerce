@@ -4,8 +4,14 @@ Scope: the six fixes in Rashid's 29 Oct brief, with regression tests. No new fea
 docs/PROJECT-STATE.md. **Nothing here is supplier-verified**: local tests do not show what Taager's plugin does.
 
 ## Result
-- Commit: __COMMIT__ · CI: __CI__
-- Tests (the one set of counts; earlier documents point here): __COUNTS__
+- Code commits: `0431f64` (the fixes), `27177a8` (confirmation-page overflow found while making the screenshots).
+  **CI green on `27177a8`: run 40780852912** (24 min, all five stores, e2e including the WebKit/iPhone test); also green on `0431f64` (run 40780231771).
+- Tests (the one set of counts; earlier documents point here): **90 end-to-end tests** (89 run locally, the WebKit/iPhone
+  test only in CI) and **667 in-store checks**: Egypt 142, Iraq 143, Saudi Arabia 129, UAE 123, Oman 130.
+  Up from 85 / 370 on e4ebf87.
+- One honest note: in the first full local run, the existing "four customers at the same moment" test timed out once
+  (35 s). It passed three isolated reruns (12 s each) and in both CI runs. Two possible causes were removed anyway: a
+  failed counter insert no longer runs the table installer, and counter pruning moved off the customer's request.
 
 ## What changed, and the test that holds it
 | # | Fix | Regression tests |
@@ -17,7 +23,9 @@ docs/PROJECT-STATE.md. **Nothing here is supplier-verified**: local tests do not
 | 5 | Reviews: allowed after a verified delivery even when the item was later returned or refunded; never after a refusal | integration review checks |
 | 6 | `package-lock.json` committed; CI uses `npm ci`; test counts reconciled (the 28 Oct report said 82 / 365; the final run on e4ebf87 was 85 / 370, now corrected there) | CI install step |
 
-Found and fixed on the way: the hourly supplier sweep used a `meta_query` that WooCommerce ignores on this order
+Found and fixed on the way: the confirmation page's order summary box was 14 px wider than a 390 px phone screen
+(sideways scroll on the page every customer sees); fixed, and the phone flow test now checks the confirmation page.
+Also: the hourly supplier sweep used a `meta_query` that WooCommerce ignores on this order
 storage, so it re-checked every processing order (131 of 182 locally were genuine candidates). It now looks up
 pending and unconfirmed hand-offs directly (integration check).
 

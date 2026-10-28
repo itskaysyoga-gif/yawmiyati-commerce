@@ -12,8 +12,8 @@ Nothing is supplier-verified. There is no live store, no Taager link and no real
 Repository: still **public** (launch checklist #1).
 
 ## Readiness (definitions and per-country status: docs/LAUNCH-CHECKLIST.md)
-- **Development complete: yes**, all five countries, as of the commit and CI run recorded in
-  docs/reports/2026-10-29-stabilization.md. No known open defect.
+- **Development complete: yes**, all five countries, as of commit 27177a8, CI run 40780852912 (green). Tests: 90
+  end-to-end, 667 in-store checks (docs/reports/2026-10-29-stabilization.md). No known open defect.
 - **Staging verified: no.** Waits for hosting and the domain (checklist #3), then the Taager plugin on staging.
 - **Commercially ready: no.** Also needs the approved assortment (docs/ASSORTMENT-v1.md), verified product records
   and media, policy facts, native review and a payout test.
