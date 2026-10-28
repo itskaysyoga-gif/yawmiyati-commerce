@@ -8,9 +8,15 @@ _Last updated: 2026-10-28_
   no stock sync; the customer pays delivery.
 - Repo created; logo extracted as vector from the Kite Creative business card (`brand/`).
 
+- Local test stores running: WordPress 7.1.3 + WooCommerce 11.2.1, Arabic/RTL, SQLite, Egypt (EGP, :8081) and Iraq (IQD, :8082). `dev/setup.sh`, `dev/serve.sh`, `dev/wp.sh`.
+- First candidate shortlist: 15 Egypt + 15 Iraq offers, 10 shared (`research/data/candidates_v1.csv`).
+
 ## In progress
-- Product research: verified Egypt + Iraq launch assortment (`research/`).
-- Local WordPress + WooCommerce dev environment (`dev/`).
+- Competitor pricing for the shortlist (`research/data/competitors_*.csv`).
+
+## Taager data access
+- Rashid's network allowlist now includes wordpress.org, downloads.wordpress.org, github.com, raw.githubusercontent.com (works), repo.packagist.org, taager.com. api.wordpress.org is not allowed (language packs are installed from downloads.wordpress.org directly).
+- Taager catalog and media come through the Taager plugin's product import once a store is live and linked, plus any official export Taager provides. Taager's private merchant API is not used.
 
 ## Waiting on
 - Taager: delivery fee per order or per item; status sync to WooCommerce; media import and ad rights; Iraq refusal fee;
