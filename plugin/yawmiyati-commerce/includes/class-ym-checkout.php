@@ -86,7 +86,7 @@ final class YM_Checkout {
 	}
 
 	public static function locale( $locale ) {
-		foreach ( array_keys( YM_Country::RULES ) as $cc ) {
+		foreach ( YM_Country::codes() as $cc ) {
 			$locale[ $cc ]['postcode']  = array( 'required' => false, 'hidden' => true );
 			$locale[ $cc ]['city']      = array( 'required' => false, 'hidden' => true );
 			$locale[ $cc ]['state']     = array( 'required' => true, 'label' => YM_Country::copy( 'gov_label' ) );
@@ -146,17 +146,52 @@ final class YM_Checkout {
 	}
 
 	/*
-	 * Idempotent submission. Each checkout form carries a one-time token (UUID). The first request claims it with
-	 * an atomic insert; the order ID is attached to the claim as soon as WooCommerce has saved the order.
+	 * Idempotent submission. Each checkout form carries a one-time token (UUID).
+	 *
+	 * Claim: a plain conditional INSERT on the options table's unique key. (WordPress's add_option() is NOT usable
+	 * here: it runs INSERT … ON DUPLICATE KEY UPDATE, so two simultaneous callers both "succeed" and both went on to
+	 * create an order — CI run 40748106500.) The claiming request also takes a database lock named after the token
+	 * and holds it until the request ends. The database frees that lock by itself when the request's connection
+	 * closes, including when PHP crashes or is killed, so "is the first request still alive?" is answered by the
+	 * lock, never by a clock.
 	 *   - Same token again after the order exists (double click, retry after a lost response): no new order; the
 	 *     customer is sent to the existing order's confirmation page.
-	 *   - Same token while the first request is still running: "still sending, wait" and no new order.
+	 *   - Same token while the first request is still running, however long it takes: "still sending, wait".
 	 *   - The first request failed before an order existed: the claim is released at the end of that request, so
-	 *     a retry goes through. A claim left by a crashed request expires after STALE seconds.
+	 *     a retry goes through at once.
+	 *   - The first request died: the lock is free. If an order carrying the token exists (death after the order was
+	 *     saved), the retry is sent to it; otherwise the retry takes the lock and the claim over and continues.
 	 */
-	const STALE = 30;
-
 	private static $claimed = '';
+
+	private static function lock_name( $name ) {
+		global $wpdb;
+		return 'ym' . substr( md5( $wpdb->dbname . $wpdb->prefix . $name ), 0, 30 );
+	}
+
+	/** Take the token's lock without waiting. True only for the one connection that holds it. */
+	private static function take_lock( $name ) {
+		global $wpdb;
+		return '1' === (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 0)', self::lock_name( $name ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	}
+
+	private static function drop_lock( $name ) {
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', self::lock_name( $name ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	}
+
+	/** Insert the claim row only if it does not exist. One row inserted = this request owns the token. */
+	private static function insert_claim( $name, $value ) {
+		global $wpdb;
+		$done = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'off')", $name, $value ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return 1 === (int) $done;
+	}
+
+	/** An order already saved with this token (the request that created it may have died before linking it). */
+	private static function order_for_token( $name ) {
+		$ids = wc_get_orders( array( 'limit' => 1, 'return' => 'ids', 'meta_key' => '_ym_token', 'meta_value' => substr( $name, strlen( self::TOKEN_PREFIX ) ), 'status' => array_keys( wc_get_order_statuses() ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		return $ids ? wc_get_order( (int) $ids[0] ) : null;
+	}
 
 	private static function token_from_post() {
 		$t = isset( $_POST['ym_token'] ) ? sanitize_text_field( wp_unslash( $_POST['ym_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- WooCommerce verifies the checkout nonce before this hook.
@@ -185,37 +220,68 @@ final class YM_Checkout {
 		if ( $delay > 0 ) {
 			usleep( min( $delay, 5000 ) * 1000 );
 		}
-		$name  = self::TOKEN_PREFIX . md5( $token );
-		$mine  = wp_json_encode( array( 't' => time(), 's' => self::session_hash(), 'o' => 0, 'r' => wp_generate_password( 8, false ) ) );
-		if ( add_option( $name, $mine, '', false ) ) {
-			self::$claimed = $name . '|' . $mine;
-			register_shutdown_function( array( __CLASS__, 'release_unlinked' ) );
+		// Local test hook: release parallel requests at the same instant (epoch ms) so they race on the claim.
+		$at = (int) YM_Env::test_header( 'claim-at' );
+		if ( $at > 0 ) {
+			$wait = $at - (int) floor( microtime( true ) * 1000 );
+			if ( $wait > 0 && $wait < 10000 ) {
+				usleep( $wait * 1000 );
+			}
+		}
+		$name = self::TOKEN_PREFIX . md5( $token );
+		$mine = wp_json_encode( array( 't' => time(), 's' => self::session_hash(), 'o' => 0, 'r' => wp_generate_password( 8, false ) ) );
+		// Lock first, then insert: whoever holds the lock is the only request that may create the order.
+		$locked = self::take_lock( $name );
+		if ( $locked && self::insert_claim( $name, $mine ) ) {
+			self::own( $name, $mine );
 			return;
+		}
+		if ( ! $locked && ! self::read_claim( $name ) ) {
+			// Lock held elsewhere and its row not written yet: wait a moment for it before answering.
+			usleep( 200000 );
 		}
 		$claim = self::read_claim( $name );
 		$v     = $claim ? $claim['v'] : array();
-		if ( ( $v['s'] ?? '' ) !== self::session_hash() ) {
-			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
+		if ( ! $claim ) {
+			// No row and no lock: another request holds the lock and is about to insert. Treat as in flight.
+			if ( $locked ) {
+				self::drop_lock( $name );
+			}
+			$errors->add( 'ym_in_flight', YM_Country::copy( 'in_flight' ) );
 			return;
 		}
-		if ( ! empty( $v['o'] ) ) {
-			$order = wc_get_order( (int) $v['o'] );
-			if ( $order ) {
-				self::send_to_order( $order );
+		if ( ( $v['s'] ?? '' ) !== self::session_hash() ) {
+			if ( $locked ) {
+				self::drop_lock( $name );
 			}
 			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
 			return;
 		}
-		if ( time() - (int) ( $v['t'] ?? 0 ) < self::STALE ) {
+		$order = ! empty( $v['o'] ) ? wc_get_order( (int) $v['o'] ) : null;
+		if ( ! $order && $locked ) {
+			// The lock is ours, so the request that claimed this token is no longer running. If it got as far as
+			// saving the order, that order carries the token.
+			$order = self::order_for_token( $name );
+		}
+		if ( $order ) {
+			if ( $locked ) {
+				self::drop_lock( $name );
+			}
+			self::send_to_order( $order );
+			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
+			return;
+		}
+		if ( ! $locked ) {
+			// The first request is still running (slow supplier hook, slow database): never a second order.
 			$errors->add( 'ym_in_flight', YM_Country::copy( 'in_flight' ) );
 			return;
 		}
-		// A crashed request left the claim behind: take it over only if nobody else did first.
-		$took = $wpdb->update( $wpdb->options, array( 'option_value' => $mine ), array( 'option_name' => $name, 'option_value' => $claim['raw'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		if ( 1 !== (int) $took ) {
-			$errors->add( 'ym_in_flight', YM_Country::copy( 'in_flight' ) );
-			return;
-		}
+		// The first request died before saving an order. We hold the lock, so nobody else can be doing this.
+		$wpdb->update( $wpdb->options, array( 'option_value' => $mine ), array( 'option_name' => $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		self::own( $name, $mine );
+	}
+
+	private static function own( $name, $mine ) {
 		self::$claimed = $name . '|' . $mine;
 		register_shutdown_function( array( __CLASS__, 'release_unlinked' ) );
 	}
@@ -245,13 +311,22 @@ final class YM_Checkout {
 		if ( ! self::$claimed || ! $order instanceof WC_Order ) {
 			return;
 		}
+		// Local test hook: the process dies after the order is saved, before the claim is linked and before any
+		// response is sent (X-YM-Test-Fail: after-create). Shutdown handlers still run, as after a fatal error.
+		if ( 'after-create' === YM_Env::test_header( 'fail' ) ) {
+			exit;
+		}
 		list( $name, $mine ) = explode( '|', self::$claimed, 2 );
-		$v      = json_decode( $mine, true );
-		$v['o'] = $order->get_id();
-		$wpdb->update( $wpdb->options, array( 'option_value' => wp_json_encode( $v ) ), array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$order->update_meta_data( '_ym_token', substr( $name, strlen( self::TOKEN_PREFIX ) ) );
-		$order->save_meta_data();
+		self::link_claim( $name, $mine, $order->get_id() );
+		self::drop_lock( $name );
 		self::$claimed = '';
+	}
+
+	private static function link_claim( $name, $mine, $order_id ) {
+		global $wpdb;
+		$v      = json_decode( $mine, true );
+		$v['o'] = (int) $order_id;
+		$wpdb->update( $wpdb->options, array( 'option_value' => wp_json_encode( $v ) ), array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	/** End of request: a claim that never got an order is released so the customer can try again at once. */
@@ -261,8 +336,20 @@ final class YM_Checkout {
 			return;
 		}
 		list( $name, $mine ) = explode( '|', self::$claimed, 2 );
-		$wpdb->delete( $wpdb->options, array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// If the order was saved before the request failed, keep the claim and point it at that order.
+		$order = self::order_for_token( $name );
+		if ( $order ) {
+			self::link_claim( $name, $mine, $order->get_id() );
+		} else {
+			$wpdb->delete( $wpdb->options, array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
+		self::drop_lock( $name );
 		self::$claimed = '';
+	}
+
+	/** The token travels inside the order itself, written in the same save that creates the order. */
+	private static function claimed_token() {
+		return self::$claimed ? substr( strtok( self::$claimed, '|' ), strlen( self::TOKEN_PREFIX ) ) : '';
 	}
 
 	private static function send_to_order( WC_Order $order ) {
@@ -276,6 +363,11 @@ final class YM_Checkout {
 
 	/** Local test hook: make order creation fail once (X-YM-Test-Fail: create). */
 	public static function test_fail( $order ) {
+		// Local test hook: order creation is slow (X-YM-Test-Hold: seconds, up to 60), e.g. a stuck supplier hook.
+		$hold = (int) YM_Env::test_header( 'hold' );
+		if ( $hold > 0 ) {
+			sleep( min( $hold, 60 ) );
+		}
 		if ( 'create' === YM_Env::test_header( 'fail' ) ) {
 			throw new Exception( 'ym test: order creation failed' );
 		}
@@ -295,6 +387,9 @@ final class YM_Checkout {
 
 	public static function save_extra( WC_Order $order, $data ) {
 		$order->update_meta_data( '_ym_session', self::session_hash() );
+		if ( self::claimed_token() ) {
+			$order->update_meta_data( '_ym_token', self::claimed_token() );
+		}
 		foreach ( array( 'ym_phone2', 'ym_landmark' ) as $k ) {
 			if ( ! empty( $data[ $k ] ) ) {
 				$order->update_meta_data( '_' . $k, sanitize_text_field( $data[ $k ] ) );
