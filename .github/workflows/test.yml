@@ -40,7 +40,15 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium webkit
       - name: End-to-end order flow
-        run: npm test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee e2e.log
+      - name: Report failing tests as annotations
+        if: failure()
+        run: |
+          # Each failing test becomes an annotation (readable through the checks API without log access).
+          awk '/^not ok/{name=$0; getline; n=0} /error:|expected:|actual:|elapsed/{ if (name!="" && n<4) { printf "::error title=%s::%s\n", substr(name,1,120), substr($0,1,300); n++ } }' e2e.log | head -40
+          grep -E "^# (pass|fail|skipped)" e2e.log | sed 's/^/::notice::/'
       - name: Store logs on failure
         if: failure()
         run: tail -n 200 dev/.cache/serve-*.log dev/sites/*/wp-content/debug.log 2>/dev/null || true
