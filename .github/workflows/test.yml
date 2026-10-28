@@ -1,5 +1,5 @@
 # Builds both local stores from pinned versions and runs the order-flow tests.
-# Status: written 28 Oct 2026, not yet run on GitHub. Check the first run before relying on it.
+# First green run: 28 Oct 2026 (run 40732884990).
 name: tests
 on:
   push:
@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mysqli, zip, intl, gd, exif
           tools: none
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
       - name: MariaDB 10.11 (same server the local stores use)

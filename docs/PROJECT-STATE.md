@@ -5,7 +5,7 @@ _Last updated: 2026-10-28 (end of session)_
 Status words used everywhere in this repo:
 - **Designed**: exists in the design canvas only (Claude artifact "Yawmiyati Store Design").
 - **Implemented**: code in this repo runs on the local stores.
-- **Tested**: covered by an automated check that passes (`npm test`, `tests/integration/run.php`). Local only.
+- **Tested**: covered by an automated check that passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions. No Taager involved.
 - **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog or a written answer we can point to). A broad support reply is recorded as "Taager said", not as verified.
 
 Nothing is supplier-verified yet. There is no live store, no Taager link and no real order.
@@ -31,10 +31,10 @@ Nothing is supplier-verified yet. There is no live store, no Taager link and no 
 | Specs, sizes, materials | — | unknown rows show `[من تاجر]` locally and are left out in production | — | not yet |
 | Product media | — | text-free crops of Taager images (`media/interim/`) | — | Taager said supplier images may be used |
 | Portable preview | — | `tools/export-preview.js` | rendered and link-checked | — |
-| CI on GitHub | — | `.github/workflows/test.yml` | not run yet | — |
+| CI on GitHub | — | `.github/workflows/test.yml` | green on GitHub, 28 Oct | — |
 | Content studio, ads, Manychat | brief only | no | — | — |
 
-Latest preview: Claude artifact "Yawmiyati Store Preview" (static snapshot of the real build).
+Latest preview: Claude artifact "Yawmiyati Store Preview" (static snapshot of the real build, also as a zip from `npm run preview`).
 
 ## Verification tasks (open; each needs a real store, a test order or a written answer)
 1. Taager WooCommerce plugin: which hook it uses, the order meta key it writes (set it in `ym_supplier_ref_keys`), and what it does with on-hold orders.

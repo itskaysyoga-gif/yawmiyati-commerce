@@ -43,7 +43,7 @@ injected price fields, out-of-country governorate, concurrent duplicate submissi
 (on-hold), supplier hand-off failure and manual fallback, phone formats, and the checkout form itself.
 They run against local stores only. Nothing here talks to Taager.
 
-CI: `.github/workflows/test.yml` runs the same steps on GitHub. It has not run yet.
+CI: `.github/workflows/test.yml` builds both stores from the pinned versions and runs both test suites on every push. First green run: 28 Oct 2026.
 
 ## Portable preview
 
