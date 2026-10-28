@@ -130,3 +130,7 @@ Status values: draft · reviewed · changed · approved.
 Product names, one-line benefits, offer labels, diary notes and fit guidance live in
 plugin/yawmiyati-commerce/seed/<cc>.json for now and will come from the copy pipeline once product facts are verified.
 All are draft. Review them on each product page of the preview.
+
+Anthropic drafts of the same fields (claude-sonnet-5-5, 28 Oct 2026) are on the branches `copy-drafts/eg-40743731736`
+and `copy-drafts/iq-40742863270`, each with an automatic check report (all ok). They are conservative: they use only
+the product name and offer labels, because no other facts are verified yet. Re-run after specs are confirmed.

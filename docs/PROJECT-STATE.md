@@ -30,7 +30,7 @@ Repository: GitHub reports it as **public**; Rashid to switch it to private (lau
 | SEO: noindex outside production, canonicals, hreflang (home), Product JSON-LD, OG, sitemaps | — | yes | yes (rendered pages) | Search Console at launch |
 | Scheduled jobs, alerts, health endpoint, funnel, launch-check | — | yes | partly (sweep, health) | status sync unknown |
 | Copy: per-country files, voice guides, language lint | — | yes | lint only | native review not done |
-| Anthropic copy drafts (GitHub Actions) | — | yes | Iraq drafts produced and checked; Egypt re-running | not reviewed |
+| Anthropic copy drafts (GitHub Actions) | — | yes | drafts for all 10 product pages produced and auto-checked (branches copy-drafts/iq-40742863270, copy-drafts/eg-40743731736); the first two Egypt runs failed, cause not visible from here | not reviewed, not fact-approved |
 | Media | standards + per-SKU checklist | interim crops only | gate blocks them | originals requested |
 | Content studio, ads, Manychat | brief | no | — | — |
 
