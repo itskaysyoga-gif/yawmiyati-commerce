@@ -1,6 +1,6 @@
 # Measurement specification
 
-_Version 1, 28 Oct 2026. Implemented in `plugin/yawmiyati-commerce/includes/class-ym-tracking.php` and
+_Version 2, 28 Oct 2026 (late evening): withdrawal, purchase acknowledgement, late consent, page_location, verified delivery, five countries._ Version 1, 28 Oct 2026. Implemented in `plugin/yawmiyati-commerce/includes/class-ym-tracking.php` and
 `class-ym-ops.php`; tested locally by `tests/e2e/measurement.test.js`. Live checks (section 9) are not done._
 
 No ad spend until every live check in section 9 passes and the report is signed off.
@@ -35,9 +35,9 @@ chat. Meta Conversions API calls go to Graph API v26.0.
 | view_item | Product page load | dataLayer → GTM | view_item | ViewContent | VIEW_CONTENT | `ym_event_id` (UUID) |
 | add_to_cart | Next page after "add to cart" or "buy now" (`ym_intent` says which) | dataLayer → GTM | add_to_cart | AddToCart | ADD_CART | `ym_event_id` |
 | begin_checkout | Checkout page with items | dataLayer → GTM | begin_checkout | InitiateCheckout | START_CHECKOUT | `ym_event_id` |
-| purchase (browser) | Order-received page, once per order | dataLayer → GTM | purchase | Purchase (eventID = transaction ID) | PURCHASE (transaction_id) | transaction ID |
+| purchase (browser) | Order-received page, pushed until the browser acknowledges it with GTM loaded (`POST /ym/v1/dl-ack`, an HMAC token, never the order key); rendering alone is not evidence | dataLayer → GTM | purchase | Purchase (eventID = transaction ID) | PURCHASE (transaction_id) | transaction ID |
 | Purchase (server) | Order created, consent granted | plugin, queued | — | Purchase via CAPI | PURCHASE via CAPI | transaction ID |
-| OrderDelivered (server) | Order status becomes delivered | plugin, queued | — | custom event via CAPI | — | `<transaction ID>-delivered` |
+| OrderDelivered (server) | A **verified** delivery is recorded (YM_Lifecycle: mapped status after the sync is verified, or staff with evidence). A bare WooCommerce "completed" is never enough. event_time = when it was delivered | plugin, queued | — | custom event via CAPI | — | `<transaction ID>-delivered` |
 
 Parameters (GA4 ecommerce schema): `currency`, `value`, `items[]` with `item_id` (SKU), `item_name`, `price`, `quantity`.
 Purchase `value` is the products total **without** the delivery fee (the fee is passed separately as `shipping`).
@@ -48,7 +48,16 @@ Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first da
 - Choice stored in the first-party cookie `ym_consent` (180 days).
 - Google Consent Mode v2 defaults are all denied. On accept: consent update to granted, then GTM loads. On "essentials
   only": GTM never loads, ad click IDs are not stored, and no server event is sent for orders placed in that state.
-- The privacy page (content/<cc>/privacy.html) says this in plain words, including the hashed-phone server events.
+- **Withdrawal** (choosing "essentials only" after accepting): consent update to denied for loaded Google tags,
+  measurement cookies deleted (_ga, _gid, _gcl_*, _fbp, _fbc, _scid, …), the server is told (`POST /ym/v1/consent`)
+  and the page reloads so nothing that had loaded keeps running. The server marks every order of that browser
+  (first-party consent subject `ym_cs`) as `withdrawn` and cancels their queued server events; every server event
+  re-checks consent when it is sent.
+- **Late consent:** click IDs seen before any choice stay in that browser tab only (sessionStorage), are never sent,
+  and are kept if she accepts during that visit; declining or closing the tab discards them. Campaign tags (UTM) are
+  kept regardless, as before.
+- The privacy page (content/<cc>/privacy.html) says this in plain words, including the hashed-phone server events,
+  the tab-only click IDs and what withdrawal does.
 
 ## 5. Personal data
 | Data | dataLayer / GA4 | Meta / Snap server events | Stored on the order |
@@ -58,6 +67,7 @@ Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first da
 | IP, user agent | GA4 standard collection after consent | consent only | IP by WooCommerce; UA consent only |
 | fbp / fbc / Snap cookie | — | consent only | consent only |
 | UTM tags | campaign tags via GTM | — | yes (`_ym_attr`) |
+| Order key, page query strings | never: the key is removed from the address bar before any tag loads (the session keeps it for reloads); checkout and confirmation send only the origin as referrer; the dataLayer carries `ym_page_location` without query strings | never | — |
 | Ad click IDs (fbclid, ScCid, gclid, ttclid) | via GTM after consent | Snap click ID, consent only | consent only |
 
 ## 6. Attribution capture
@@ -72,25 +82,12 @@ dm, `utm_campaign` = `<product-slug>-<yyyymm>`, `utm_content` = creative ID.
 Queued with Action Scheduler (non-blocking for the customer). Each attempt is stored on the order
 (`_ym_capi_<platform>_<kind>`: status, response code, event ID, payload). Up to 3 attempts, 10 and 20 minutes apart; a
 third failure raises an alert. Local and staging stores without tokens store the payload as a dry run.
+A retry resends the stored payload: same event ID, same event_time (the order's time for Purchase, the delivery's own
+time for OrderDelivered). Consent is re-checked at send time; Meta events older than 7 days are skipped and logged.
 
-## 8. Submitted-to-delivered financial funnel
-| Stage | Definition | Source |
-| --- | --- | --- |
-| Submitted | Order created on our store | WooCommerce |
-| Confirmed | Customer confirmed on the call | Taager status sync (**pending verification**) |
-| Shipped | Handed to the courier | Taager status sync (**pending**) |
-| Delivered | Paid and received | Taager status sync (**pending**) → triggers OrderDelivered |
-| Refused / returned | Refused at the door or returned | Taager status sync (**pending**) |
-
-Per product and per country, weekly (`wp ym funnel --days=7`, emailed every Monday):
-- confirmation rate = confirmed / submitted; delivery rate = delivered / submitted
-- delivered revenue = products total of delivered orders (delivery fees excluded; the customer pays them to Taager)
-- contribution = Σ(line total − Taager cost × qty) over delivered orders − refusal fee × refused orders
-- with ad spend entered: cost per delivered order, contribution after ads (target > 0), delivered ROAS
-
-Until Taager's status sync is verified and mapped (`ym_stage_map`), the funnel shows submitted orders only and marks
-the rest pending. Ad optimisation starts on Purchase (submitted) and moves to OrderDelivered once delivered events
-arrive reliably.
+## 8. Submitted-to-delivered reporting
+Moved to docs/REPORTING.md (order lifecycle history, unique orders vs lines vs units, mature cohorts, money lines
+kept apart, unknown costs kept unknown). `wp ym report --days=7`.
 
 ## 9. Test report (must pass before advertising)
 Local automated checks (done, see docs/reports/measurement-local-2026-10-28.md):
@@ -110,13 +107,19 @@ Live checks on staging with the real IDs (open):
 | L7 | "Essentials only" really sends nothing | Network panel + order meta | no googletagmanager/facebook/snap requests, no CAPI record |
 | L8 | OrderDelivered arrives after a delivered status | Meta Test Events | event with `-delivered` ID |
 | L9 | Ad links keep UTM tags into the order | Test order from a tagged link | `_ym_attr` on the order |
+| L10 | Withdrawal stops measurement | Accept, browse, then "essentials only"; network panel | no further GA4/Meta/Snap requests after the reload; `_ym_consent` = withdrawn on her orders |
+| L11 | No order key or query string in GA4 page_location / page_referrer | GA4 DebugView on the confirmation page and the next page | no `key=` anywhere |
+| L12 | Each country's events carry its own currency and ID prefix | One test order per open country | EG-/IQ-/SA-/AE-/OM- with EGP/IQD/SAR/AED/OMR; OMR values with 3 decimals |
 
 Sign-off: when all pass, set option `ym_measurement_tested` to the date and attach the filled table to
 docs/reports/. `wp ym launch-check` reads it.
 
 ## 10. GTM container setup
 Variables: Data Layer Variables `ecommerce.transaction_id`, `ecommerce.value`, `ecommerce.currency`,
-`ecommerce.items`, `ym_event_id`, `ym_country`.
+`ecommerce.items`, `ym_event_id`, `ym_country`, `ym_page_location`.
+**Required:** the Google tag sets `page_location` = `{{ym_page_location}}` (no query strings, so no order key).
+Meta and Snap tags fire only when `ym_consent` is granted (they already only load after consent; this also covers the
+moment of withdrawal before the reload).
 Triggers: Custom Event `view_item`, `add_to_cart`, `begin_checkout`, `purchase`; All Pages (consent already given,
 because the container only loads after consent).
 Tags:

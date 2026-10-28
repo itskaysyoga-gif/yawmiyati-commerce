@@ -98,6 +98,8 @@ class YM_CLI {
 			update_option( 'ym_store_urls', array_map( 'esc_url_raw', $urls ) );
 		}
 		$pages = YM_Pages::install( $cc );
+		YM_Board::install_role();
+		update_option( 'woocommerce_logs_retention_period_days', 90 ); // operational logs kept 90 days, then deleted
 		update_option( 'blogname', 'يومياتي' );
 		update_option( 'blogdescription', YM_Country::copy( 'home_lede', $cc ) );
 		flush_rewrite_rules();
@@ -136,6 +138,10 @@ class YM_CLI {
 			$p->set_stock_status( 'instock' );
 			$p->set_catalog_visibility( empty( $row['primary'] ) && ! empty( $row['group'] ) ? 'hidden' : 'visible' );
 			$p->set_short_description( $row['benefit'] ?? '' );
+			if ( ! empty( $row['category'] ) ) {
+				$p->set_category_ids( array( YM_Catalog::category_id( $row['category'] ) ) );
+			}
+			$p->set_featured( ! empty( $row['featured'] ) );
 			$imgs = array();
 			foreach ( $row['images'] ?? array() as $img ) {
 				$imgs[] = self::import_image( $media_dir . $img['file'], $img['alt'], ! empty( $img['complete'] ) );
@@ -301,9 +307,9 @@ class YM_CLI {
 		$ps   = $args ? array_map( fn( $s ) => wc_get_product( wc_get_product_id_by_sku( $s ) ), $args ) : wc_get_products( array( 'limit' => -1, 'status' => array( 'publish', 'draft' ) ) );
 		foreach ( array_filter( $ps ) as $p ) {
 			$b      = YM_Catalog::blockers( $p );
-			$rows[] = array( 'sku' => $p->get_sku(), 'status' => $p->get_status(), 'ready' => $b ? 'no' : 'yes', 'blockers' => implode( '; ', array_keys( $b ) ) );
+			$rows[] = array( 'sku' => $p->get_sku(), 'status' => $p->get_status(), 'ready' => $b ? 'no' : 'yes', 'blockers' => implode( '; ', array_keys( $b ) ), 'advice' => implode( '; ', YM_Catalog::media_advice( $p ) ) );
 		}
-		WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', $rows, array( 'sku', 'status', 'ready', 'blockers' ) );
+		WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', $rows, array( 'sku', 'status', 'ready', 'blockers', 'advice' ) );
 	}
 
 	/**
@@ -604,5 +610,141 @@ class YM_CLI {
 			WP_CLI::error( $r->get_error_message() );
 		}
 		WP_CLI::log( wp_json_encode( $r, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Review link for an order with a verified delivery (send it to her yourself, e.g. on WhatsApp).
+	 *
+	 * <order>
+	 * : Order ID.
+	 *
+	 * @subcommand review-link
+	 */
+	public function review_link( $args ) {
+		$order = wc_get_order( (int) $args[0] );
+		$link  = $order ? YM_Reviews::link( $order ) : new WP_Error( 'x', 'No such order.' );
+		if ( is_wp_error( $link ) ) {
+			WP_CLI::error( $link->get_error_message() );
+		}
+		WP_CLI::log( $link );
+	}
+
+	/**
+	 * Moderate reviews: list pending ones, approve, or reject with a reason.
+	 *
+	 * [<action>]
+	 * : pending (default) | approve | reject
+	 *
+	 * [<id>]
+	 * : Review (comment) ID.
+	 *
+	 * [--reason=<reason>]
+	 * : Required to reject.
+	 */
+	public function reviews( $args, $assoc ) {
+		$action = $args[0] ?? 'pending';
+		if ( 'pending' === $action ) {
+			$rows = array();
+			foreach ( get_comments( array( 'status' => 'hold', 'type' => 'review', 'number' => 50, 'meta_key' => 'ym_verified', 'meta_value' => 1 ) ) as $c ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+				$rows[] = array( 'id' => $c->comment_ID, 'product' => get_the_title( $c->comment_post_ID ), 'rating' => get_comment_meta( $c->comment_ID, 'rating', true ), 'order' => get_comment_meta( $c->comment_ID, 'ym_order', true ), 'text' => mb_substr( $c->comment_content, 0, 80 ) );
+			}
+			$rows ? WP_CLI\Utils\format_items( 'table', $rows, array( 'id', 'product', 'rating', 'order', 'text' ) ) : WP_CLI::log( 'No reviews waiting.' );
+			return;
+		}
+		$r = YM_Reviews::moderate( (int) ( $args[1] ?? 0 ), $action, 'cli', (string) ( $assoc['reason'] ?? '' ) );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::success( 'Review ' . $args[1] . ' ' . $action . 'd.' );
+	}
+
+	/**
+	 * Retire a product for good (not for being out of stock): its page 301-redirects to the replacement or its
+	 * category, and it leaves the catalog and sitemap. Temporarily unavailable products should NOT be retired.
+	 *
+	 * <sku>
+	 * : Product SKU.
+	 *
+	 * [--to=<url>]
+	 * : Replacement product URL.
+	 *
+	 * --reason=<reason>
+	 * : Why (kept on the product).
+	 */
+	public function retire( $args, $assoc ) {
+		$p = wc_get_product( wc_get_product_id_by_sku( (string) $args[0] ) );
+		if ( ! $p || empty( $assoc['reason'] ) ) {
+			WP_CLI::error( 'Unknown SKU, or --reason missing.' );
+		}
+		$p->update_meta_data( '_ym_retired', wp_json_encode( array( 'at' => gmdate( 'c' ), 'reason' => $assoc['reason'] ), JSON_UNESCAPED_UNICODE ) );
+		if ( ! empty( $assoc['to'] ) ) {
+			$p->update_meta_data( '_ym_replaced_by', esc_url_raw( $assoc['to'] ) );
+		}
+		$p->set_catalog_visibility( 'hidden' );
+		$p->save();
+		WP_CLI::success( $p->get_sku() . ' retired.' );
+	}
+
+	/**
+	 * Record what a product picture is and where it came from (the media gate reads this).
+	 *
+	 * <attachment>
+	 * : Attachment ID.
+	 *
+	 * --role=<role>
+	 * : clean | detail | scale | demo | contents | lifestyle
+	 *
+	 * --sku=<sku>
+	 * : Exact supplier SKU shown.
+	 *
+	 * [--variant=<variant>]
+	 * : Colour, size or print shown.
+	 *
+	 * --source=<source>
+	 * : Who supplied it (e.g. "Taager media pack, email 3 Nov").
+	 *
+	 * --rights=<rights>
+	 * : Permission in writing (where).
+	 *
+	 * --original=<original>
+	 * : Where the untouched original is kept.
+	 *
+	 * [--exact]
+	 * : You compared it with the item sold and it is that exact item.
+	 *
+	 * [--complete]
+	 * : Shows the whole product.
+	 *
+	 * [--final]
+	 * : Final quality (not interim).
+	 */
+	public function media( $args, $assoc ) {
+		$id = (int) $args[0];
+		if ( 'attachment' !== get_post_type( $id ) ) {
+			WP_CLI::error( 'Not an attachment.' );
+		}
+		if ( ! in_array( $assoc['role'] ?? '', array( 'clean', 'detail', 'scale', 'demo', 'contents', 'lifestyle' ), true ) ) {
+			WP_CLI::error( '--role must be clean, detail, scale, demo, contents or lifestyle.' );
+		}
+		foreach ( array( 'sku', 'source', 'rights', 'original' ) as $k ) {
+			if ( empty( $assoc[ $k ] ) ) {
+				WP_CLI::error( "--$k is required." );
+			}
+		}
+		$old = json_decode( (string) get_post_meta( $id, '_ym_media', true ), true );
+		$m   = array_merge( is_array( $old ) ? $old : array(), array(
+			'role' => $assoc['role'], 'sku' => $assoc['sku'], 'variant' => $assoc['variant'] ?? '', 'source' => $assoc['source'], 'rights' => $assoc['rights'],
+			'original' => $assoc['original'], 'exact_item' => ! empty( $assoc['exact'] ), 'complete' => ! empty( $assoc['complete'] ), 'final' => ! empty( $assoc['final'] ),
+			'recorded' => gmdate( 'c' ),
+		) );
+		update_post_meta( $id, '_ym_media', wp_json_encode( $m, JSON_UNESCAPED_UNICODE ) );
+		WP_CLI::success( wp_json_encode( $m, JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Operations board as JSON (same data as WooCommerce > Yawmiyati ops).
+	 */
+	public function ops( $args, $assoc ) {
+		WP_CLI::log( wp_json_encode( YM_Board::data(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
 	}
 }

@@ -419,6 +419,7 @@ final class YM_Checkout {
 			'Shipping'         => YM_Country::copy( 'delivery_word' ),
 			'Shipping:'        => YM_Country::copy( 'delivery_word' ) . ':',
 			'Order details'    => YM_Country::copy( 'order_details' ),
+			'Total'            => YM_Country::copy( 'pay_total' ),
 		);
 		return $map[ $text ] ?? $translation;
 	}

@@ -32,7 +32,9 @@
           null
         ]
       ],
-      "images": []
+      "images": [],
+      "category": "kitchen",
+      "featured": false
     }
   ]
 }

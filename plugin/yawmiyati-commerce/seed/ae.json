@@ -32,7 +32,9 @@
           null
         ]
       ],
-      "images": []
+      "images": [],
+      "category": "storage",
+      "featured": false
     }
   ]
 }

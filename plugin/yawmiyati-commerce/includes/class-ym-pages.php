@@ -62,6 +62,13 @@ final class YM_Pages {
 				$ids[ $slug ] = wp_insert_post( $data );
 			}
 		}
+		// Review page (reached only from a signed link sent after a verified delivery; noindex).
+		$rv   = get_page_by_path( 'review' );
+		$data = array( 'post_title' => YM_Country::copy( 'review_form_title', $cc ), 'post_name' => 'review', 'post_content' => '<!-- wp:shortcode -->[ym_review_form]<!-- /wp:shortcode -->', 'post_status' => 'publish', 'post_type' => 'page' );
+		if ( $rv ) {
+			$data['ID'] = $rv->ID;
+		}
+		$ids['review'] = $rv ? wp_update_post( $data ) : wp_insert_post( $data );
 		if ( ! empty( $ids['privacy'] ) ) {
 			update_option( 'wp_page_for_privacy_policy', $ids['privacy'] );
 		}

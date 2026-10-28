@@ -172,7 +172,8 @@ final class YM_Offers {
 		} elseif ( WC()->session->get( self::STASH ) ) {
 			self::restore_stash();
 		}
-		$added = WC()->cart->add_to_cart( $offer->get_id(), 1 );
+		$qty   = min( self::max_qty(), max( 1, absint( $_POST['ym_qty'] ?? 1 ) ) );
+		$added = WC()->cart->add_to_cart( $offer->get_id(), $qty );
 		if ( ! $added ) {
 			wp_safe_redirect( $back );
 			exit;
@@ -183,7 +184,7 @@ final class YM_Offers {
 				'event'       => 'add_to_cart',
 				'ym_event_id' => wp_generate_uuid4(),
 				'ym_intent'   => $intent,
-				'ecommerce'   => array( 'currency' => get_woocommerce_currency(), 'value' => (float) $offer->get_price(), 'items' => array( YM_Tracking::item( $offer, 1 ) ) ),
+				'ecommerce'   => array( 'currency' => get_woocommerce_currency(), 'value' => YM_Country::round_money( (float) $offer->get_price() * $qty ), 'items' => array( YM_Tracking::item( $offer, $qty ) ) ),
 			)
 		);
 		if ( 'buy' === $intent ) {
@@ -246,21 +247,27 @@ final class YM_Offers {
 		sort( $fees );
 		$fee_txt = count( $fees ) > 1 ? sprintf( YM_Country::copy( 'fee_range' ), YM_Country::number( min( $fees ) ), YM_Country::money( max( $fees ) ) ) : sprintf( YM_Country::copy( 'fee_flat' ), YM_Country::money( $fees[0] ) );
 		?>
-		<article class="ym-pdp" data-ym-pdp>
+		<article class="ym-pdp" data-ym-pdp data-ym-money="<?php echo esc_attr( wp_json_encode( array( 'd' => YM_Country::decimals(), 'sym' => $rules['symbol'], 'min' => min( $fees ), 'max' => max( $fees ), 'one' => YM_Country::copy( 'total_line' ), 'range' => YM_Country::copy( 'total_range' ) ), JSON_UNESCAPED_UNICODE ) ); ?>">
 			<?php wc_print_notices(); ?>
+			<?php echo YM_SEO::breadcrumb_html(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<section class="ym-gallery" aria-label="<?php echo esc_attr( $page->get_name() ); ?>">
 				<?php if ( $images ) : ?>
-					<img class="ym-gallery__main" data-ym-main src="<?php echo esc_url( wp_get_attachment_image_url( $images[0], 'large' ) ); ?>" alt="<?php echo esc_attr( get_post_meta( $images[0], '_wp_attachment_image_alt', true ) ); ?>" width="800" height="800">
+					<?php
+					// The main image is the page's largest element: loaded first, at the size the screen needs. Everything
+					// below it (thumbnails, video poster) waits until it is near the screen.
+					echo wp_get_attachment_image( $images[0], 'large', false, array( 'class' => 'ym-gallery__main', 'data-ym-main' => '1', 'loading' => 'eager', 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 960px) 520px, 100vw', 'alt' => get_post_meta( $images[0], '_wp_attachment_image_alt', true ) ? get_post_meta( $images[0], '_wp_attachment_image_alt', true ) : $page->get_name() ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+					?>
 					<?php if ( count( $images ) > 1 ) : ?>
 						<div class="ym-gallery__thumbs">
 							<?php foreach ( $images as $i => $img ) : ?>
-								<button type="button" class="ym-thumb" data-ym-thumb="<?php echo esc_url( wp_get_attachment_image_url( $img, 'large' ) ); ?>" aria-pressed="<?php echo 0 === $i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( ( $i + 1 ) . ' / ' . count( $images ) ); ?>">
-									<?php echo wp_get_attachment_image( $img, 'thumbnail', false, array( 'alt' => '' ) ); ?>
+								<button type="button" class="ym-thumb" data-ym-thumb="<?php echo esc_url( wp_get_attachment_image_url( $img, 'large' ) ); ?>" data-ym-srcset="<?php echo esc_attr( (string) wp_get_attachment_image_srcset( $img, 'large' ) ); ?>" aria-pressed="<?php echo 0 === $i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( ( $i + 1 ) . ' / ' . count( $images ) ); ?>">
+									<?php echo wp_get_attachment_image( $img, 'thumbnail', false, array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
 								</button>
 							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
 				<?php endif; ?>
+				<?php echo self::render_video( $page ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			</section>
 
 			<section class="ym-buy">
@@ -279,7 +286,7 @@ final class YM_Offers {
 							<?php foreach ( $offers as $o ) : ?>
 								<?php $thumb = $o->get_image_id() ? $o->get_image_id() : $page->get_image_id(); ?>
 								<label class="ym-offer">
-									<input type="radio" name="ym_offer" value="<?php echo esc_attr( $o->get_id() ); ?>" data-ym-price-text="<?php echo esc_attr( YM_Country::money( $o->get_price() ) ); ?>" <?php checked( $o->get_id(), $default->get_id() ); ?> <?php disabled( ! $o->is_in_stock() ); ?>>
+									<input type="radio" name="ym_offer" value="<?php echo esc_attr( $o->get_id() ); ?>" data-ym-price-num="<?php echo esc_attr( (float) $o->get_price() ); ?>" data-ym-price-text="<?php echo esc_attr( YM_Country::money( $o->get_price() ) ); ?>" <?php checked( $o->get_id(), $default->get_id() ); ?> <?php disabled( ! $o->is_in_stock() ); ?>>
 									<?php echo wp_get_attachment_image( $thumb, 'thumbnail', false, array( 'class' => 'ym-offer__img', 'alt' => '' ) ); ?>
 									<span class="ym-offer__text">
 										<span class="ym-offer__label"><?php echo esc_html( $o->get_meta( '_ym_offer_label' ) ? $o->get_meta( '_ym_offer_label' ) : $o->get_name() ); ?></span>
@@ -292,7 +299,18 @@ final class YM_Offers {
 							<?php endforeach; ?>
 						</fieldset>
 					<?php else : ?>
-						<input type="hidden" name="ym_offer" value="<?php echo esc_attr( $page->get_id() ); ?>">
+						<input type="hidden" name="ym_offer" value="<?php echo esc_attr( $page->get_id() ); ?>" data-ym-price-num="<?php echo esc_attr( (float) $page->get_price() ); ?>">
+					<?php endif; ?>
+					<?php if ( YM_Markets::accepts_orders() && $page->is_in_stock() ) : ?>
+						<div class="ym-qty">
+							<label for="ym-qty"><?php echo esc_html( YM_Country::copy( 'qty_label' ) ); ?></label>
+							<div class="ym-qty__ctl">
+								<button type="button" data-ym-qty="-1" aria-label="<?php echo esc_attr( YM_Country::copy( 'qty_less' ) ); ?>">−</button>
+								<input id="ym-qty" name="ym_qty" type="number" inputmode="numeric" min="1" max="<?php echo esc_attr( self::max_qty() ); ?>" value="1" data-ym-qty-input>
+								<button type="button" data-ym-qty="1" aria-label="<?php echo esc_attr( YM_Country::copy( 'qty_more' ) ); ?>">+</button>
+							</div>
+						</div>
+						<p class="ym-total" data-ym-total aria-live="polite"><?php echo esc_html( self::total_text( (float) $default->get_price(), 1 ) ); ?></p>
 					<?php endif; ?>
 					<?php if ( ! YM_Markets::accepts_orders() ) : ?>
 						<p class="ym-out" data-ym-closed><?php echo esc_html( YM_Country::copy( 'market_closed' ) ); ?></p>
@@ -343,6 +361,8 @@ final class YM_Offers {
 				</section>
 			<?php endif; ?>
 
+			<?php echo class_exists( 'YM_Reviews' ) ? YM_Reviews::render( $page ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput ?>
+
 			<section class="ym-section ym-delivery">
 				<h2><?php echo esc_html( YM_Country::copy( 'delivery_title' ) ); ?></h2>
 				<?php self::render_fee_table(); ?>
@@ -358,6 +378,30 @@ final class YM_Offers {
 			<?php endif; ?>
 		</article>
 		<?php
+	}
+
+	/** "Total with delivery" for a quantity: exact where the fee is flat, a range where it depends on the governorate. */
+	public static function total_text( $price, $qty ) {
+		$fees = array_unique( array_map( fn( $g ) => (float) $g[1], YM_Country::rules()['governorates'] ) );
+		$sub  = (float) $price * max( 1, (int) $qty );
+		if ( count( $fees ) > 1 ) {
+			return sprintf( YM_Country::copy( 'total_range' ), YM_Country::number( $sub + min( $fees ) ), YM_Country::money( $sub + max( $fees ) ) );
+		}
+		return sprintf( YM_Country::copy( 'total_line' ), YM_Country::money( $sub + reset( $fees ) ) );
+	}
+
+	/**
+	 * Product video: the poster image only; the video file is fetched when she presses play. Meta _ym_video JSON:
+	 * {src, poster (attachment ID), demo_verified (a real, unedited demonstration of this exact item), generated}.
+	 * A generated video is never shown as a demonstration of what the product does.
+	 */
+	public static function render_video( WC_Product $page ) {
+		$v = json_decode( (string) $page->get_meta( '_ym_video' ), true );
+		if ( ! is_array( $v ) || empty( $v['src'] ) || empty( $v['poster'] ) ) {
+			return '';
+		}
+		$poster = wp_get_attachment_image( (int) $v['poster'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '', 'class' => 'ym-video__poster' ) );
+		return '<div class="ym-video" data-ym-video data-src="' . esc_url( $v['src'] ) . '"><button type="button" class="ym-video__play" aria-label="' . esc_attr( YM_Country::copy( 'video_play' ) ) . '">' . $poster . '<span class="ym-video__icon" aria-hidden="true"></span></button></div>';
 	}
 
 	public static function render_fee_table() {

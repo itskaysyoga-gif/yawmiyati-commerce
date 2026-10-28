@@ -16,8 +16,11 @@ async function flow(engine, device, cc, slug, offer, total) {
     // First visit: the consent banner is shown and can be answered with a tap.
     await page.locator('[data-ym-consent-no]').tap();
     assert.equal(await page.locator('[data-ym-consent]').isVisible(), false);
-    // The sticky order bar is visible on phones and follows the chosen offer.
+    // The sticky order bar appears on phones once the main order button is scrolled off screen, and follows the
+    // chosen offer.
     if (offer) await page.locator('.ym-offer').nth(offer).tap();
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.locator('[data-ym-sticky]').waitFor({ state: 'visible' });
     const sticky = await page.locator('.ym-sticky__price').innerText();
     assert.equal(sticky, await page.locator('.ym-offer input:checked ~ .ym-offer__price').innerText());
     await Promise.all([page.waitForURL(/\/checkout\//), page.locator('[data-ym-sticky-buy]').tap()]);

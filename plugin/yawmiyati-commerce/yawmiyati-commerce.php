@@ -27,6 +27,8 @@ require_once YM_DIR . '/includes/class-ym-catalog.php';
 require_once YM_DIR . '/includes/class-ym-ops.php';
 require_once YM_DIR . '/includes/class-ym-pages.php';
 require_once YM_DIR . '/includes/class-ym-social.php';
+require_once YM_DIR . '/includes/class-ym-reviews.php';
+require_once YM_DIR . '/includes/class-ym-board.php';
 require_once YM_DIR . '/includes/class-ym-tracking.php';
 require_once YM_DIR . '/includes/class-ym-seo.php';
 require_once YM_DIR . '/includes/class-ym-offers.php';
@@ -58,6 +60,8 @@ add_action( 'plugins_loaded', function () {
 	YM_Pages::init();
 	YM_Tracking::init();
 	YM_SEO::init();
+	YM_Reviews::init();
+	YM_Board::init();
 	add_action( 'woocommerce_shipping_init', function () {
 		require_once YM_DIR . '/includes/class-ym-shipping.php';
 	} );

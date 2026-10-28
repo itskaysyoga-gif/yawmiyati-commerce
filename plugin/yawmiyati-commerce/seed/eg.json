@@ -60,7 +60,9 @@
           "alt": "القطعة الصغيرة عن قرب",
           "complete": false
         }
-      ]
+      ],
+      "category": "bathroom",
+      "featured": true
     },
     {
       "sku": "EG030108BUND99",
@@ -80,7 +82,9 @@
           "alt": "القطعتين جنب بعض",
           "complete": false
         }
-      ]
+      ],
+      "category": "bathroom",
+      "featured": false
     },
     {
       "sku": "EG030106STPG99",
@@ -110,7 +114,9 @@
           "alt": "ستاند ملابس بماسورتين ورف تحت",
           "complete": true
         }
-      ]
+      ],
+      "category": "laundry",
+      "featured": true
     },
     {
       "sku": "EG030301HAEE99",
@@ -140,7 +146,9 @@
           "alt": "دفاية بشكل مدفأة وريموت",
           "complete": true
         }
-      ]
+      ],
+      "category": "comfort",
+      "featured": true
     },
     {
       "sku": "EG030401GB99",
@@ -171,7 +179,9 @@
           "alt": "بطانية رمادي بكابيشون",
           "complete": false
         }
-      ]
+      ],
+      "category": "comfort",
+      "featured": true
     }
   ]
 }

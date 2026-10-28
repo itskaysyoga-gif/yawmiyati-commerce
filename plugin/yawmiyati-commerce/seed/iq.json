@@ -45,7 +45,9 @@
           "alt": "الطابق التحتاني وحامل الأدوات",
           "complete": false
         }
-      ]
+      ],
+      "category": "kitchen",
+      "featured": true
     },
     {
       "sku": "IQ030501SDMN99",
@@ -65,7 +67,9 @@
           "alt": "طقم موكيت قطعتين",
           "complete": false
         }
-      ]
+      ],
+      "category": "kitchen",
+      "featured": false
     },
     {
       "sku": "IQ030106MATT99",
@@ -95,7 +99,9 @@
           "alt": "طقم موكيت رمادي",
           "complete": false
         }
-      ]
+      ],
+      "category": "bathroom",
+      "featured": true
     },
     {
       "sku": "IQ030301SOBA99",
@@ -121,7 +127,9 @@
           "alt": "صوبة دائرية بيضاء",
           "complete": true
         }
-      ]
+      ],
+      "category": "comfort",
+      "featured": true
     },
     {
       "sku": "IQ030106MONZ99",
@@ -151,7 +159,9 @@
           "alt": "منظم ملابس بالزاوية",
           "complete": false
         }
-      ]
+      ],
+      "category": "storage",
+      "featured": true
     },
     {
       "sku": "IQ030107MASA99",
@@ -173,7 +183,9 @@
           "alt": "مساحة زجاج مغناطيسية",
           "complete": true
         }
-      ]
+      ],
+      "category": "cleaning",
+      "featured": false
     },
     {
       "sku": "IQ030104STAN99",
@@ -199,7 +211,9 @@
           "alt": "ستاند ملابس زوجي",
           "complete": false
         }
-      ]
+      ],
+      "category": "laundry",
+      "featured": true
     }
   ]
 }

@@ -573,9 +573,16 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		}
 		$body  = is_array( $done ) && ! empty( $done['payload'] ) ? $done['payload'] : self::payload( $order, $platform, $kind ); // a retry resends the same event: same ID, same time
 		$token = 'meta' === $platform ? ( defined( 'YM_META_CAPI_TOKEN' ) ? YM_META_CAPI_TOKEN : '' ) : ( defined( 'YM_SNAP_CAPI_TOKEN' ) ? YM_SNAP_CAPI_TOKEN : '' );
+		// Local test hook: option ym_test_capi_http = HTTP status the ad platform "answers" (no network locally).
+		$fake = YM_Env::test_hooks() ? (int) get_option( 'ym_test_capi_http', 0 ) : 0;
+		if ( $fake ) {
+			$token  = 'test';
+			$filter = fn() => array( 'response' => array( 'code' => $fake, 'message' => '' ), 'body' => '{"error":"test"}', 'headers' => array(), 'cookies' => array() );
+			add_filter( 'pre_http_request', $filter );
+		}
 		$pixel = (string) get_option( 'meta' === $platform ? 'ym_meta_pixel_id' : 'ym_snap_pixel_id' );
 		$rec   = array( 'at' => time(), 'event_id' => $body['data'][0]['event_id'], 'payload' => $body );
-		if ( ! $token || ( defined( 'WP_HTTP_BLOCK_EXTERNAL' ) && WP_HTTP_BLOCK_EXTERNAL ) ) {
+		if ( ! $token || ( ! $fake && defined( 'WP_HTTP_BLOCK_EXTERNAL' ) && WP_HTTP_BLOCK_EXTERNAL ) ) {
 			$rec['status'] = 'dry_run';
 		} else {
 			$url  = sprintf( 'meta' === $platform ? self::META_API : self::SNAP_API, rawurlencode( $pixel ) ) . '?access_token=' . rawurlencode( $token );

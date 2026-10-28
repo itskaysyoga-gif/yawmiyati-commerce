@@ -12,7 +12,16 @@
  * Stock: _ym_stock_checked_at (unix time), set by `wp ym check <sku> --stock`; expires after ym_stock_max_age_hours.
  *
  * Spec rows in _ym_specs: [label, value|null, "optional"?]. A row without "optional" is critical.
- * Media meta on each attachment, _ym_media JSON: {source, rights, captured, final: bool, ad_crop: bool, complete: bool}.
+ * Media meta on each attachment, _ym_media JSON (docs/MEDIA-STANDARDS.md):
+ *   role        clean | detail | scale | demo | contents | lifestyle
+ *   sku, variant  the exact supplier SKU and variant the picture shows
+ *   exact_item  a person compared it with the item being sold
+ *   source, rights, captured, original (where the untouched original file is kept)
+ *   final       not interim; complete (main image shows the whole product)
+ *   ad_crop, screenshot, enhanced (changes appearance, parts or size): never allowed
+ * Gate = COVERAGE, not a count: at least 3 accepted images that together show the clean whole product (first),
+ * a detail, and scale or dimensions. A demonstration (photo or a real, unedited video) is recommended and reported,
+ * not required. A generated video never counts as a demonstration.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,12 +31,25 @@ final class YM_Catalog {
 	const CHECKS        = array( 'identity', 'specs', 'media', 'price' );
 	const MIN_IMAGE_PX  = 1000;
 	const MIN_IMAGES    = 3;
+	const NEED_ROLES    = array( 'clean', 'detail', 'scale' );
 
 	public static function init() {
 		add_filter( 'woocommerce_is_purchasable', array( __CLASS__, 'purchasable' ), 20, 2 );
 		add_filter( 'woocommerce_product_is_in_stock', array( __CLASS__, 'in_stock' ), 20, 2 );
 		add_action( 'woocommerce_before_product_object_save', array( __CLASS__, 'before_save' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'admin_notice' ) );
+	}
+
+	/** Shop categories: Latin slugs, names in this store's voice (config/categories.json). Created on first use. */
+	public static function category_id( $slug ) {
+		$term = get_term_by( 'slug', $slug, 'product_cat' );
+		if ( $term ) {
+			return (int) $term->term_id;
+		}
+		$names = (array) json_decode( (string) file_get_contents( YM_DIR . '/config/categories.json' ), true );
+		$voice = YM_Country::rules()['voice'];
+		$made  = wp_insert_term( $names[ $voice ][ $slug ] ?? $slug, 'product_cat', array( 'slug' => $slug ) );
+		return is_wp_error( $made ) ? 0 : (int) $made['term_id'];
 	}
 
 	public static function stock_max_age() {
@@ -79,18 +101,17 @@ final class YM_Catalog {
 		return is_array( $v ) ? $v : array();
 	}
 
-	/** Gallery problems: too few images, low resolution, advertising crops, unknown source or rights, partial product. */
+	/** Gallery problems, keyed by code. Coverage of the required views, then each picture's provenance and quality. */
 	public static function media_problems( WC_Product $p ) {
-		$ids = array_filter( array_merge( array( $p->get_image_id() ), $p->get_gallery_image_ids() ) );
+		$ids = array_values( array_filter( array_merge( array( $p->get_image_id() ), $p->get_gallery_image_ids() ) ) );
+		$sku = $p->get_sku();
 		if ( ! $ids && $p->get_meta( '_ym_group' ) ) {
 			$primary = YM_Offers::primary( $p );
-			$ids     = array_filter( array_merge( array( $primary->get_image_id() ), $primary->get_gallery_image_ids() ) );
+			$ids     = array_values( array_filter( array_merge( array( $primary->get_image_id() ), $primary->get_gallery_image_ids() ) ) );
 		}
-		$out = array();
-		if ( count( $ids ) < self::MIN_IMAGES ) {
-			$out['media_count'] = sprintf( '%d of %d images', count( $ids ), self::MIN_IMAGES );
-		}
-		foreach ( $ids as $id ) {
+		$out   = array();
+		$roles = array();
+		foreach ( $ids as $i => $id ) {
 			$meta = wp_get_attachment_metadata( $id );
 			$m    = json_decode( (string) get_post_meta( $id, '_ym_media', true ), true );
 			$m    = is_array( $m ) ? $m : array();
@@ -100,18 +121,57 @@ final class YM_Catalog {
 			if ( empty( $m['source'] ) || empty( $m['rights'] ) ) {
 				$out['media_source'] = 'image without recorded source or rights';
 			}
-			if ( ! empty( $m['ad_crop'] ) ) {
-				$out['media_ad_crop'] = 'advertising crop used as product image';
+			if ( empty( $m['original'] ) ) {
+				$out['media_original'] = 'original file not recorded';
+			}
+			if ( ! empty( $m['ad_crop'] ) || ! empty( $m['screenshot'] ) || ! empty( $m['enhanced'] ) ) {
+				$out['media_rejected'] = 'screenshot, advertising crop or appearance-changing edit';
 			}
 			if ( empty( $m['final'] ) ) {
 				$out['media_interim'] = 'interim image';
 			}
-		}
-		if ( $ids ) {
-			$main = json_decode( (string) get_post_meta( $ids[0], '_ym_media', true ), true );
-			if ( empty( $main['complete'] ) ) {
-				$out['media_partial'] = 'main image does not show the complete product';
+			// The exact item: checked by a person, and recorded against this SKU (offers of one page share a gallery).
+			$group_skus = array_map( fn( $o ) => $o->get_sku(), YM_Offers::group( $p ) );
+			if ( empty( $m['exact_item'] ) || ( ! empty( $m['sku'] ) && ! in_array( $m['sku'], array_merge( array( $sku ), $group_skus ), true ) ) ) {
+				$out['media_unmatched'] = 'not confirmed to show the exact item and variant sold';
 			}
+			$ok = empty( $out['media_rejected'] ) && ! empty( $m['final'] );
+			if ( $ok && ! empty( $m['role'] ) ) {
+				$roles[ $m['role'] ] = true;
+			}
+			if ( 0 === $i && ( empty( $m['complete'] ) || 'clean' !== ( $m['role'] ?? 'clean' ) ) ) {
+				$out['media_partial'] = 'main image must show the complete product cleanly';
+			}
+		}
+		if ( count( $ids ) < self::MIN_IMAGES ) {
+			$out['media_count'] = sprintf( '%d of at least %d images', count( $ids ), self::MIN_IMAGES );
+		}
+		$missing = array_diff( self::NEED_ROLES, array_keys( $roles ) );
+		if ( $missing ) {
+			$out['media_coverage'] = 'missing views: ' . implode( ', ', $missing );
+		}
+		$video = json_decode( (string) $p->get_meta( '_ym_video' ), true );
+		if ( is_array( $video ) && ! empty( $video['generated'] ) && ! empty( $video['demo_verified'] ) ) {
+			$out['video_generated_demo'] = 'a generated video cannot be a demonstration';
+		}
+		if ( is_array( $video ) && ! empty( $video['src'] ) && empty( $video['poster'] ) ) {
+			$out['video_poster'] = 'video without a poster image';
+		}
+		return $out;
+	}
+
+	/** Advice that does not block publication (shown by wp ym gate). */
+	public static function media_advice( WC_Product $p ) {
+		$ids   = array_filter( array_merge( array( $p->get_image_id() ), $p->get_gallery_image_ids() ) );
+		$roles = array_map( fn( $id ) => ( json_decode( (string) get_post_meta( $id, '_ym_media', true ), true ) ?: array() )['role'] ?? '', $ids );
+		$video = json_decode( (string) $p->get_meta( '_ym_video' ), true );
+		$demo  = in_array( 'demo', $roles, true ) || ( is_array( $video ) && ! empty( $video['demo_verified'] ) && empty( $video['generated'] ) );
+		$out   = array();
+		if ( ! $demo ) {
+			$out[] = 'no genuine demonstration (photo or real video): recommended for ads and the product page';
+		}
+		if ( mb_strlen( (string) $p->get_meta( '_ym_diary' ) ) > 220 ) {
+			$out[] = 'diary note longer than 220 characters: keep it short';
 		}
 		return $out;
 	}

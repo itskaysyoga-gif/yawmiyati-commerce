@@ -151,3 +151,72 @@ foreach ( $made as $id ) {
 foreach ( $temp as $id ) {
 	wp_delete_post( $id, true );
 }
+
+// Media gate: coverage of views, not a picture count. Uses generated 1200 px images (local test only).
+$mk_img = function ( $meta ) {
+	$im   = imagecreatetruecolor( 1200, 1500 );
+	$file = wp_upload_dir()['path'] . '/ym-gate-' . wp_generate_password( 6, false ) . '.png';
+	imagepng( $im, $file );
+	$id = wp_insert_attachment( array( 'post_mime_type' => 'image/png', 'post_title' => 'gate test', 'post_status' => 'inherit' ), $file );
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+	wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $file ) );
+	update_post_meta( $id, '_ym_media', wp_json_encode( $meta ) );
+	return $id;
+};
+$good = array( 'source' => 'test', 'rights' => 'test', 'original' => 'test', 'final' => true, 'exact_item' => true, 'sku' => 'YM-GATE-TEST' );
+$gp   = new WC_Product_Simple();
+$gp->set_name( 'gate media test' );
+$gp->set_sku( 'YM-GATE-TEST' );
+$gp->set_regular_price( '10' );
+$gp->save();
+$img = array( $mk_img( $good + array( 'role' => 'clean', 'complete' => true ) ), $mk_img( $good + array( 'role' => 'detail' ) ), $mk_img( $good + array( 'role' => 'lifestyle' ) ) );
+$gp->set_image_id( $img[0] );
+$gp->set_gallery_image_ids( array( $img[1], $img[2] ) );
+$gp->save();
+$mp = YM_Catalog::media_problems( $gp );
+ym_check( 'media gate: three images without a scale view fail on coverage', isset( $mp['media_coverage'] ) && false !== strpos( $mp['media_coverage'], 'scale' ) && ! isset( $mp['media_count'] ) );
+update_post_meta( $img[2], '_ym_media', wp_json_encode( $good + array( 'role' => 'scale' ) ) );
+ym_check( 'media gate: clean + detail + scale, final and matched, passes', array() === YM_Catalog::media_problems( wc_get_product( $gp->get_id() ) ) );
+ym_check( 'media advice: no demonstration is advised, not blocked', (bool) YM_Catalog::media_advice( wc_get_product( $gp->get_id() ) ) );
+update_post_meta( $img[1], '_ym_media', wp_json_encode( array_merge( $good, array( 'role' => 'detail', 'sku' => 'OTHER-SKU' ) ) ) );
+ym_check( 'media gate: a picture of another SKU is refused', isset( YM_Catalog::media_problems( wc_get_product( $gp->get_id() ) )['media_unmatched'] ) );
+update_post_meta( $img[1], '_ym_media', wp_json_encode( $good + array( 'role' => 'detail', 'screenshot' => true ) ) );
+ym_check( 'media gate: a screenshot is refused and does not count for coverage', isset( YM_Catalog::media_problems( wc_get_product( $gp->get_id() ) )['media_rejected'], YM_Catalog::media_problems( wc_get_product( $gp->get_id() ) )['media_coverage'] ) );
+update_post_meta( $img[1], '_ym_media', wp_json_encode( $good + array( 'role' => 'detail' ) ) );
+$gp = wc_get_product( $gp->get_id() );
+$gp->update_meta_data( '_ym_video', wp_json_encode( array( 'src' => 'x.mp4', 'poster' => $img[0], 'generated' => true, 'demo_verified' => true ) ) );
+$gp->save();
+ym_check( 'media gate: a generated video cannot be a demonstration', isset( YM_Catalog::media_problems( wc_get_product( $gp->get_id() ) )['video_generated_demo'] ) );
+foreach ( $img as $i ) {
+	wp_delete_attachment( $i, true );
+}
+$gp->delete( true );
+
+// Out-of-order and partial-return status handling.
+$oo = wc_create_order();
+$oo->add_product( wc_get_product( $prods[0]->get_id() ), 2 );
+$oo->calculate_totals( false );
+$oo->save();
+YM_Orders::snapshot( $oo );
+$oo->save();
+YM_Lifecycle::record( $oo, 'refused', array( 'src' => 'staff', 'verified' => true, 'reason' => 'not_reachable', 'evidence' => 't' ) );
+$fired = 0;
+$cnt   = function () use ( &$fired ) { $fired++; };
+add_action( 'ym_order_delivered', $cnt );
+$late  = YM_Lifecycle::record( wc_get_order( $oo->get_id() ), 'delivered', array( 'src' => 'staff', 'verified' => true, 'evidence' => 't', 'at' => time() - 3600 ) );
+ym_check( 'out of order: delivered after a refusal is kept but flagged, and sends no delivered event', 'refused_earlier' === ( $late['conflict'] ?? '' ) && 0 === $fired );
+remove_action( 'ym_order_delivered', $cnt );
+$oo->delete( true );
+$pr = wc_create_order();
+$pr->add_product( wc_get_product( $prods[0]->get_id() ), 2 );
+$pr->calculate_totals( false );
+$pr->save();
+YM_Orders::snapshot( $pr );
+$pr->save();
+YM_Lifecycle::record( $pr, 'delivered', array( 'src' => 'staff', 'verified' => true, 'evidence' => 't' ) );
+YM_Lifecycle::record( wc_get_order( $pr->get_id() ), 'returned', array( 'src' => 'staff', 'verified' => true, 'reason' => 'damaged', 'units' => 1, 'evidence' => 't' ) );
+ym_check( 'partial return: 1 of 2 units back = delivered with partial refund, not a full return', 'delivered_partial_refund' === YM_Lifecycle::outcome( wc_get_order( $pr->get_id() ) ) );
+YM_Lifecycle::record( wc_get_order( $pr->get_id() ), 'returned', array( 'src' => 'staff', 'verified' => true, 'reason' => 'damaged', 'units' => 1, 'evidence' => 't', 'at' => time() + 5 ) );
+ym_check( 'partial returns adding up to every unit = returned_full', 'returned_full' === YM_Lifecycle::outcome( wc_get_order( $pr->get_id() ) ) );
+ym_check( 'operational return reason does not create a risk record', null === YM_Risk::record( wc_get_order( $pr->get_id() )->get_billing_phone() ) );
+$pr->delete( true );
