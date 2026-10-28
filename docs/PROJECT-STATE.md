@@ -13,6 +13,7 @@ Repository: still **public** (launch checklist #1).
 
 Correction to the previous handoff: it said CI was green on commit 9922223. It was not: run 40748106500 failed on a
 real duplicate-order race (two simultaneous requests both created an order). Fixed in 0700841; CI green since.
+Latest code commit e4ebf87: CI run 40770712452 green. Store preview artifact republished from it.
 
 ## Where things stand
 | Area | Implemented | Tested | Supplier-verified |

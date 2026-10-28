@@ -1,15 +1,16 @@
 # Completion package: ChatGPT consolidated brief, 28 Oct 2026
 
-Applied in commits 0700841 … (this branch's head). Status words as in PROJECT-STATE.md. **Nothing is
+Applied in commits 0700841, a65e2e8, e111fea, 2a6ba49, e4ebf87. Status words as in PROJECT-STATE.md. **Nothing is
 supplier-verified.** Local tests do not verify Taager's behaviour, and one test order will not verify returns,
 payouts or long-term stock.
 
 ## 1. CI on the final commit
-Recorded in PROJECT-STATE.md and the handoff note with the run number once it is green. Runs during this session:
-40759391207 (a65e2e8) green, 40763997719 (e111fea) green, 40768139667 (2a6ba49) pending at writing.
+**Green on e4ebf87: run 40770712452** (24 min, all five stores, e2e incl. WebKit, integration). Earlier runs this
+session: 40759391207 (a65e2e8), 40763997719 (e111fea), 40768139667 (2a6ba49), all green. This docs-only commit
+records the result.
 
 ## 2. Preview
-Claude artifact "Yawmiyati Store Preview", republished from this commit (home, catalog, search, product, checkout,
+Claude artifact "Yawmiyati Store Preview", republished from e4ebf87 (Egypt, Iraq, Oman) (home, catalog, search, product, checkout,
 policy pages). Static: ordering, search and switching are disabled in it.
 
 ## 3. Five-country readiness
