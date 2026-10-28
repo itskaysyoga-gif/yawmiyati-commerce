@@ -98,23 +98,15 @@ final class YM_Risk {
 
 	/* ---------- refusals at submission ---------- */
 
-	private static function ip() {
-		$ip = isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ? wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) : ( $_SERVER['REMOTE_ADDR'] ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$t  = YM_Env::test_header( 'ip' ); // local test hook: pretend to come from another connection
-		return (string) ( $t ? $t : $ip );
+	/** The visitor's address: forwarding headers count only from a configured trusted proxy (YM_Net). */
+	public static function ip() {
+		$t = YM_Env::test_header( 'ip' ); // local test hook: pretend to come from another connection
+		return (string) ( $t ? $t : YM_Net::client_ip() );
 	}
 
-	/** Count an attempt in a sliding window and return the count. Stored by hash, never the raw IP. */
+	/** Count an attempt in a 10-minute window; atomic across simultaneous requests (YM_DB). Stored hashed. */
 	private static function hit( $kind, $id, $window = 600 ) {
-		if ( '' === (string) $id ) {
-			return 0;
-		}
-		$key  = 'ym_rl_' . $kind . '_' . substr( hash( 'sha256', $id . wp_salt( 'auth' ) ), 0, 24 );
-		$now  = time();
-		$hits = array_values( array_filter( (array) get_transient( $key ), fn( $t ) => $t > $now - $window ) );
-		$hits[] = $now;
-		set_transient( $key, $hits, $window );
-		return count( $hits );
+		return YM_DB::hit( $kind, $id, $window );
 	}
 
 	public static function validate( $data, WP_Error $errors ) {
@@ -188,7 +180,14 @@ final class YM_Risk {
 			}
 			$result = is_array( $body ?? null ) ? $body : array( 'success' => false, 'error-codes' => array( 'unreachable' ) );
 		}
-		if ( ! empty( $result['success'] ) && ( $result['action'] ?? 'checkout' ) === 'checkout' ) {
+		// A token is accepted only for this widget's action and one of our own hostnames: a token solved on another
+		// site, or for another action, is refused even though Cloudflare says "success".
+		if ( ! empty( $result['success'] ) && 'checkout' !== ( $result['action'] ?? '' ) ) {
+			$result = array( 'success' => false, 'error-codes' => array( 'action-mismatch' ) );
+		} elseif ( ! empty( $result['success'] ) && ! in_array( strtolower( (string) ( $result['hostname'] ?? '' ) ), self::turnstile_hosts(), true ) ) {
+			$result = array( 'success' => false, 'error-codes' => array( 'hostname-mismatch' ) );
+		}
+		if ( ! empty( $result['success'] ) ) {
 			if ( wp_is_uuid( $ym ) ) {
 				set_transient( $ok, 1, 15 * MINUTE_IN_SECONDS );
 			}
@@ -204,11 +203,20 @@ final class YM_Risk {
 		return $code;
 	}
 
+	/** Hostnames a Turnstile token may come from: this store's own, plus ym_turnstile_hostnames (comma-separated). */
+	public static function turnstile_hosts() {
+		$own   = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$extra = array_filter( array_map( 'trim', explode( ',', strtolower( (string) get_option( 'ym_turnstile_hostnames', '' ) ) ) ) );
+		return array_values( array_unique( array_merge( array( $own ), $extra ) ) );
+	}
+
 	private static $extra_hold = array();
 
 	/* ---------- hold decisions (before the order is first saved) ---------- */
 
 	public static function assess( WC_Order $order, $data = array() ) {
+		// The order records the same address the limits used (WooCommerce's own lookup trusts forwarding headers).
+		$order->set_customer_ip_address( self::ip() );
 		$reasons = array();
 		$phone   = YM_Country::normalise_phone( $order->get_billing_phone() );
 		$dupes   = YM_Orders::find_duplicates( $order );
@@ -376,7 +384,7 @@ final class YM_Risk {
 	 * (last 180 days). Operational causes are recorded on the order but never counted against her.
 	 */
 	public static function on_event( WC_Order $order, $event ) {
-		if ( 'refused' !== ( $event['e'] ?? '' ) || empty( $event['verified'] ) ) {
+		if ( 'refused' !== ( $event['e'] ?? '' ) || empty( $event['verified'] ) || ! empty( $event['conflict'] ) ) {
 			return;
 		}
 		$phone = YM_Country::normalise_phone( $order->get_billing_phone() );
@@ -388,8 +396,8 @@ final class YM_Risk {
 		$fake     = array();
 		foreach ( $ids as $id ) {
 			$o = wc_get_order( $id );
-			foreach ( $o ? YM_Lifecycle::events( $o ) : array() as $e ) {
-				if ( 'refused' === $e['e'] && ! empty( $e['verified'] ) && 'customer' === ( YM_Lifecycle::REASONS[ $e['reason'] ?? 'other' ] ?? '' ) ) {
+			foreach ( $o ? YM_Lifecycle::active( YM_Lifecycle::events( $o ) ) : array() as $e ) { // voided or contested refusals never count
+				if ( 'refused' === $e['e'] && 'customer' === ( YM_Lifecycle::REASONS[ $e['reason'] ?? 'other' ] ?? '' ) ) {
 					$customer[] = $id;
 					if ( 'fake_order' === ( $e['reason'] ?? '' ) ) {
 						$fake[] = $id;

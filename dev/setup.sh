@@ -65,8 +65,18 @@ install_site() {
   echo "$cc: installed at http://localhost:$port"
 }
 
+# Shared consent ledger (one database all stores use; production: YM_SHARED_DB from the environment).
+mysql -h "$DB_HOST" -P "$DB_PORT" -u root -e "CREATE DATABASE IF NOT EXISTS ym_shared CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"
+
 install_site eg 8081
 install_site iq 8082
 install_site sa 8083
 install_site ae 8084
 install_site om 8085
+
+# Settings added after first install: applied to every store each run (idempotent).
+for cc in eg iq sa ae om; do
+  ( cd "$DEV/sites/$cc"
+    $WP config set YM_SHARED_DB ym_shared --quiet
+    $WP eval 'YM_DB::install(); YM_Consent::install();' --quiet )
+done

@@ -10,9 +10,11 @@
  *
  * Money, kept apart:
  *   submitted_value       product value of every submitted order (delivery fees shown separately)
- *   delivered_sales       product value of delivered orders, less refunds on them
- *   refunds               money given back (partial + full)
- *   wallet_expected       our margin on delivered-and-kept units (price − Taager cost), less order charges
+ *   delivered_sales       product value of the units delivered and kept, less money refunded beyond returned goods
+ *   refunds               product money given back (delivery-fee refunds apart); amount-only refunds split by value
+ *   supplier_credits      money Taager credited back (wp ym credit)
+ *   wallet_expected       margin on kept units (net price − Taager cost), less excess refunds, plus credits, less
+ *                         order charges, all computed per order line
  *   wallet_actual         wallet credits recorded from Taager (wp ym money wallet …)
  *   paid_out              money that actually reached the payout account (wp ym money payout …)
  *   ad_spend              recorded spend (wp ym money spend …)
@@ -48,10 +50,14 @@ final class YM_Report {
 			'outcomes' => array(), 'outcomes_mature' => array(),
 			'unverified_status_events' => 0,
 		);
-		$money = array( 'submitted_value' => 0.0, 'delivery_fees_charged' => 0.0, 'delivered_sales' => 0.0, 'refunds' => 0.0, 'margin_delivered' => 0.0, 'charges_known' => 0.0 );
+		$money = array( 'submitted_value' => 0.0, 'delivery_fees_charged' => 0.0, 'delivered_sales' => 0.0, 'refunds' => 0.0, 'delivery_refunds' => 0.0, 'refunds_allocated' => 0.0, 'credits' => 0.0, 'margin_delivered' => 0.0, 'charges_known' => 0.0 );
 		$cost_missing    = array();
 		$charges_unknown = 0;
+		$conflicts       = array();
+		$lines_unknown   = array();
 		$products        = array();
+		// Reconciliation: the same money summed from the order's own records and from its lines must agree.
+		$rec = array( 'order' => array( 'refunds' => 0.0, 'credits' => 0.0, 'charges' => 0.0, 'value' => 0.0 ), 'lines' => array( 'refunds' => 0.0, 'credits' => 0.0, 'charges' => 0.0, 'value' => 0.0 ) );
 
 		foreach ( $ids as $id ) {
 			$o = wc_get_order( $id );
@@ -66,11 +72,11 @@ final class YM_Report {
 			if ( ! $snap ) {
 				continue;
 			}
-			$ev       = YM_Lifecycle::events( $o );
-			$outcome  = YM_Lifecycle::outcome( $o );
-			$reached  = YM_Lifecycle::reached( $ev );
-			$is_old   = $o->get_date_created() && $o->get_date_created()->getTimestamp() < $mature;
-			$refunded = (float) $o->get_total_refunded();
+			$ev      = YM_Lifecycle::events( $o );
+			$outcome = YM_Lifecycle::outcome( $o );
+			$reached = YM_Lifecycle::reached( $ev );
+			$is_old  = $o->get_date_created() && $o->get_date_created()->getTimestamp() < $mature;
+			$m       = YM_Lifecycle::money_lines( $o );
 			++$t['orders'];
 			$t[ $is_old ? 'mature_orders' : 'immature_orders' ]++;
 			$t['outcomes'][ $outcome ] = ( $t['outcomes'][ $outcome ] ?? 0 ) + 1;
@@ -84,79 +90,89 @@ final class YM_Report {
 				}
 			}
 			$t['unverified_status_events'] += count( array_filter( $ev, fn( $e ) => empty( $e['verified'] ) ) );
-
-			$subtotal = 0.0;
-			foreach ( $snap['items'] as $it ) {
-				$subtotal += (float) $it['line_total'];
+			if ( $m['conflict'] ) {
+				$conflicts[] = $id;
 			}
-			$money['submitted_value']       += $subtotal;
+			if ( in_array( 'a return did not say which lines came back', $m['unknown'], true ) ) {
+				$lines_unknown[] = $id;
+			}
+
+			$money['submitted_value']       += $m['order']['value'];
 			$money['delivery_fees_charged'] += (float) ( $snap['delivery_fee'] ?? 0 );
-			$money['refunds']               += $refunded;
-			$delivered = in_array( $outcome, array( 'delivered_kept', 'delivered_partial_refund' ), true );
-			if ( $delivered ) {
-				$money['delivered_sales'] += $subtotal - $refunded;
+			$money['refunds']               += $m['order']['product_refunds'];
+			$money['delivery_refunds']      += $m['order']['delivery_refunds'];
+			$money['refunds_allocated']     += $m['order']['refunds_allocated'];
+			$money['credits']               += $m['order']['credits'];
+			if ( null === $m['order']['charges'] ) {
+				++$charges_unknown;
+			} else {
+				$money['charges_known'] += $m['order']['charges'];
 			}
+			$rec['order']['refunds'] += $m['order']['product_refunds'];
+			$rec['order']['credits'] += $m['order']['credits'];
+			$rec['order']['charges'] += (float) $m['order']['charges'];
+			$rec['order']['value']   += (float) $o->get_subtotal() - (float) $o->get_discount_total();
 
-			// Order-level charges: once per order, never per line.
-			$order_charges = 0.0;
-			foreach ( YM_Lifecycle::charges( $o ) as $c ) {
-				if ( null === $c['amount'] ) {
-					++$charges_unknown;
-				} else {
-					$order_charges += (float) $c['amount'];
+			$seen = array();
+			foreach ( $m['lines'] as $l ) {
+				$money['delivered_sales'] += $l['delivered_sales'];
+				if ( $l['cost_unknown'] ) {
+					$cost_missing[ $l['sku'] ] = true;
 				}
-			}
-			$money['charges_known'] += $order_charges;
-
-			// Margin on delivered-and-kept units. Returned units carry no margin; a partial money refund is taken off.
-			$order_margin = 0.0;
-			$kept_ratio   = self::kept_ratio( $o, $ev );
-			foreach ( $snap['items'] as $it ) {
-				$sku  = $it['sku'] ? $it['sku'] : (string) $it['product_id'];
-				$cost = $it['taager_cost'];
-				if ( $delivered ) {
-					if ( null === $cost || '' === $cost ) {
-						$cost_missing[ $sku ] = true;
-					} else {
-						$order_margin += ( (float) $it['line_total'] - (float) $cost * (int) $it['qty'] ) * $kept_ratio;
-					}
+				if ( null !== $l['margin'] ) {
+					$money['margin_delivered'] += $l['margin'];
 				}
+				$rec['lines']['refunds'] += $l['refunds'];
+				$rec['lines']['credits'] += $l['credits'];
+				$rec['lines']['charges'] += (float) $l['charges'];
+				$rec['lines']['value']   += $l['value'];
 				if ( ! $by_product ) {
 					continue;
 				}
-				$row = $products[ $sku ] ?? array( 'name' => $it['name'], 'orders' => 0, 'lines' => 0, 'units' => 0, 'orders_delivered' => 0, 'units_delivered' => 0, 'submitted_value' => 0.0, 'delivered_value' => 0.0, 'margin' => 0.0, 'allocated_charges' => 0.0, '_seen' => array() );
-				if ( empty( $row['_seen'][ $id ] ) ) {
+				$row = $products[ $l['sku'] ] ?? array( 'name' => $l['name'], 'orders' => 0, 'lines' => 0, 'units' => 0, 'orders_delivered' => 0, 'units_delivered' => 0, 'units_returned' => 0, 'units_kept' => 0, 'submitted_value' => 0.0, 'delivered_value' => 0.0, 'refunds' => 0.0, 'credits' => 0.0, 'margin' => 0.0, 'allocated_charges' => 0.0, 'contribution_before_ads' => 0.0, 'unknown' => array() );
+				if ( empty( $seen[ $l['sku'] ] ) ) {
 					++$row['orders'];
-					$row['_seen'][ $id ] = true;
-					if ( $delivered ) {
-						++$row['orders_delivered'];
-					}
+					$row['orders_delivered'] += $m['delivered'] ? 1 : 0;
+					$seen[ $l['sku'] ] = true;
 				}
 				++$row['lines'];
-				$row['units']           += (int) $it['qty'];
-				$row['submitted_value'] += (float) $it['line_total'];
-				if ( $delivered ) {
-					$row['units_delivered'] += (int) $it['qty'];
-					$row['delivered_value'] += (float) $it['line_total'] * $kept_ratio;
-					if ( null !== $cost && '' !== $cost ) {
-						$row['margin'] += ( (float) $it['line_total'] - (float) $cost * (int) $it['qty'] ) * $kept_ratio;
-					}
+				$row['units']           += $l['qty'];
+				$row['units_delivered'] += $l['delivered_units'];
+				$row['units_returned']  += $l['returned_units'];
+				$row['units_kept']      += $l['kept_units'];
+				$row['submitted_value'] += $l['value'];
+				$row['delivered_value'] += $l['delivered_sales'];
+				$row['refunds']         += $l['refunds'];
+				$row['credits']         += $l['credits'];
+				// Unknown stays unknown: one unknown input makes the product's figure null, with the reason.
+				if ( null === $l['margin'] ) {
+					$row['margin']                  = null;
+					$row['contribution_before_ads'] = null;
+					$row['unknown'][]               = $m['conflict'] ? 'order ' . $id . ': contradictory events awaiting review' : ( $l['cost_unknown'] ? 'Taager cost missing' : 'order ' . $id . ': return lines unknown' );
+				} elseif ( null !== $row['margin'] ) {
+					$row['margin'] += $l['margin'];
 				}
-				// Allocation of this order's charges: share of the order's product value (line_value_share).
-				if ( $order_charges && $subtotal > 0 ) {
-					$row['allocated_charges'] += $order_charges * (float) $it['line_total'] / $subtotal;
+				if ( null === $l['charges'] ) {
+					$row['allocated_charges']       = null;
+					$row['contribution_before_ads'] = null;
+					$row['unknown'][]               = 'order ' . $id . ': a charge with no known amount';
+				} elseif ( null !== $row['allocated_charges'] ) {
+					$row['allocated_charges'] += $l['charges'];
 				}
-				$products[ $sku ] = $row;
+				if ( null !== $row['contribution_before_ads'] && null !== $l['contribution'] ) {
+					$row['contribution_before_ads'] += $l['contribution'];
+				}
+				$row['unknown']     = array_values( array_unique( $row['unknown'] ) );
+				$products[ $l['sku'] ] = $row;
 			}
-			$partial_money = 'delivered_partial_refund' === $outcome && 1.0 === $kept_ratio ? $refunded : 0.0;
-			$money['margin_delivered'] += $order_margin - $partial_money;
-			$t['lines'] += count( $snap['items'] );
-			$t['units'] += array_sum( array_map( fn( $i ) => (int) $i['qty'], $snap['items'] ) );
+			$t['lines'] += count( $m['lines'] );
+			$t['units'] += array_sum( array_column( $m['lines'], 'qty' ) );
 		}
 
 		foreach ( $products as &$row ) {
-			unset( $row['_seen'] );
-			$row['contribution_before_ads'] = round( $row['margin'] - $row['allocated_charges'], 3 );
+			foreach ( array( 'submitted_value', 'delivered_value', 'refunds', 'credits', 'margin', 'allocated_charges', 'contribution_before_ads' ) as $k ) {
+				$row[ $k ] = null === $row[ $k ] ? null : round( $row[ $k ], 6 ); // fine enough that shares still add up
+			}
 		}
 		unset( $row );
 
@@ -169,6 +185,12 @@ final class YM_Report {
 		if ( $charges_unknown ) {
 			$unknown[] = $charges_unknown . ' order charge(s) with no known amount (e.g. a refusal fee the supplier has not published for ' . $cc . ')';
 		}
+		if ( $conflicts ) {
+			$unknown[] = count( $conflicts ) . ' order(s) with contradictory events awaiting review (wp ym conflict list): ' . implode( ', ', $conflicts );
+		}
+		if ( $lines_unknown ) {
+			$unknown[] = count( $lines_unknown ) . ' return(s) that did not say which lines came back: ' . implode( ', ', $lines_unknown );
+		}
 		$payout_fee = $ledger['payout_fees'];
 		if ( null === $payout_fee ) {
 			$unknown[] = 'payout fees: none recorded for this period and no fee rate set (ym_payout_fee_rate)';
@@ -178,8 +200,32 @@ final class YM_Report {
 			$unknown[] = 'ad spend: advertising is enabled for ' . $cc . ' but no spend is recorded for this period';
 		}
 
-		$wallet_expected = ( $cost_missing || $charges_unknown ) ? null : $money['margin_delivered'] - $money['charges_known'];
+		$wallet_expected = ( $cost_missing || $charges_unknown || $conflicts || $lines_unknown ) ? null : $money['margin_delivered'] - $money['charges_known'];
 		$contribution    = ( null === $wallet_expected || null === $payout_fee || null === $spend ) ? null : $wallet_expected - $payout_fee - $spend;
+
+		// Products against orders: every figure split across lines must add back to the order's own figure.
+		$diff = array();
+		foreach ( array( 'value', 'refunds', 'credits', 'charges' ) as $k ) {
+			$diff[ $k ] = round( $rec['lines'][ $k ] - $rec['order'][ $k ], 6 );
+		}
+		$sum_products = array( 'delivered_value' => 0.0, 'contribution_before_ads' => 0.0 );
+		foreach ( $products as $row ) {
+			$sum_products['delivered_value'] += (float) $row['delivered_value'];
+			$sum_products['contribution_before_ads'] += (float) $row['contribution_before_ads'];
+		}
+		$reconciliation = array(
+			'lines_minus_orders' => $diff,
+			'products_delivered_value_minus_report' => $by_product ? round( $sum_products['delivered_value'] - $money['delivered_sales'], 3 ) : null,
+			'products_contribution_minus_wallet_expected' => ( $by_product && null !== $wallet_expected ) ? round( $sum_products['contribution_before_ads'] - $wallet_expected, 3 ) : null,
+		);
+		$reconciliation['ok'] = ! array_filter( $diff, fn( $d ) => abs( $d ) > 0.001 )
+			&& ( null === $reconciliation['products_delivered_value_minus_report'] || abs( $reconciliation['products_delivered_value_minus_report'] ) <= 0.01 )
+			&& ( null === $reconciliation['products_contribution_minus_wallet_expected'] || abs( $reconciliation['products_contribution_minus_wallet_expected'] ) <= 0.01 );
+		if ( ! $reconciliation['ok'] ) {
+			$unknown[] = 'reconciliation failed: product lines do not add up to the orders (see reconciliation); figures are not reliable';
+			$wallet_expected = null;
+			$contribution    = null;
+		}
 
 		$rate = function ( $n, $d ) {
 			return $d ? round( $n / $d, 3 ) : null;
@@ -208,16 +254,20 @@ final class YM_Report {
 				'delivery_fees_charged' => self::r( $money['delivery_fees_charged'] ),
 				'delivered_sales'       => self::r( $money['delivered_sales'] ),
 				'refunds'               => self::r( $money['refunds'] ),
+				'refunds_split_by_value'=> self::r( $money['refunds_allocated'] ),
+				'delivery_fee_refunds'  => self::r( $money['delivery_refunds'] ),
+				'supplier_credits'      => self::r( $money['credits'] ),
 				'order_charges_known'   => self::r( $money['charges_known'] ),
 				'wallet_expected'       => null === $wallet_expected ? null : self::r( $wallet_expected ),
-				'wallet_expected_bound' => null === $wallet_expected ? array( 'upper_bound_excluding_unknowns' => self::r( $money['margin_delivered'] - $money['charges_known'] ) ) : null,
+				'wallet_expected_bound' => null === $wallet_expected ? array( 'known_part_only' => self::r( $money['margin_delivered'] - $money['charges_known'] ), 'note' => 'sum of the figures that are known; not an estimate of the total' ) : null,
 				'wallet_actual'         => $ledger['wallet'],
 				'paid_out'              => $ledger['payout'],
 				'payout_fees'           => $payout_fee,
 				'ad_spend'              => $spend,
 				'contribution'          => null === $contribution ? null : self::r( $contribution ),
 			),
-			'allocation'        => 'line_value_share: an order-level charge is split across its products in proportion to each line\'s product value',
+			'allocation'        => 'line_value_share: order-level charges, credits and amount-only refunds are split across the order\'s lines in proportion to each line\'s product value; returns, line refunds and line credits stay on their own line',
+			'reconciliation'    => $reconciliation,
 			'unknown'           => $unknown,
 		);
 		if ( $by_product ) {
@@ -225,21 +275,6 @@ final class YM_Report {
 			$out['products'] = $products;
 		}
 		return $out;
-	}
-
-	/** Share of the order's units still with the customer (1 unless a verified return names units). */
-	private static function kept_ratio( WC_Order $o, $events ) {
-		$total = max( 1, (int) $o->get_item_count() );
-		$back  = 0;
-		foreach ( $events as $e ) {
-			if ( 'returned' === $e['e'] && ! empty( $e['verified'] ) ) {
-				$back += (int) ( $e['units'] ?? $total );
-			}
-			if ( 'refund_full' === $e['e'] && ! empty( $e['verified'] ) ) {
-				return 0.0;
-			}
-		}
-		return max( 0.0, ( $total - min( $back, $total ) ) / $total );
 	}
 
 	private static function r( $v ) {

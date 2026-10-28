@@ -153,6 +153,7 @@ ym_check( 'not-found refused when supplier ref exists', is_wp_error( $r ) );
 $o->delete( true );
 
 require __DIR__ . '/reporting.php';
+require __DIR__ . '/accounting.php';
 
 if ( $GLOBALS['ym_fail'] ) {
 	WP_CLI::error( $GLOBALS['ym_fail'] . ' failed, ' . $GLOBALS['ym_ok'] . " passed ($cc)" );

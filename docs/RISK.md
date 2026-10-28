@@ -1,6 +1,7 @@
 # COD abuse controls
 
-_28 Oct 2026. Code: `class-ym-risk.php` (and duplicate matching in `class-ym-orders.php`). Tests: `tests/e2e/risk.test.js`._
+_29 Oct 2026. Code: `class-ym-risk.php`, `class-ym-net.php` (client IP), `class-ym-db.php` (counters), duplicate matching
+in `class-ym-orders.php`. Tests: `tests/e2e/risk.test.js`, `tests/integration/accounting.php` (client IP, counters)._
 
 Decisions come from recorded behaviour and the recorded reason a delivery failed, never from who the customer is.
 One signal never blocks anyone permanently: shared family phones, recycled numbers and carrier-shared IPs are normal.
@@ -14,6 +15,18 @@ One signal never blocks anyone permanently: shared family phones, recycled numbe
 | Bot check (when keys are set) | Cloudflare Turnstile fails |
 
 Typing mistakes never count towards limits (only submissions that passed field validation).
+
+**Which address counts.** `REMOTE_ADDR` is the client unless the connection comes from a configured trusted proxy
+(`YM_TRUSTED_PROXIES`, IPs or CIDR ranges, from the environment). Only then is a forwarding header believed:
+`CF-Connecting-IP`, or the right-most `X-Forwarded-For` hop that is not one of our proxies (`YM_CLIENT_IP_HEADER`).
+A client that sends those headers itself on a direct connection changes nothing (tested: rotating forged headers
+does not reset the per-connection count). The order records the same address. On staging, compare `REMOTE_ADDR`
+and the headers with your own IP, then set the proxy list if a proxy sits in front (launch-check item).
+
+**Counting is atomic.** Each attempt increments a per-minute counter row in one SQL statement and reads back its own
+position (`LAST_INSERT_ID(n + 1)`), so simultaneous requests can never lose a count or share a number. Tested: 10
+simultaneous submissions from one session with a limit of 6 are refused exactly 4 times; 8 simultaneous ones from one
+connection with a limit of 5, exactly 3. Raw session IDs and IPs are never stored, only salted hash prefixes.
 
 ## 2. Created and held for review (on-hold, not handed to the supplier)
 | Reason code | Rule |
@@ -50,6 +63,11 @@ server once per checkout: the checkout token is the `idempotency_key`, and a pas
 a retry of the same submission (lost response) is not refused for a spent token. Expired or spent tokens reset the
 widget. If Cloudflare is unreachable the order is held, not lost. Tokens are valid 300 s and single-use (Cloudflare
 docs, server-side validation).
+
+A "success" is accepted only when the answer's `action` is exactly `checkout` (the widget's action; a missing action
+is refused) and its `hostname` is this store's own host or one listed in `ym_turnstile_hostnames`. Tested: a token
+for another site, another action or no action is refused and creates nothing. Cloudflare's test keys answer with
+their own hostname, so add it to `ym_turnstile_hostnames` on staging while using them.
 
 ## 5. Held orders and the supplier (verification task)
 Proven locally: a held order goes pending → on-hold and never passes through processing; a probe on the usual

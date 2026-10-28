@@ -63,14 +63,16 @@ final class YM_Orders {
 		$items = array();
 		foreach ( $order->get_items() as $item ) {
 			$p       = $item->get_product();
+			$cost    = $p ? $p->get_meta( '_ym_taager_cost' ) : '';
 			$items[] = array(
+				'item_id'    => $item->get_id(),
 				'product_id' => $item->get_product_id(),
 				'sku'        => $p ? $p->get_sku() : '',
 				'name'       => $item->get_name(),
 				'qty'        => $item->get_quantity(),
 				'unit_price' => (float) $order->get_item_subtotal( $item, false, false ),
 				'line_total' => (float) $item->get_total(),
-				'taager_cost'=> $p ? (float) $p->get_meta( '_ym_taager_cost' ) : null,
+				'taager_cost'=> ( '' === $cost || null === $cost || ! is_numeric( $cost ) ) ? null : (float) $cost, // unknown stays null, never 0
 			);
 		}
 		$order->update_meta_data(

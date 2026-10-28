@@ -84,24 +84,31 @@ final class YM_Ops {
 	/* ---------- jobs ---------- */
 
 	public static function run_supplier_sweep() {
-		$ids = wc_get_orders(
-			array(
-				'limit'        => 100,
-				'return'       => 'ids',
-				'status'       => array( 'processing' ),
-				'date_created' => '>' . ( time() - 3 * DAY_IN_SECONDS ),
-				'meta_query'   => array( array( 'key' => '_ym_supplier_status', 'value' => array( 'pending', 'unconfirmed' ), 'compare' => 'IN' ) ), // phpcs:ignore WordPress.DB.SlowDBQuery
-			)
-		);
+		// Orders whose hand-off is pending or unconfirmed. Looked up by meta directly: wc_get_orders() would ignore a
+		// meta_query on the classic order storage and return every processing order.
 		$checked = 0;
-		foreach ( $ids as $id ) {
-			$o = wc_get_order( $id );
-			if ( $o && time() - $o->get_date_created()->getTimestamp() > 20 * MINUTE_IN_SECONDS ) {
-				YM_Supplier::check( $id, count( YM_Supplier::RECHECKS ) ); // a sweep never schedules more re-checks
-				++$checked;
+		foreach ( self::sweep_candidates() as $id ) {
+			YM_Supplier::check( $id, count( YM_Supplier::RECHECKS ) ); // a sweep never schedules more re-checks
+			++$checked;
+		}
+		$consent = YM_Consent::flush_pending();
+		$pruned  = YM_DB::prune();
+		self::ran( 'supplier_sweep', array( 'checked' => $checked, 'consent_withdrawals_flushed' => $consent, 'rate_rows_pruned' => $pruned ) );
+	}
+
+	/** Processing orders of the last 3 days, older than 20 min, whose hand-off is pending or unconfirmed (max 100). */
+	public static function sweep_candidates() {
+		$out = array();
+		foreach ( array( 'pending', 'unconfirmed' ) as $st ) {
+			foreach ( YM_Orders::ids_by_meta( '_ym_supplier_status', $st, time() - 3 * DAY_IN_SECONDS, 500 ) as $id ) {
+				$o = wc_get_order( $id );
+				if ( $o && 'processing' === $o->get_status() && time() - $o->get_date_created()->getTimestamp() > 20 * MINUTE_IN_SECONDS ) {
+					$out[ $id ] = $id;
+				}
 			}
 		}
-		self::ran( 'supplier_sweep', array( 'checked' => $checked ) );
+		krsort( $out );
+		return array_slice( array_values( $out ), 0, 100 );
 	}
 
 	public static function run_stock_guard() {

@@ -258,3 +258,99 @@ test('Delivered: a "completed" status alone sends nothing; a verified delivery s
   assert.equal(again.event_id, ev.event_id);
   assert.equal(again.event_time, ev.event_time);
 });
+
+test('Order key: a returning visitor with consent already granted never exposes the key to a tag that runs at once', async () => {
+  const { ctx, page } = await h.context(browser, { consent: 'granted' });
+  // The "GTM container" here is a tag that executes the moment it loads and records what it can see.
+  await ctx.route('https://www.googletagmanager.com/**', (r) => r.fulfill({
+    status: 200, contentType: 'application/javascript',
+    body: 'window.__tags = (window.__tags || []); window.__tags.push({href: location.href, ref: document.referrer, dl: JSON.stringify(window.dataLayer)});',
+  }));
+  // Every document this origin ever creates records its address before any page script runs.
+  await ctx.addInitScript(() => { try { const a = JSON.parse(localStorage.getItem('__docs') || '[]'); a.push({ href: location.href, ref: document.referrer }); localStorage.setItem('__docs', JSON.stringify(a)); } catch (e) {} });
+  const rendered = [];
+  page.on('response', (res) => { if (res.request().resourceType() === 'document') rendered.push({ url: res.url(), status: res.status() }); });
+  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
+  await page.waitForLoadState('networkidle');
+  const key = h.order('eg', id).key;
+  // The emailed/bookmarked link with the key, opened again in the same browser.
+  await page.goto(`${h.BASE.eg}/checkout/order-received/${id}/?key=${key}`, { waitUntil: 'networkidle' });
+  assert.doesNotMatch(page.url(), /key=/);
+  assert.match(await page.locator('body').innerText(), new RegExp(String(id)), 'her order still shows (key kept in her session)');
+  const tags = await page.evaluate(() => window.__tags || []);
+  assert.ok(tags.length >= 1, 'the tag ran on the confirmation page');
+  const docs = await page.evaluate(() => JSON.parse(localStorage.getItem('__docs') || '[]'));
+  for (const seen of [...tags, ...docs]) {
+    assert.doesNotMatch(seen.href, /wc_order_|key=/, `key visible at ${seen.href}`);
+    assert.doesNotMatch(seen.ref || '', /wc_order_|key=/, `key in referrer ${seen.ref}`);
+    if (seen.dl) assert.doesNotMatch(seen.dl, /wc_order_/);
+  }
+  // A page carrying the key in its address was never rendered: the server answered with a redirect.
+  for (const r of rendered.filter((x) => /key=wc_order_/.test(x.url))) assert.equal(r.status, 302, `rendered ${r.url}`);
+  assert.ok(rendered.some((x) => /key=wc_order_/.test(x.url)), 'the key URL was requested (and redirected)');
+  assert.ok(!(await page.evaluate(() => performance.getEntriesByType('navigation').map((n) => n.name).join(' '))).includes('key='));
+  // The review page (its link is a credential) loads no tag at all and sends no referrer.
+  await page.goto(`${h.BASE.eg}/review/?o=1&t=${'0'.repeat(32)}`, { waitUntil: 'networkidle' });
+  assert.equal((await page.evaluate(() => window.__tags || [])).length, 0, 'no tag on the review page');
+  assert.equal(await page.locator('meta[name="referrer"]').getAttribute('content'), 'no-referrer');
+  await ctx.close();
+});
+
+test('Consent withdrawal across stores: withdrawing in Egypt stops queued server events for her Iraq order; a later order after accepting again is sent', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  await watchGTM(ctx);
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-yes]').click();
+  const id = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  assert.equal(h.order('iq', id).consent, 'granted');
+  // Another customer who also accepted, in Iraq: must not be affected.
+  const other = await h.context(browser, { consent: null });
+  await watchGTM(other.ctx);
+  await other.page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  // (separate browser profile: give it its own subject by accepting there)
+  await other.page.locator('[data-ym-consent-yes]').click();
+  const otherId = await h.buy(other.page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  await other.ctx.close();
+  assert.notEqual(h.order('iq', otherId).consent_subject, h.order('iq', id).consent_subject);
+  // Her Iraq events are queued, not sent. She now withdraws in the Egypt store (same domain, same cookies).
+  await page.goto(`${h.BASE.eg}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-open]').first().click();
+  await Promise.all([page.waitForEvent('load'), page.locator('[data-ym-consent-no]').click()]);
+  await page.waitForLoadState('networkidle');
+  assert.equal(h.order('iq', id).consent, 'granted', 'Iraq was not told directly');
+  runQueue('iq');
+  const after = h.order('iq', id);
+  assert.equal(after.capi_meta.status, 'skipped', JSON.stringify(after.capi_meta));
+  assert.equal(after.capi_meta.reason, 'consent_withdrawn');
+  assert.equal(after.capi_snap.status, 'skipped');
+  assert.equal(after.consent, 'withdrawn');
+  assert.equal(h.order('iq', otherId).capi_meta.status, 'dry_run', 'the other customer\'s event still goes out');
+  // She accepts again later and orders in Iraq: that new order is sent; the old one stays withdrawn.
+  await page.locator('[data-ym-consent-open]').first().click();
+  await page.locator('[data-ym-consent-yes]').click();
+  await page.waitForTimeout(1100); // the new order must be placed after the withdrawal second
+  const later = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  runQueue('iq');
+  assert.equal(h.order('iq', later).capi_meta.status, 'dry_run');
+  assert.equal(h.order('iq', id).capi_meta.status, 'skipped');
+  await ctx.close();
+});
+
+test('Consent ledger unreachable: server events wait instead of sending, then go out once it answers', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  await watchGTM(ctx);
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-yes]').click();
+  const id = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  await ctx.close();
+  h.wp('iq', 'option', 'update', 'ym_test_ledger_down', '1');
+  try {
+    h.wpEval('iq', `YM_Tracking::send(${id}, "meta", "purchase");`);
+    assert.equal(h.order('iq', id).capi_meta, null, 'nothing sent or recorded while consent cannot be checked');
+    assert.equal(h.wpEval('iq', `echo as_has_scheduled_action("ym_capi_send", array(${id}, "meta", "purchase"), "yawmiyati") ? "yes" : "no";`), 'yes', 'retry scheduled');
+  } finally {
+    h.wp('iq', 'option', 'delete', 'ym_test_ledger_down');
+  }
+  h.wpEval('iq', `YM_Tracking::send(${id}, "meta", "purchase");`);
+  assert.equal(h.order('iq', id).capi_meta.status, 'dry_run');
+});

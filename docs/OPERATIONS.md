@@ -6,7 +6,7 @@ sent at most once an hour. Run any job by hand: `wp ym ops-run <job>`.
 
 | Job | When (store time) | What it does | Alerts when | Depends on Taager |
 | --- | --- | --- | --- | --- |
-| supplier_sweep | hourly at :07 | Re-checks orders from the last 3 days whose hand-off is pending or unconfirmed | an order turns unconfirmed or conflict | yes: needs the verified reference key |
+| supplier_sweep | hourly at :07 | Re-checks processing orders from the last 3 days whose hand-off is pending or unconfirmed (looked up by meta directly; the earlier query matched every processing order); retries consent withdrawals that could not reach the shared ledger | an order turns unconfirmed or conflict | yes: needs the verified reference key |
 | (per order) supplier check | 15, 60, 180 min after the order | Looks for the Taager reference; missing = unconfirmed, never "failed" | unconfirmed, conflict | yes |
 | stock_guard | daily 06:00 | Lists offers whose stock check is older than 48 h (they stop selling on staging/production) or expires within 12 h | any offer expired or expiring | yes: stock is checked by hand in Taager |
 | daily_digest | daily 08:30 | Yesterday's orders by status, duplicate holds, unconfirmed / not found / conflict hand-offs, orders stuck over 72 h | anything needs attention | statuses: yes |
@@ -20,7 +20,9 @@ One test order does not close them all: each country, the payout route, returns 
 1. Turn off page-load cron: `define( 'DISABLE_WP_CRON', true );` in both stores' wp-config.php (already so locally).
 2. Site Tools > Devs > Cron Jobs, one per store, every 5 minutes:
    `cd ~/www/yawmiyati.shop/public_html/eg && php wp-cron.php` (and `/iq`).
-3. Environment variables in wp-config.php: `YM_ALERT_WEBHOOK`, `YM_META_CAPI_TOKEN`, `YM_SNAP_CAPI_TOKEN`
+3. Environment variables in wp-config.php: `YM_ALERT_WEBHOOK`, `YM_META_CAPI_TOKEN`, `YM_SNAP_CAPI_TOKEN`,
+   `YM_SHARED_DB` (the shared consent ledger database; create it once and grant every store's DB user on it),
+   `YM_TRUSTED_PROXIES` / `YM_CLIENT_IP_HEADER` only if a proxy sits in front of PHP (check on staging first)
    (read with getenv or set in SiteGround's PHP variables; never committed).
 4. Uptime monitor (UptimeRobot, free tier): one HTTP monitor per store on `/wp-json/ym/v1/health`. It returns 503 when
    any job is late (more than twice its interval), so a stopped queue alerts like a site outage. The endpoint shows
@@ -47,6 +49,10 @@ measurement failures, overdue jobs, contribution by product (mature orders only)
    payouts when they happen.
 7. **Reviews:** send review links for yesterday's verified deliveries (`wp ym review-link <order>`); approve or reject
    pending reviews (`wp ym reviews`).
+
+Lifecycle commands used daily: `wp ym outcome <order> <stage> --evidence=… [--lines=SKU:units,…]`,
+`wp ym conflict list` / `wp ym conflict resolve <order> <event> --accept|--reject --note=…`,
+`wp ym credit <order> <amount> --source=… [--line=SKU]` (docs/REPORTING.md).
 
 ## Weekly (Monday, about 45 minutes)
 Read the Monday email (last 7 days + the mature 4-week cohort). Per product: keep / improve / pause, judged on the

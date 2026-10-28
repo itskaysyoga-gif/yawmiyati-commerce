@@ -17,5 +17,3 @@ dev/wp-data/
 dev/db-data/
 .DS_Store
 preview/
-# local npm lockfile (CI uses npm install)
-package-lock.json

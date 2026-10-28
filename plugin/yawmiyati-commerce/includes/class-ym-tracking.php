@@ -21,9 +21,13 @@
  * event was pushed (POST /ym/v1/dl-ack). Rendering the page is not taken as evidence. Receipt by GA4, Meta or Snap
  * is checked in their own test tools (docs/MEASUREMENT.md §9), not here.
  *
- * Addresses: the order key is removed from the address bar on the confirmation page before any tag loads (the
- * session remembers it), the page sends only its origin as referrer, and the dataLayer carries ym_page_location
- * without query strings. GTM's GA4 tag must use {{ym_page_location}} as page_location.
+ * Addresses: a confirmation address carrying the order key (?key=wc_order_…) is never rendered. The server keeps the
+ * key in her session and answers with a redirect to the same address without it, so no page that could run a tag
+ * ever has the key in its URL, history entry or referrer; WooCommerce reads the key back from the session. As a
+ * second guard the first inline script in <head> (before the GTM loader) strips it too. The confirmation page sends
+ * only its origin as referrer, and the dataLayer carries ym_page_location without query strings. GTM's GA4 tag must
+ * use {{ym_page_location}} as page_location. The review page (its link carries a review token) loads no tags at
+ * all and sends no referrer.
  *
  * Delivered: OrderDelivered is sent only for a verified delivery (YM_Lifecycle), with that delivery's own time.
  *
@@ -53,6 +57,7 @@ final class YM_Tracking {
 		add_action( 'rest_api_init', array( __CLASS__, 'routes' ) );
 		add_filter( 'woocommerce_thankyou_order_key', array( __CLASS__, 'session_order_key' ) );
 		add_action( 'wp_head', array( __CLASS__, 'referrer_policy' ), 0 );
+		add_action( 'template_redirect', array( __CLASS__, 'strip_order_key' ), 1 );
 		add_action( 'ym_capi_send', array( __CLASS__, 'send' ), 10, 3 );
 		add_action( 'ym_dl_event', array( __CLASS__, 'queue_dl' ) );
 	}
@@ -64,8 +69,40 @@ final class YM_Tracking {
 
 	/* ---------- browser ---------- */
 
+	/** Pages whose address carries a secret (review token): no measuring tag loads there. */
+	public static function no_tags() {
+		return function_exists( 'is_page' ) && is_page( 'review' );
+	}
+
+	/**
+	 * Confirmation page opened with ?key=: keep the key in this browser's session and redirect to the address
+	 * without it, before anything renders. Applies to valid and invalid keys alike (an invalid one is just dropped).
+	 */
+	public static function strip_order_key() {
+		if ( ! isset( $_GET['key'] ) || ! function_exists( 'is_wc_endpoint_url' ) || ! is_wc_endpoint_url( 'order-received' ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		global $wp;
+		$id  = absint( $wp->query_vars['order-received'] ?? 0 );
+		$key = is_string( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		$o   = $id ? wc_get_order( $id ) : null;
+		if ( $o && '' !== $key && hash_equals( $o->get_order_key(), $key ) && WC()->session ) {
+			if ( ! WC()->session->has_session() ) {
+				WC()->session->set_customer_session_cookie( true );
+			}
+			$keys        = (array) WC()->session->get( 'ym_order_keys', array() );
+			$keys[ $id ] = $key;
+			WC()->session->set( 'ym_order_keys', array_slice( $keys, -5, null, true ) );
+			WC()->session->save_data();
+		}
+		nocache_headers();
+		header( 'Referrer-Policy: origin' );
+		wp_safe_redirect( remove_query_arg( 'key' ), 302, 'Yawmiyati' );
+		exit;
+	}
+
 	public static function head() {
-		$gtm = (string) get_option( 'ym_gtm_id', '' );
+		$gtm = self::no_tags() ? '' : (string) get_option( 'ym_gtm_id', '' );
 		$base = array(
 			'ym_country'  => YM_Country::code(),
 			'ym_currency' => get_woocommerce_currency(),
@@ -75,6 +112,8 @@ final class YM_Tracking {
 		);
 		?>
 <script>
+// First, before any tag can load: no order key in the address (the server redirect normally removes it already).
+(function () { if (/[?&]key=wc_order_/.test(location.search)) { var u = new URL(location.href); u.searchParams.delete('key'); history.replaceState(history.state, '', u.pathname + u.search + u.hash); } })();
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', {ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied'});
@@ -104,9 +143,11 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		return home_url( $path ? $path : '/' );
 	}
 
-	/** Checkout and confirmation pages send only the site origin as referrer. */
+	/** Checkout and confirmation pages send only the site origin as referrer; the review page sends none. */
 	public static function referrer_policy() {
-		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+		if ( self::no_tags() ) {
+			echo '<meta name="referrer" content="no-referrer">' . "\n";
+		} elseif ( function_exists( 'is_checkout' ) && is_checkout() ) {
 			echo '<meta name="referrer" content="origin">' . "\n";
 		}
 	}
@@ -239,11 +280,6 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
   var ACK = <?php echo wp_json_encode( esc_url_raw( rest_url( 'ym/v1/dl-ack' ) ) ); ?>, CONSENT = <?php echo wp_json_encode( esc_url_raw( rest_url( 'ym/v1/consent' ) ) ); ?>;
   var IDS = <?php echo wp_json_encode( self::CLICK_IDS ); ?>, TAGS = <?php echo wp_json_encode( self::ATTR_KEYS ); ?>;
   function has(v) { return document.cookie.indexOf('ym_consent=' + v) !== -1; }
-
-  // The confirmation page's key leaves the address bar before any tag can read it (the session remembers it).
-  if (/[?&]key=wc_order_/.test(location.search)) {
-    var u = new URL(location.href); u.searchParams.delete('key'); history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash);
-  }
 
   // Purchase acknowledgement: only once GTM has actually loaded, never on render alone.
   function ackPurchases() {
@@ -384,8 +420,8 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 
 	/** When the verified delivery happened (the event's own time, stable across retries), or 0. */
 	public static function delivered_at( WC_Order $order ) {
-		foreach ( array_reverse( YM_Lifecycle::events( $order ) ) as $e ) {
-			if ( 'delivered' === $e['e'] && ! empty( $e['verified'] ) && empty( $e['conflict'] ) ) {
+		foreach ( array_reverse( YM_Lifecycle::active( YM_Lifecycle::events( $order ) ) ) as $e ) {
+			if ( 'delivered' === $e['e'] ) {
 				return (int) $e['at'];
 			}
 		}
@@ -418,6 +454,8 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		if ( ! $subject ) {
 			return 0;
 		}
+		// All five stores: the shared ledger is checked before every server event, in every store (YM_Consent).
+		$shared = YM_Consent::record( $subject );
 		$ids = YM_Orders::ids_by_meta( '_ym_consent_subject', $subject, 0, 200 );
 		foreach ( $ids as $id ) {
 			$o = wc_get_order( $id );
@@ -435,7 +473,7 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 				}
 			}
 		}
-		YM_Ops::log( 'consent_withdrawn', array( 'orders' => count( $ids ) ) );
+		YM_Ops::log( 'consent_withdrawn', array( 'orders' => count( $ids ), 'shared_ledger' => $shared ) );
 		return count( $ids );
 	}
 
@@ -556,9 +594,31 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		if ( is_array( $done ) && 'sent' === ( $done['status'] ?? '' ) ) {
 			return;
 		}
-		// Consent is checked when the event is sent, not only when it was queued (she may have withdrawn since).
-		$skip = '';
-		if ( 'granted' !== $order->get_meta( '_ym_consent' ) ) {
+		// Consent is checked when the event is sent, not only when it was queued (she may have withdrawn since, in
+		// this store or any other store of the domain).
+		$skip    = '';
+		$subject = (string) $order->get_meta( '_ym_consent_subject' );
+		if ( 'granted' === $order->get_meta( '_ym_consent' ) && $subject ) {
+			$w = YM_Consent::withdrawn_at( $subject );
+			if ( null === $w ) {
+				// The shared ledger cannot be read: do not send on an unknown answer; try again later.
+				if ( function_exists( 'as_schedule_single_action' ) ) {
+					as_schedule_single_action( time() + 15 * MINUTE_IN_SECONDS, 'ym_capi_send', array( $order_id, $platform, $kind ), 'yawmiyati' );
+				}
+				YM_Ops::log( 'capi_waiting', array( 'order' => $order_id, 'platform' => $platform, 'kind' => $kind, 'reason' => 'consent_ledger_unavailable' ), 'warning' );
+				return;
+			}
+			$placed = $order->get_date_created() ? $order->get_date_created()->getTimestamp() : 0;
+			if ( $w && $w >= $placed ) {
+				$order->update_meta_data( '_ym_consent', 'withdrawn' );
+				$order->update_meta_data( '_ym_consent_withdrawn_at', $w );
+				$order->save_meta_data();
+				$skip = 'consent_withdrawn';
+			}
+		}
+		if ( $skip ) {
+			// recorded below
+		} elseif ( 'granted' !== $order->get_meta( '_ym_consent' ) ) {
 			$skip = 'no_consent';
 		} elseif ( 'delivered' === $kind && ! self::delivered_at( $order ) ) {
 			$skip = 'delivery_not_verified';

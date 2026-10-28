@@ -34,7 +34,7 @@ The local admin password is random and never printed; use WP-CLI instead of the 
 ## Tests
 
 ```bash
-npm install                 # Playwright 1.63.0
+npm ci                      # Playwright 1.63.0, exact versions from package-lock.json
 npm test                    # end-to-end tests against the running stores (WebKit test skipped if not installed)
 npm run test:integration    # in-store checks on all five stores
 node tools/perf-lab.js out.json   # lab Core Web Vitals on a throttled phone profile (local numbers are not production)

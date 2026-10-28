@@ -36,7 +36,7 @@ jobs:
           for cc in eg iq sa ae om; do dev/wp.sh $cc eval-file "$PWD/tests/integration/run.php"; done
       - name: Playwright
         run: |
-          npm install --no-audit --no-fund
+          npm ci --no-audit --no-fund   # exact versions and integrity hashes from package-lock.json
           npx playwright install --with-deps chromium webkit
       - name: End-to-end order flow
         run: |

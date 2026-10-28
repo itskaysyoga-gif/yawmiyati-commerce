@@ -33,15 +33,20 @@ add_action( 'woocommerce_checkout_order_processed', $ym_probe( 'woocommerce_chec
 
 /*
  * Local Turnstile stub: with option ym_turnstile_test = "stub", Cloudflare's siteverify is answered from the request
- * header X-YM-Test-Turnstile: pass | fail | duplicate | unreachable (no network in local stores).
+ * header X-YM-Test-Turnstile: pass | fail | duplicate | unreachable | wronghost | wrongaction | noaction (no network
+ * in local stores). "pass" answers like Cloudflare does for this store's hostname and the checkout action.
  */
 add_filter( 'ym_turnstile_siteverify', function ( $result ) {
 	if ( 'stub' !== get_option( 'ym_turnstile_test' ) ) {
 		return $result;
 	}
 	$h = isset( $_SERVER['HTTP_X_YM_TEST_TURNSTILE'] ) ? sanitize_key( wp_unslash( $_SERVER['HTTP_X_YM_TEST_TURNSTILE'] ) ) : 'pass';
-	$map = array(
-		'pass'        => array( 'success' => true, 'action' => 'checkout' ),
+	$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+	$map  = array(
+		'pass'        => array( 'success' => true, 'action' => 'checkout', 'hostname' => $host ),
+		'wronghost'   => array( 'success' => true, 'action' => 'checkout', 'hostname' => 'other-site.example' ),
+		'wrongaction' => array( 'success' => true, 'action' => 'login', 'hostname' => $host ),
+		'noaction'    => array( 'success' => true, 'hostname' => $host ),
 		'fail'        => array( 'success' => false, 'error-codes' => array( 'invalid-input-response' ) ),
 		'duplicate'   => array( 'success' => false, 'error-codes' => array( 'timeout-or-duplicate' ) ),
 		'unreachable' => array( 'success' => false, 'error-codes' => array( 'unreachable' ) ),

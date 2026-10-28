@@ -27,6 +27,8 @@ class YM_CLI {
 		}
 		$r = YM_Country::rules( $cc );
 		update_option( 'ym_country', $cc );
+		YM_DB::install();
+		YM_Consent::install();
 		$opts = array(
 			'woocommerce_currency'                    => $r['currency'],
 			'woocommerce_price_num_decimals'          => $r['decimals'],
@@ -361,6 +363,10 @@ class YM_CLI {
 		foreach ( YM_Tracking::launch_checks() as $k => $v ) {
 			$add( 'measurement ' . $k, $v[0], $v[1] );
 		}
+		$ledger = YM_Consent::launch_check();
+		$add( 'shared consent ledger', $ledger[0], $ledger[1] );
+		$add( 'client IP source', '' !== (string) get_option( 'ym_client_ip_checked' ), 'on staging, compare REMOTE_ADDR and forwarding headers with your real IP; set YM_TRUSTED_PROXIES/YM_CLIENT_IP_HEADER if a proxy sits in front, then set ym_client_ip_checked' );
+		$add( 'open lifecycle conflicts', ! YM_Orders::ids_by_meta( '_ym_conflict_open', '1', 0, 1 ), 'wp ym conflict list' );
 		$add( 'supplier reference key', (bool) get_option( 'ym_supplier_ref_keys_verified' ), 'confirm which meta key the Taager plugin writes, then set ym_supplier_ref_keys and ym_supplier_ref_keys_verified' );
 		$add( 'status sync', (bool) get_option( 'ym_status_sync_verified' ), 'confirm Taager status sync and set ym_stage_map + ym_status_sync_verified' );
 		$add( 'search indexing', '1' === (string) get_option( 'blog_public' ), 'Settings > Reading: allow search engines (production only)' );
@@ -408,8 +414,12 @@ class YM_CLI {
 	 * [--at=<datetime>]
 	 * : When it happened (e.g. "2026-11-03 14:20"), store time zone. Default now.
 	 *
+	 * [--lines=<lines>]
+	 * : For returned: which lines came back, as SKU:units pairs, e.g. "EG030108MAT399:1,EG030109RCK649:2".
+	 *   Required when the order has more than one line, unless everything came back.
+	 *
 	 * [--units=<units>]
-	 * : For returned: how many units came back. Default all.
+	 * : For returned on a one-line order: how many units came back. Default all.
 	 *
 	 * --evidence=<evidence>
 	 * : Where you saw it (e.g. "Taager order 123 status Delivered, 3 Nov").
@@ -430,11 +440,98 @@ class YM_CLI {
 			WP_CLI::error( '--reason is required for ' . $stage . ' (it decides whether it counts against the customer or the operation).' );
 		}
 		$at = isset( $assoc['at'] ) ? ( new DateTime( $assoc['at'], wp_timezone() ) )->getTimestamp() : time();
-		$e  = YM_Lifecycle::record( $order, $stage, array( 'at' => $at, 'src' => 'staff', 'verified' => true, 'reason' => $assoc['reason'] ?? '', 'units' => isset( $assoc['units'] ) ? (int) $assoc['units'] : null, 'by' => 'cli', 'evidence' => $assoc['evidence'] ) );
+		$lines = null;
+		if ( ! empty( $assoc['lines'] ) ) {
+			$lines = array();
+			foreach ( explode( ',', (string) $assoc['lines'] ) as $pair ) {
+				$bits = array_map( 'trim', explode( ':', $pair ) );
+				if ( 2 !== count( $bits ) || (int) $bits[1] < 1 ) {
+					WP_CLI::error( 'Use --lines=SKU:units,SKU:units' );
+				}
+				$lines[ $bits[0] ] = (int) $bits[1];
+			}
+		}
+		if ( 'returned' === $stage && null === $lines && isset( $assoc['units'] ) && count( $order->get_items() ) > 1 ) {
+			WP_CLI::error( 'This order has ' . count( $order->get_items() ) . ' lines: say which came back with --lines=SKU:units,…' );
+		}
+		$e = YM_Lifecycle::record( $order, $stage, array( 'at' => $at, 'src' => 'staff', 'verified' => true, 'reason' => $assoc['reason'] ?? '', 'lines' => $lines, 'units' => isset( $assoc['units'] ) ? (int) $assoc['units'] : null, 'by' => 'cli', 'evidence' => $assoc['evidence'] ) );
 		if ( is_wp_error( $e ) ) {
 			WP_CLI::error( $e->get_error_message() );
 		}
 		WP_CLI::success( wp_json_encode( $e, JSON_UNESCAPED_UNICODE ) . ' outcome=' . YM_Lifecycle::outcome( wc_get_order( $order->get_id() ) ) );
+	}
+
+	/**
+	 * Contradictory order events (e.g. delivered after refused): list them, or resolve one after checking with the
+	 * supplier. Until resolved the order's outcome is "conflict" and its money is unknown in reports.
+	 *
+	 * [<action>]
+	 * : list (default) | resolve
+	 *
+	 * [<order>]
+	 * : Order ID (resolve).
+	 *
+	 * [<event>]
+	 * : Event ID shown by list (resolve).
+	 *
+	 * [--accept]
+	 * : The flagged event is right; the events it contradicts are voided.
+	 *
+	 * [--reject]
+	 * : The flagged event is wrong; it is voided.
+	 *
+	 * [--note=<note>]
+	 * : What you checked and where.
+	 */
+	public function conflict( $args, $assoc ) {
+		$action = $args[0] ?? 'list';
+		if ( 'list' === $action ) {
+			$rows = array();
+			foreach ( YM_Orders::ids_by_meta( '_ym_conflict_open', '1', 0, 200 ) as $id ) {
+				$o = wc_get_order( $id );
+				foreach ( $o ? YM_Lifecycle::open_conflicts( $o ) : array() as $e ) {
+					$rows[] = array( 'order' => $id, 'event' => $e['id'] ?? YM_Lifecycle::eid( $e ), 'stage' => $e['e'], 'conflict' => $e['conflict'], 'contradicts' => implode( ',', (array) ( $e['conflict_with'] ?? array() ) ), 'at' => wp_date( 'Y-m-d H:i', $e['at'] ), 'evidence' => $e['evidence'] ?? '' );
+				}
+			}
+			$rows ? WP_CLI\Utils\format_items( 'table', $rows, array_keys( $rows[0] ) ) : WP_CLI::success( 'No open conflicts.' );
+			return;
+		}
+		$order = wc_get_order( (int) ( $args[1] ?? 0 ) );
+		if ( 'resolve' !== $action || ! $order || empty( $args[2] ) || ( empty( $assoc['accept'] ) === empty( $assoc['reject'] ) ) ) {
+			WP_CLI::error( 'Usage: wp ym conflict resolve <order> <event> --accept|--reject --note="…"' );
+		}
+		$r = YM_Lifecycle::resolve( $order, (string) $args[2], ! empty( $assoc['accept'] ) ? 'accept' : 'reject', 'cli', (string) ( $assoc['note'] ?? '' ) );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::success( 'Resolved. outcome=' . YM_Lifecycle::outcome( wc_get_order( $order->get_id() ) ) );
+	}
+
+	/**
+	 * Record a credit from Taager on an order (compensation, a refunded fee), for one line or the whole order.
+	 *
+	 * <order>
+	 * : Order ID.
+	 *
+	 * <amount>
+	 * : Positive amount in the store currency.
+	 *
+	 * --source=<source>
+	 * : Where it comes from (e.g. "Taager wallet 2026-11-05").
+	 *
+	 * [--line=<sku>]
+	 * : The order line it belongs to (SKU or item ID). Default: the whole order.
+	 */
+	public function credit( $args, $assoc ) {
+		$order = wc_get_order( (int) ( $args[0] ?? 0 ) );
+		if ( ! $order ) {
+			WP_CLI::error( 'No such order.' );
+		}
+		$r = YM_Lifecycle::add_credit( $order, (float) ( $args[1] ?? 0 ), (string) ( $assoc['source'] ?? '' ), $assoc['line'] ?? null, 'cli' );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::success( wp_json_encode( $r, JSON_UNESCAPED_UNICODE ) );
 	}
 
 	/**

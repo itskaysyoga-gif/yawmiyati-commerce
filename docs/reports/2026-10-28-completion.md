@@ -33,8 +33,10 @@ minimum price). Settled from the published policy in review: Saudi VAT is 15 % o
 on a delivered-then-returned order.
 
 ## 6. Order-scenario test report
-82 end-to-end tests (one WebKit test runs only in CI) and 365 in-store checks across five stores
-(`npm test`, `npm run test:integration`).
+85 end-to-end tests (84 run locally; the WebKit/iPhone test runs only in CI) and 370 in-store checks across five
+stores: Egypt 82, Iraq 83, Saudi Arabia 70, UAE 64, Oman 71 (`npm test`, `npm run test:integration`).
+_Correction 29 Oct: this line first said 82 and 365, figures from an earlier run; the counts above are from the final
+local run on e4ebf87, as in the handoff note. Current counts: docs/reports/2026-10-29-stabilization.md._
 
 | Group | Covered by | Not covered (why) |
 | --- | --- | --- |
@@ -74,7 +76,9 @@ Not possible yet: no GTM, GA4, Meta or Snap accounts are connected. The live che
 docs/OPERATIONS.md: board, daily (about 15 minutes per open country), weekly, access, notifications and logs,
 backups and restore, releases and rollback.
 
-## 10. External dependencies and owner actions (one list)
+## 10. External dependencies and owner actions
+_Superseded 29 Oct: the one owner-action list is now docs/LAUNCH-CHECKLIST.md ("Owner actions")._
+
 | # | Action | Owner | Blocks |
 | --- | --- | --- | --- |
 | 1 | Make the GitHub repo private | Rashid | security |

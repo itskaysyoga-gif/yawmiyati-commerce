@@ -187,6 +187,15 @@ test('Turnstile: checked once per checkout on the server; a spent token on a ret
     assert.equal(idOf(retry), idOf(ok));
     assert.equal(h.orderCount('om'), before + 1);
     await ctx.close();
+    // A "success" for another site or another action is refused: hostname and action are checked explicitly.
+    for (const variant of ['wronghost', 'wrongaction', 'noaction']) {
+      const v = await captured('om');
+      const r = await v.send({ 'X-YM-Test-Turnstile': variant });
+      assert.equal(r.result, 'failure', variant);
+      assert.match(r.messages, /برنامجًا آليًا/, variant);
+      await v.ctx.close();
+    }
+    assert.equal(h.orderCount('om'), before + 1, 'nothing created by mismatched tokens');
     // Cloudflare unreachable: the order is kept but held for a person, not lost.
     const c = await captured('om');
     const down = await c.send({ 'X-YM-Test-Turnstile': 'unreachable' });
@@ -196,5 +205,45 @@ test('Turnstile: checked once per checkout on the server; a spent token on a ret
   } finally {
     h.wp('om', 'option', 'delete', 'ym_turnstile_sitekey');
     h.wp('om', 'option', 'delete', 'ym_turnstile_test');
+  }
+});
+
+test('Concurrent submissions: simultaneous requests are counted exactly (no lost counts), per session and per connection', async () => {
+  const LIMITED = /انرسلت طلبات هواية/;
+  // Ten simultaneous complete submissions from one browser session (creation made to fail, so nothing is created):
+  // with a limit of 6 per session exactly 4 must be refused, whatever order they arrive in.
+  const a = await captured('iq');
+  const results = await Promise.all(Array.from({ length: 10 }, () => a.send({ 'X-YM-Test-Ip': fakeIp(), 'X-YM-Test-Fail': 'create' })));
+  await a.ctx.close();
+  assert.equal(results.filter((r) => LIMITED.test(r.messages || '')).length, 4, JSON.stringify(results.map((r) => r.result)));
+  // Eight simultaneous submissions from different browsers on one connection, refuse after 5: exactly 3 refused.
+  h.wpEval('iq', 'update_option("ym_risk_settings", array("ip_hold" => 100, "ip_refuse" => 5));');
+  try {
+    const ip = fakeIp();
+    const browsers = [];
+    for (let i = 0; i < 8; i++) browsers.push(await captured('iq'));
+    const out = await Promise.all(browsers.map((b) => b.send({ 'X-YM-Test-Ip': ip, 'X-YM-Test-Fail': 'create' })));
+    for (const b of browsers) await b.ctx.close();
+    assert.equal(out.filter((r) => LIMITED.test(r.messages || '')).length, 3, JSON.stringify(out.map((r) => r.result)));
+  } finally {
+    h.wpEval('iq', 'delete_option("ym_risk_settings");');
+  }
+});
+
+test('Client IP: a forged CF-Connecting-IP or X-Forwarded-For from a direct connection does not change the address the limits use', async () => {
+  // No trusted proxy is configured locally, so the connection address (127.0.0.1) is the client. Rotating forged
+  // forwarding headers must not reset the per-connection count.
+  h.wpEval('iq', 'update_option("ym_risk_settings", array("ip_hold" => 100, "ip_refuse" => 3));');
+  try {
+    const out = [];
+    for (let i = 0; i < 5; i++) {
+      const b = await captured('iq');
+      // No X-YM-Test-Ip here: the real connection address is what counts.
+      out.push(await b.send({ 'X-YM-Test-Ip': '', 'CF-Connecting-IP': fakeIp(), 'X-Forwarded-For': fakeIp(), 'X-YM-Test-Fail': 'create' }));
+      await b.ctx.close();
+    }
+    assert.ok(out.slice(3).every((r) => /انرسلت طلبات هواية/.test(r.messages || '')), JSON.stringify(out.map((r) => r.result)));
+  } finally {
+    h.wpEval('iq', 'delete_option("ym_risk_settings");');
   }
 });

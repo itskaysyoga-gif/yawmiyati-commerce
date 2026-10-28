@@ -47,3 +47,11 @@ Newest first. Each entry: date, decision, why.
 - 2026-10-28 — Product research is a Claude-run pipeline in `research/`, not a WordPress admin screen.
 - 2026-10-28 — Organic content prefers products sold in both Egypt and Iraq; strong single-country products allowed, labelled.
 - 2026-10-28 — Hosting SiteGround GrowBig; WordPress + WooCommerce; Taager main supplier, Zambeel later.
+
+- 2026-10-29 — Stabilization round, no new features. The confirmation link's order key is removed by a server redirect before any page renders (session keeps it); the review page loads no tags.
+- 2026-10-29 — Consent withdrawal is shared by all five stores through one ledger table in a shared database (`YM_SHARED_DB`); server events fail closed when it cannot be read.
+- 2026-10-29 — Forwarding headers are trusted only from configured proxies (none by default); rate counters are atomic SQL rows, not transients; Turnstile answers must match our hostname and the checkout action.
+- 2026-10-29 — Returns, refunds and supplier credits are accounted per order line; unknown costs stay null; reports reconcile product and order totals; contradictory lifecycle events stay open (outcome "conflict", money unknown) until a person resolves them.
+- 2026-10-29 — A customer who received an item may review it even after returning it or being refunded; a refusal never qualifies.
+- 2026-10-29 — `package-lock.json` is committed and CI installs with `npm ci`.
+- 2026-10-29 — First assortment recommended for Egypt (4 products, 5 offers) and Iraq (4 products, 5 offers), docs/ASSORTMENT-v1.md; three prices raised within item-level evidence. Awaiting Rashid's yes. Saudi Arabia, UAE and Oman stay prepared and closed; their commercial recommendations are provisional.

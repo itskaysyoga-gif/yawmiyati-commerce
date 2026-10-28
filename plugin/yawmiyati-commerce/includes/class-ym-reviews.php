@@ -2,8 +2,10 @@
 /**
  * Genuine reviews after delivery. Spec: docs/REVIEWS.md.
  *
- * - Only a customer whose order has a VERIFIED delivery (YM_Lifecycle) can review, through a signed link for that
- *   order (wp ym review-link <order>). The link carries an HMAC of the order ID and key, never the key itself.
+ * - Only a customer whose order has a VERIFIED delivery (YM_Lifecycle::was_delivered) can review, through a signed
+ *   link for that order (wp ym review-link <order>). The link carries an HMAC of the order ID and key, never the key
+ *   itself. A return or refund after the delivery does not remove the right to review; a refusal never gives it.
+ *   The review page loads no measuring tags and sends no referrer (the link is a credential).
  * - One review per order and product. Every review is stored unapproved and shown only after a person approves it
  *   (wp ym reviews approve <id>, or WooCommerce > Reviews).
  * - Shown with "bought and received". No review is ever created, edited for meaning, or imported by us; there is
@@ -28,7 +30,9 @@ final class YM_Reviews {
 
 	/** Review link for an order with a verified delivery, or WP_Error. */
 	public static function link( WC_Order $order ) {
-		if ( ! in_array( YM_Lifecycle::outcome( $order ), array( 'delivered_kept', 'delivered_partial_refund' ), true ) ) {
+		// She received it: a verified delivery stands. A later return or refund does not take her voice away (an honest
+		// review of something sent back is exactly what other customers need); a refusal at the door never qualifies.
+		if ( ! YM_Lifecycle::was_delivered( $order ) ) {
 			return new WP_Error( 'ym_not_delivered', 'Only orders with a verified delivery can be reviewed.' );
 		}
 		$page = get_page_by_path( 'review' );

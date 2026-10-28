@@ -53,6 +53,21 @@ Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first da
   and the page reloads so nothing that had loaded keeps running. The server marks every order of that browser
   (first-party consent subject `ym_cs`) as `withdrawn` and cancels their queued server events; every server event
   re-checks consent when it is sent.
+- **Withdrawal reaches all five stores.** The stores share one domain (`/eg/`, `/iq/`, …), so `ym_consent` and `ym_cs`
+  are the same cookies everywhere, but each store has its own database. A withdrawal in any store is written to a
+  shared ledger (`ym_consent_ledger` in the database named by `YM_SHARED_DB`, readable and writable by every store).
+  Every store reads it immediately before sending any server event: an order whose subject withdrew at or after the
+  order was placed is skipped (`consent_withdrawn`) and marked withdrawn, whichever store took it. An order placed
+  after she accepted again is sent. If the ledger cannot be written, the withdrawal is kept locally and retried hourly
+  (alert sent); if it cannot be read, server events wait and retry (nothing is sent on an unknown answer).
+  Tested: withdrawal in the Egypt store stops a queued Iraq event; another customer's event still goes out; a later
+  order after re-accepting is sent; an unreachable ledger holds the event and releases it once readable.
+- **Order key never reaches a tag.** The confirmation link carries `?key=wc_order_…`. The server keeps the key in her
+  session and redirects to the same address without it before anything renders, so no document with the key in its
+  address, history entry or referrer ever exists; the first inline script strips it as a second guard. Tested with a
+  returning visitor whose consent is already granted and a tag that runs the moment it loads: neither the tag, nor
+  any document start, nor any referrer sees the key. The review page (its link is a credential) loads no tags at all
+  and sends no referrer.
 - **Late consent:** click IDs seen before any choice stay in that browser tab only (sessionStorage), are never sent,
   and are kept if she accepts during that visit; declining or closing the tab discards them. Campaign tags (UTM) are
   kept regardless, as before.
