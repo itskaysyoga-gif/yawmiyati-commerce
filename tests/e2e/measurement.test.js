@@ -184,6 +184,11 @@ test('Consent withdrawal: loaded tags stop (reload, cookies deleted), and queued
   const o = h.order('iq', id);
   assert.equal(o.consent, 'granted');
   assert.match(o.consent_subject, /^[0-9a-f]{32}$/);
+  // Another customer orders with consent before she withdraws; her withdrawal must not touch that order.
+  const other = await h.context(browser, { consent: 'granted' });
+  await watchGTM(other.ctx);
+  const otherId = await h.buy(other.page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  await other.ctx.close();
   // Server events are queued but not sent yet. She now withdraws.
   await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
   const before = gtm.length;
@@ -196,6 +201,7 @@ test('Consent withdrawal: loaded tags stop (reload, cookies deleted), and queued
   const dl = await dataLayer(page);
   assert.ok(!dl.some((e) => e && e[0] === 'consent' && e[1] === 'update' && e[2].ad_storage === 'granted'), 'fresh page: no granted consent');
   assert.equal(h.order('iq', id).consent, 'withdrawn');
+  assert.equal(h.order('iq', otherId).consent, 'granted', 'another customer\'s order untouched');
   runQueue('iq');
   const after = h.order('iq', id);
   assert.ok(!after.capi_meta || after.capi_meta.status === 'skipped', JSON.stringify(after.capi_meta));

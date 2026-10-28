@@ -418,7 +418,7 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		if ( ! $subject ) {
 			return 0;
 		}
-		$ids = wc_get_orders( array( 'limit' => 200, 'return' => 'ids', 'status' => array_keys( wc_get_order_statuses() ), 'meta_key' => '_ym_consent_subject', 'meta_value' => $subject ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$ids = YM_Orders::ids_by_meta( '_ym_consent_subject', $subject, 0, 200 );
 		foreach ( $ids as $id ) {
 			$o = wc_get_order( $id );
 			if ( ! $o || 'withdrawn' === $o->get_meta( '_ym_consent' ) ) {

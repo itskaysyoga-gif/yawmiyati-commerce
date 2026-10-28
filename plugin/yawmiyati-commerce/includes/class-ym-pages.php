@@ -24,7 +24,9 @@ final class YM_Pages {
 	public static function init() {
 		add_shortcode( 'ym_copy', fn( $a ) => esc_html( YM_Country::copy( (string) ( $a['key'] ?? '' ) ) ) );
 		add_shortcode( 'ym_fee_table', array( __CLASS__, 'fee_table' ) );
-		add_shortcode( 'ym_pending', fn( $a, $c = '' ) => '<span class="ym-pending">' . esc_html( $c ) . '</span>' );
+		add_shortcode( 'ym_pending', fn( $a, $c = '' ) => '<span class="ym-pending">' . esc_html( do_shortcode( $c ) ) . '</span>' );
+		add_shortcode( 'ym_rule', fn( $a ) => esc_html( (string) ( YM_Country::rules()[ (string) ( $a['key'] ?? '' ) ] ?? '' ) ) );
+		add_shortcode( 'ym_social', fn() => YM_Social::links( 'page' ) );
 	}
 
 	public static function fee_table() {
@@ -37,7 +39,11 @@ final class YM_Pages {
 	public static function install( $cc ) {
 		$ids = array();
 		foreach ( self::PAGES as $slug => $title_key ) {
+			// Country pages first; Saudi, UAE and Oman share content/gulf/ (country facts come from shortcodes).
 			$file = YM_DIR . '/content/' . strtolower( $cc ) . '/' . $slug . '.html';
+			if ( ! file_exists( $file ) ) {
+				$file = YM_DIR . '/content/' . YM_Country::rules( $cc )['voice'] . '/' . $slug . '.html';
+			}
 			if ( ! file_exists( $file ) ) {
 				continue;
 			}

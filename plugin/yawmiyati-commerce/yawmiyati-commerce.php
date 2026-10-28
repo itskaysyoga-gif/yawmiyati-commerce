@@ -26,11 +26,13 @@ require_once YM_DIR . '/includes/class-ym-report.php';
 require_once YM_DIR . '/includes/class-ym-catalog.php';
 require_once YM_DIR . '/includes/class-ym-ops.php';
 require_once YM_DIR . '/includes/class-ym-pages.php';
+require_once YM_DIR . '/includes/class-ym-social.php';
 require_once YM_DIR . '/includes/class-ym-tracking.php';
 require_once YM_DIR . '/includes/class-ym-seo.php';
 require_once YM_DIR . '/includes/class-ym-offers.php';
 require_once YM_DIR . '/includes/class-ym-checkout.php';
 require_once YM_DIR . '/includes/class-ym-orders.php';
+require_once YM_DIR . '/includes/class-ym-risk.php';
 require_once YM_DIR . '/includes/class-ym-supplier.php';
 
 add_action( 'before_woocommerce_init', function () {
@@ -49,6 +51,7 @@ add_action( 'plugins_loaded', function () {
 	YM_Offers::init();
 	YM_Checkout::init();
 	YM_Orders::init();
+	YM_Risk::init();
 	YM_Supplier::init();
 	YM_Catalog::init();
 	YM_Ops::init();

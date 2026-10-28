@@ -53,7 +53,7 @@ final class YM_Supplier {
 		}
 		$order->update_meta_data( '_ym_supplier_status', 'pending' );
 		$order->save();
-		if ( 'possible_duplicate' !== $order->get_meta( '_ym_review' ) ) {
+		if ( ! YM_Risk::is_held( $order ) ) {
 			self::schedule( $order->get_id() );
 		}
 	}

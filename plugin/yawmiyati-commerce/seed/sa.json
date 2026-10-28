@@ -1,0 +1,38 @@
+{
+  "source": "LOCAL TEST DATA ONLY: one item from the Taager catalog export (captured before 2026-10-28, exact date unknown) to exercise this country's checkout. Not a launch product, not researched, not supplier-verified. Specs unknown.",
+  "products": [
+    {
+      "sku": "SA030104APZ499",
+      "taager_product_id": 21884,
+      "taager_cost": 70,
+      "taager_min": 90,
+      "price": 99,
+      "slug": "corner-shelf",
+      "name": "رف زاوية متعدد الاستخدامات للحمام والمطبخ",
+      "group": "",
+      "primary": true,
+      "order": 1,
+      "label": "",
+      "note": "",
+      "benefit": "",
+      "diary": "",
+      "fit": "",
+      "benefits": [],
+      "specs": [
+        [
+          "المقاسات",
+          null
+        ],
+        [
+          "الخامة",
+          null
+        ],
+        [
+          "محتويات العلبة",
+          null
+        ]
+      ],
+      "images": []
+    }
+  ]
+}

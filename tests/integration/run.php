@@ -30,6 +30,40 @@ if ( 'EG' === $cc ) {
 	ym_check( 'EG fee unknown', null === YM_Country::fee( 'BG' ) );
 	ym_check( 'EG all 27 governorates priced', 27 === count( YM_Country::rules()['governorates'] ) );
 	ym_check( 'EG currency', 'EGP' === get_woocommerce_currency() );
+} elseif ( 'SA' === $cc ) {
+	ym_check( 'SA phone plain', YM_Country::valid_phone( '0512345678' ) );
+	ym_check( 'SA phone +966', YM_Country::valid_phone( '+966 51 234 5678' ) );
+	ym_check( 'SA phone 966 without +', YM_Country::valid_phone( '966512345678' ) );
+	ym_check( 'SA phone without trunk 0', '0512345678' === YM_Country::normalise_phone( '512345678' ) );
+	ym_check( 'SA phone persian digits', YM_Country::valid_phone( '۰۵۱۲۳۴۵۶۷۸' ) );
+	ym_check( 'SA landline refused', ! YM_Country::valid_phone( '0112345678' ) );
+	ym_check( 'SA fee flat 28', 28.0 === YM_Country::fee( 'SA01' ) && 28.0 === YM_Country::fee( 'SA14' ) );
+	ym_check( 'SA 13 regions', 13 === count( YM_Country::rules()['governorates'] ) );
+	ym_check( 'SA currency', 'SAR' === get_woocommerce_currency() );
+	ym_check( 'SA 2 decimals', 2 === YM_Country::decimals() && '28' === YM_Country::number( 28 ) && '27.5' !== YM_Country::number( 27.5 ) );
+	ym_check( 'SA refusal fee unknown, not zero', null === YM_Country::rules()['refusal_fee'] );
+	ym_check( 'SA VAT on uplift 15%', 0.15 === YM_Country::rules()['vat_on_uplift'] );
+} elseif ( 'AE' === $cc ) {
+	ym_check( 'AE phone plain', YM_Country::valid_phone( '0501234567' ) );
+	ym_check( 'AE phone +971', YM_Country::valid_phone( '+971 50 123 4567' ) );
+	ym_check( 'AE phone bad prefix', ! YM_Country::valid_phone( '0531234567' ) );
+	ym_check( 'AE fee flat 19', 19.0 === YM_Country::fee( 'DU' ) && 19.0 === YM_Country::fee( 'FU' ) );
+	ym_check( 'AE 7 emirates', 7 === count( YM_Country::rules()['governorates'] ) );
+	ym_check( 'AE currency', 'AED' === get_woocommerce_currency() );
+} elseif ( 'OM' === $cc ) {
+	ym_check( 'OM phone 8 digits', YM_Country::valid_phone( '91234567' ) );
+	ym_check( 'OM phone +968', YM_Country::valid_phone( '+968 9123 4567' ) );
+	ym_check( 'OM phone 00968', YM_Country::valid_phone( '0096871234567' ) );
+	ym_check( 'OM phone arabic digits', YM_Country::valid_phone( '٩١٢٣٤٥٦٧' ) );
+	ym_check( 'OM phone 9 digits refused', ! YM_Country::valid_phone( '912345678' ) );
+	ym_check( 'OM intl phone for ad matching', '96891234567' === YM_Country::intl_phone( '9123 4567' ) );
+	ym_check( 'OM fee flat 3', 3.0 === YM_Country::fee( 'MA' ) );
+	ym_check( 'OM 11 governorates', 11 === count( YM_Country::rules()['governorates'] ) );
+	ym_check( 'OM currency', 'OMR' === get_woocommerce_currency() );
+	ym_check( 'OM 3 decimals in WooCommerce', 3 === wc_get_price_decimals() );
+	ym_check( 'OM rounding to 3 decimals', 2.346 === YM_Country::round_money( 2.3456 ) );
+	ym_check( 'OM display trims only whole numbers', '3' === YM_Country::number( 3 ) && '2.500' === YM_Country::number( 2.5 ) );
+	ym_check( 'OM price step 0.100', 2.5 === YM_Country::price_step( 2.43 ) );
 } else {
 	ym_check( 'IQ phone plain', YM_Country::valid_phone( '07701234567' ) );
 	ym_check( 'IQ phone +964', YM_Country::valid_phone( '+964 770 123 4567' ) );
@@ -41,19 +75,23 @@ if ( 'EG' === $cc ) {
 
 // Every customer-facing string exists in both dialects (an Egyptian fallback must never reach Iraq).
 $eg_keys = array_keys( YM_Country::copy_all( 'EG' ) );
-$iq_keys = array_keys( YM_Country::copy_all( 'IQ' ) );
 sort( $eg_keys );
-sort( $iq_keys );
-ym_check( 'same copy keys in EG and IQ', $eg_keys === $iq_keys );
+foreach ( YM_Country::codes() as $c ) {
+	$k = array_keys( YM_Country::copy_all( $c ) );
+	sort( $k );
+	ym_check( "same copy keys in EG and $c: " . implode( ',', array_merge( array_diff( $eg_keys, $k ), array_diff( $k, $eg_keys ) ) ), $eg_keys === $k );
+	ym_check( "no empty copy in $c", ! array_filter( YM_Country::copy_all( $c ), fn( $v, $key ) => '' === $v && 'returns' !== $key, ARRAY_FILTER_USE_BOTH ) );
+}
+ym_check( 'every market in config/markets.json', array_keys( array_diff_key( array_flip( YM_Country::codes() ), YM_Markets::config() ) ) === array() );
 
 // Customer-facing text: no harsh policy phrasing, and the supplier's name never appears.
 $banned = array( 'مش مسموح', 'ما مسموح', 'ممنوع', 'ردّي عشان', 'ردي عشان', 'يطلع الطلب', 'الطلب يطلع', 'رقم غريب', 'تاجر', 'Taager', 'taager' );
 $texts  = array();
-foreach ( array( 'EG', 'IQ' ) as $c ) {
+foreach ( YM_Country::codes() as $c ) {
 	foreach ( YM_Country::copy_all( $c ) as $k => $v ) {
 		$texts[ "copy/$c/$k" ] = $v;
 	}
-	foreach ( glob( YM_DIR . '/content/' . strtolower( $c ) . '/*.html' ) as $f ) {
+	foreach ( array_merge( glob( YM_DIR . '/content/' . strtolower( $c ) . '/*.html' ), glob( YM_DIR . '/content/gulf/*.html' ) ) as $f ) {
 		$texts[ 'content/' . basename( dirname( $f ) ) . '/' . basename( $f ) ] = file_get_contents( $f );
 	}
 	$seed = json_decode( file_get_contents( YM_DIR . '/seed/' . strtolower( $c ) . '.json' ), true );
@@ -76,8 +114,10 @@ foreach ( $texts as $where => $text ) {
 ym_check( 'customer text free of banned phrases and supplier name (' . count( $texts ) . ' texts): ' . implode( ', ', $hits ), ! $hits );
 
 // Catalog gate: seeded (unverified) products are blocked from sale once the gate is enforced.
-$p = wc_get_product( wc_get_product_id_by_sku( 'EG' === $cc ? 'EG030106MKKT99' : 'IQ030403SENK99' ) );
-ym_check( 'seeded product has blockers', isset( YM_Catalog::blockers( $p )['stock_unverified'], YM_Catalog::blockers( $p )['media_resolution'] ) );
+$first = json_decode( file_get_contents( YM_DIR . '/seed/' . strtolower( $cc ) . '.json' ), true )['products'][0]['sku'];
+$p     = wc_get_product( wc_get_product_id_by_sku( $first ) );
+$bl    = YM_Catalog::blockers( $p );
+ym_check( 'seeded product has stock and media blockers', isset( $bl['stock_unverified'] ) && (bool) array_filter( array_keys( $bl ), fn( $k ) => 0 === strpos( $k, 'media' ) ) );
 ym_check( 'local store does not enforce the gate', $p->is_purchasable() );
 add_filter( 'ym_environment_type', fn() => 'production' );
 ym_check( 'production: unverified product not purchasable', ! wc_get_product( $p->get_id() )->is_purchasable() );

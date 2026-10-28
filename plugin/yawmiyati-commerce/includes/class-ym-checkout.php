@@ -142,6 +142,11 @@ final class YM_Checkout {
 		if ( $errors->has_errors() ) {
 			return;
 		}
+		/** Anti-abuse checks (YM_Risk): only submissions that passed field validation reach them. */
+		do_action( 'ym_checkout_before_claim', $data, $errors );
+		if ( $errors->has_errors() ) {
+			return;
+		}
 		self::claim_token( $errors );
 	}
 
@@ -189,7 +194,7 @@ final class YM_Checkout {
 
 	/** An order already saved with this token (the request that created it may have died before linking it). */
 	private static function order_for_token( $name ) {
-		$ids = wc_get_orders( array( 'limit' => 1, 'return' => 'ids', 'meta_key' => '_ym_token', 'meta_value' => substr( $name, strlen( self::TOKEN_PREFIX ) ), 'status' => array_keys( wc_get_order_statuses() ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$ids = YM_Orders::ids_by_meta( '_ym_token', substr( $name, strlen( self::TOKEN_PREFIX ) ), time() - 2 * DAY_IN_SECONDS, 1 );
 		return $ids ? wc_get_order( (int) $ids[0] ) : null;
 	}
 

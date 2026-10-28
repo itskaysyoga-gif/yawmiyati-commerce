@@ -3,7 +3,7 @@ const { execFileSync } = require('node:child_process');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '../..');
-const BASE = { eg: 'http://localhost:8081', iq: 'http://localhost:8082' };
+const BASE = { eg: 'http://localhost:8081', iq: 'http://localhost:8082', sa: 'http://localhost:8083', ae: 'http://localhost:8084', om: 'http://localhost:8085' };
 
 function wp(cc, ...args) {
   return execFileSync(path.join(ROOT, 'dev/wp.sh'), [cc, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -37,6 +37,9 @@ function order(cc, id) {
 const CUSTOMER = {
   eg: { name: 'منى أحمد', phone: '01012345678', state: 'EGC', area: 'مدينة نصر، شارع عباس العقاد', building: 'عمارة 5، الدور 3' },
   iq: { name: 'زينب علي', phone: '07701234567', state: 'BG', area: 'الكرادة، قرب ساحة الحرية', building: '' },
+  sa: { name: 'نورة العتيبي', phone: '0512345678', state: 'SA01', area: 'الرياض، حي النرجس، شارع الأمير', building: 'فيلا 12' },
+  ae: { name: 'مريم الكعبي', phone: '0501234567', state: 'DU', area: 'دبي، القصيص، شارع 12', building: 'شقة 304' },
+  om: { name: 'شيخة البلوشي', phone: '91234567', state: 'MA', area: 'بوشر، الخوير، سكة 33', building: 'منزل 5' },
 };
 
 // Product page -> choose offer -> buy now -> checkout -> place order. Returns the order ID.
@@ -73,6 +76,11 @@ async function waitIdle(page) {
 async function context(browser, { width = 390, consent = 'denied', device } = {}) {
   const opts = device ? { ...device, locale: 'ar' } : { viewport: { width, height: 844 }, locale: 'ar' };
   const ctx = await browser.newContext(opts);
+  // Test browsers fill forms in about a second; shift the form clock so they are not held as "sent too fast".
+  // The fast-submission check itself is tested in risk.test.js with an explicit header.
+  // Each test browser is also its own customer connection; otherwise the whole suite looks like one busy IP.
+  const ip = `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${1 + Math.floor(Math.random() * 250)}`;
+  await ctx.setExtraHTTPHeaders({ 'X-YM-Test-Clock': '30', 'X-YM-Test-Ip': ip });
   if (consent) {
     await ctx.addCookies(Object.values(BASE).map((u) => ({ name: 'ym_consent', value: consent, url: u })));
   }
@@ -81,6 +89,12 @@ async function context(browser, { width = 390, consent = 'denied', device } = {}
 
 // Unique phone numbers so the duplicate review only fires where a test wants it.
 let seq = (Date.now() % 1e6) * 10;
-const phone = { eg: () => '010' + String(++seq).padStart(8, '0').slice(-8), iq: () => '0770' + String(++seq).padStart(7, '0').slice(-7) };
+const phone = {
+  eg: () => '010' + String(++seq).padStart(8, '0').slice(-8),
+  iq: () => '0770' + String(++seq).padStart(7, '0').slice(-7),
+  sa: () => '055' + String(++seq).padStart(7, '0').slice(-7),
+  ae: () => '050' + String(++seq).padStart(7, '0').slice(-7),
+  om: () => '9' + String(++seq).padStart(7, '0').slice(-7),
+};
 
 module.exports = { BASE, ROOT, wp, wpEval, order, orderCount, buy, fillCheckout, waitIdle, CUSTOMER, context, phone };

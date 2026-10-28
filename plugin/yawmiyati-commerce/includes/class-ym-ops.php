@@ -133,10 +133,10 @@ final class YM_Ops {
 			$by[ $o->get_status() ] = ( $by[ $o->get_status() ] ?? 0 ) + 1;
 			$s = YM_Supplier::status( $o );
 			$sup[ $s ] = ( $sup[ $s ] ?? 0 ) + 1;
-			$holds    += 'possible_duplicate' === $o->get_meta( '_ym_review' ) && 'on-hold' === $o->get_status() ? 1 : 0;
+			$holds    += YM_Risk::is_held( $o ) && 'on-hold' === $o->get_status() ? 1 : 0;
 		}
 		$stuck = wc_get_orders( array( 'limit' => -1, 'return' => 'ids', 'status' => array( 'processing' ), 'date_modified' => '<' . ( time() - 3 * DAY_IN_SECONDS ) ) );
-		$summary = array( 'orders' => count( $ids ), 'by_status' => $by, 'supplier' => $sup, 'duplicate_holds' => $holds, 'stuck_over_72h' => count( $stuck ) );
+		$summary = array( 'orders' => count( $ids ), 'by_status' => $by, 'supplier' => $sup, 'review_holds' => $holds, 'stuck_over_72h' => count( $stuck ) );
 		$issues  = $holds + ( $sup['unconfirmed'] ?? 0 ) + ( $sup['not_found'] ?? 0 ) + ( $sup['conflict'] ?? 0 ) + count( $stuck );
 		wp_mail( get_option( 'admin_email' ), '[Yawmiyati ' . YM_Country::code() . '] daily digest', wp_json_encode( $summary, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
 		if ( $issues ) {

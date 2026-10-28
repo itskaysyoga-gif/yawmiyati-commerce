@@ -30,11 +30,10 @@ jobs:
       - name: Install WordPress, WooCommerce and both stores
         run: dev/setup.sh
       - name: Start stores
-        run: dev/serve.sh && sleep 2 && curl -fsS -o /dev/null http://localhost:8081/ && curl -fsS -o /dev/null http://localhost:8082/
+        run: dev/serve.sh && sleep 2 && for p in 8081 8082 8083 8084 8085; do curl -fsS -o /dev/null http://localhost:$p/; done
       - name: Integration checks
         run: |
-          dev/wp.sh eg eval-file "$PWD/tests/integration/run.php"
-          dev/wp.sh iq eval-file "$PWD/tests/integration/run.php"
+          for cc in eg iq sa ae om; do dev/wp.sh $cc eval-file "$PWD/tests/integration/run.php"; done
       - name: Playwright
         run: |
           npm install --no-audit --no-fund

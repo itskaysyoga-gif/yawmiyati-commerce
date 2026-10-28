@@ -7,6 +7,18 @@
 $day  = strtotime( '2025-06-10 12:00:00 UTC' );
 $made = array();
 $prods = array_values( array_filter( wc_get_products( array( 'limit' => 6, 'status' => 'publish', 'orderby' => 'ID', 'order' => 'ASC' ) ), fn( $p ) => (float) $p->get_meta( '_ym_taager_cost' ) > 0 ) );
+$temp  = array();
+for ( $i = count( $prods ); $i < 3; $i++ ) { // stores with one seeded item get temporary products for these checks
+	$t = new WC_Product_Simple();
+	$t->set_name( 'report test ' . $i );
+	$t->set_sku( 'YM-REPORT-TEST-' . $i );
+	$t->set_regular_price( (string) ( 10 + $i ) );
+	$t->set_status( 'publish' );
+	$t->update_meta_data( '_ym_taager_cost', 5 );
+	$t->save();
+	$temp[]  = $t->get_id();
+	$prods[] = wc_get_product( $t->get_id() );
+}
 $mk = function ( $lines, $offset = 0 ) use ( &$made, $day ) {
 	$o = wc_create_order();
 	foreach ( $lines as $l ) {
@@ -135,4 +147,7 @@ foreach ( $made as $id ) {
 		}
 		$o->delete( true );
 	}
+}
+foreach ( $temp as $id ) {
+	wp_delete_post( $id, true );
 }

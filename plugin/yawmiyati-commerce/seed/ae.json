@@ -1,0 +1,38 @@
+{
+  "source": "LOCAL TEST DATA ONLY: one item from the Taager catalog export (captured before 2026-10-28, exact date unknown) to exercise this country's checkout. Not a launch product, not researched, not supplier-verified. Specs unknown.",
+  "products": [
+    {
+      "sku": "UA030101HBCL99",
+      "taager_product_id": 10024,
+      "taager_cost": 40,
+      "taager_min": 45,
+      "price": 59,
+      "slug": "storage-bag",
+      "name": "حقيبة تخزين الملابس والأدوات المنزلية",
+      "group": "",
+      "primary": true,
+      "order": 1,
+      "label": "",
+      "note": "",
+      "benefit": "",
+      "diary": "",
+      "fit": "",
+      "benefits": [],
+      "specs": [
+        [
+          "المقاسات",
+          null
+        ],
+        [
+          "الخامة",
+          null
+        ],
+        [
+          "محتويات العلبة",
+          null
+        ]
+      ],
+      "images": []
+    }
+  ]
+}

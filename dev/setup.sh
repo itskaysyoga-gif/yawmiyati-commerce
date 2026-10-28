@@ -40,6 +40,8 @@ install_site() {
   unzip -q -o "$CACHE/ar-wc.zip" -d "$dir/wp-content/languages/plugins"
   ln -sfn "$ROOT/theme/yawmiyati" "$dir/wp-content/themes/yawmiyati"
   ln -sfn "$ROOT/plugin/yawmiyati-commerce" "$dir/wp-content/plugins/yawmiyati-commerce"
+  # Local-only test helper (never deployed): records order status at common supplier-plugin hooks.
+  mkdir -p "$dir/wp-content/mu-plugins" && ln -sfn "$ROOT/dev/mu-plugins/ym-supplier-probe.php" "$dir/wp-content/mu-plugins/ym-supplier-probe.php"
   ( cd "$dir"
     $WP config create --dbname="$db" --dbuser="$DB_USER" --dbpass="$DB_PASS" --dbhost="$DB_HOST:$DB_PORT" --dbcharset=utf8mb4 --skip-check --quiet
     $WP config set WP_DEBUG true --raw --quiet
@@ -57,7 +59,7 @@ install_site() {
     $WP plugin activate woocommerce --quiet
     $WP theme activate yawmiyati --quiet
     $WP plugin activate yawmiyati-commerce --quiet
-    $WP ym setup --country="${cc^^}" --store-urls='{"EG":"http://localhost:8081/","IQ":"http://localhost:8082/"}' --quiet
+    $WP ym setup --country="${cc^^}" --store-urls='{"EG":"http://localhost:8081/","IQ":"http://localhost:8082/","SA":"http://localhost:8083/","AE":"http://localhost:8084/","OM":"http://localhost:8085/"}' --quiet
     $WP ym seed --quiet
   )
   echo "$cc: installed at http://localhost:$port"
@@ -65,3 +67,6 @@ install_site() {
 
 install_site eg 8081
 install_site iq 8082
+install_site sa 8083
+install_site ae 8084
+install_site om 8085

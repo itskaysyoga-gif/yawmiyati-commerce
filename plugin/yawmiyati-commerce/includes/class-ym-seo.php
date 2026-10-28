@@ -18,7 +18,6 @@ defined( 'ABSPATH' ) || exit;
 final class YM_SEO {
 
 	const SITE_NAME = 'يومياتي';
-	const SAME_AS   = array( 'https://www.instagram.com/yawmiyatimag/' );
 
 	public static function init() {
 		add_filter( 'wp_robots', array( __CLASS__, 'robots' ), 20 );
@@ -212,7 +211,7 @@ final class YM_SEO {
 		return array(
 			'@context' => 'https://schema.org',
 			'@graph'   => array(
-				array( '@type' => 'Organization', '@id' => home_url( '/#org' ), 'name' => self::SITE_NAME, 'url' => home_url( '/' ), 'logo' => get_theme_file_uri( 'assets/img/favicon-512.png' ), 'sameAs' => self::SAME_AS ),
+				array( '@type' => 'Organization', '@id' => home_url( '/#org' ), 'name' => self::SITE_NAME, 'url' => home_url( '/' ), 'logo' => get_theme_file_uri( 'assets/img/favicon-512.png' ), 'sameAs' => YM_Social::urls() ),
 				array( '@type' => 'WebSite', 'name' => self::SITE_NAME, 'url' => home_url( '/' ), 'inLanguage' => 'ar-' . YM_Country::code(), 'publisher' => array( '@id' => home_url( '/#org' ) ) ),
 			),
 		);

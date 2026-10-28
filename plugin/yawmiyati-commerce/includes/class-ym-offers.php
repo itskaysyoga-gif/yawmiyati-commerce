@@ -24,7 +24,11 @@ defined( 'ABSPATH' ) || exit;
 
 final class YM_Offers {
 
-	const MAX_QTY = 3;
+	const MAX_QTY = 3; // default; per store: option ym_max_qty
+
+	public static function max_qty() {
+		return max( 1, (int) get_option( 'ym_max_qty', self::MAX_QTY ) );
+	}
 
 	public static function init() {
 		add_shortcode( 'ym_product', array( __CLASS__, 'shortcode_product' ) );
@@ -198,16 +202,16 @@ final class YM_Offers {
 				$in_cart += (int) $item['quantity'];
 			}
 		}
-		if ( $in_cart + (int) $qty > self::MAX_QTY ) {
-			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::MAX_QTY ), 'error' );
+		if ( $in_cart + (int) $qty > self::max_qty() ) {
+			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::max_qty() ), 'error' );
 			return false;
 		}
 		return $passed;
 	}
 
 	public static function limit_update( $passed, $key, $values, $qty ) {
-		if ( (int) $qty > self::MAX_QTY ) {
-			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::MAX_QTY ), 'error' );
+		if ( (int) $qty > self::max_qty() ) {
+			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::max_qty() ), 'error' );
 			return false;
 		}
 		return $passed;

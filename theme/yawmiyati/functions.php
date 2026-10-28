@@ -68,6 +68,7 @@ add_shortcode( 'ym_footer', function () {
 	<footer class="ym-footer">
 		<img src="<?php echo esc_url( get_theme_file_uri( 'assets/img/logo.svg' ) ); ?>" alt="يومياتي" width="46" height="40">
 		<p><?php echo esc_html( ym_t( 'ask' ) ); ?></p>
+		<?php echo class_exists( 'YM_Social' ) ? YM_Social::links( 'footer' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside ?>
 		<nav aria-label="<?php echo esc_attr( ym_t( 'nav_contact' ) ); ?>"><ul>
 			<?php foreach ( $links as $slug => $key ) : ?>
 				<?php $page = get_page_by_path( $slug ); ?>

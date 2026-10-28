@@ -159,6 +159,7 @@ class YM_CLI {
 				'_ym_specs'            => wp_json_encode( $row['specs'] ?? array(), JSON_UNESCAPED_UNICODE ),
 				'_ym_taager_product_id'=> $row['taager_product_id'],
 				'_ym_taager_cost'      => $row['taager_cost'],
+				'_ym_taager_min'       => $row['taager_min'] ?? '',
 				'_ym_source'           => $data['source'],
 				'_ym_dev_seed'         => 'yes',
 			);
@@ -522,5 +523,86 @@ class YM_CLI {
 		}
 		WP_CLI\Utils\format_items( 'table', $rows, array( 'country', 'prepared', 'catalog', 'checkout', 'ads', 'note' ) );
 		WP_CLI::log( 'This store: ' . YM_Country::code() . ' · enforced here: ' . ( YM_Env::enforced() ? 'yes' : 'no (' . YM_Env::type() . ')' ) . ' · local off: ' . implode( ', ', (array) get_option( 'ym_market_off', array() ) ) );
+	}
+
+	/**
+	 * Review queue: orders held before the supplier hand-off.
+	 *
+	 * [<action>]
+	 * : list (default) | release | cancel
+	 *
+	 * [<order>]
+	 * : Order ID (release, cancel).
+	 *
+	 * [--note=<note>]
+	 * : What you checked (release) or why (cancel). Required for both.
+	 *
+	 * [--format=<format>]
+	 * : table or json.
+	 */
+	public function review( $args, $assoc ) {
+		$action = $args[0] ?? 'list';
+		if ( 'list' === $action ) {
+			$rows = YM_Risk::queue();
+			if ( ! $rows ) {
+				WP_CLI::log( 'Review queue empty.' );
+				return;
+			}
+			WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', $rows, array( 'order', 'placed', 'reasons', 'duplicate_of', 'total' ) );
+			return;
+		}
+		$order = wc_get_order( (int) ( $args[1] ?? 0 ) );
+		if ( ! $order ) {
+			WP_CLI::error( 'No such order.' );
+		}
+		$r = 'release' === $action ? YM_Risk::release( $order, 'cli', (string) ( $assoc['note'] ?? '' ) ) : ( 'cancel' === $action ? YM_Risk::cancel( $order, 'cli', (string) ( $assoc['note'] ?? '' ) ) : new WP_Error( 'x', 'Action must be list, release or cancel.' ) );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::success( 'Order ' . $order->get_id() . ' ' . $action . 'd.' );
+	}
+
+	/**
+	 * Customer risk records (by phone, stored hashed). Reversible; every change kept in the record's history.
+	 *
+	 * <action>
+	 * : show | set | clear
+	 *
+	 * <phone>
+	 * : Phone number in any format.
+	 *
+	 * [<level>]
+	 * : watch | confirm | hold (set).
+	 *
+	 * [--reason=<reason>]
+	 * : Required for set and clear.
+	 *
+	 * [--days=<days>]
+	 * : Expiry in days (set). Default 30.
+	 *
+	 * [--orders=<ids>]
+	 * : Evidence: comma-separated order IDs.
+	 */
+	public function risk( $args, $assoc ) {
+		$action = $args[0] ?? 'show';
+		$phone  = (string) ( $args[1] ?? '' );
+		if ( ! YM_Country::valid_phone( $phone ) ) {
+			WP_CLI::error( 'Not a valid ' . YM_Country::code() . ' phone number.' );
+		}
+		if ( 'set' === $action ) {
+			$r = YM_Risk::set( $phone, (string) ( $args[2] ?? '' ), (string) ( $assoc['reason'] ?? '' ), 'cli', (int) ( $assoc['days'] ?? 30 ), array_filter( array_map( 'intval', explode( ',', (string) ( $assoc['orders'] ?? '' ) ) ) ) );
+		} elseif ( 'clear' === $action ) {
+			$r = '' === trim( (string) ( $assoc['reason'] ?? '' ) ) ? new WP_Error( 'x', '--reason required.' ) : YM_Risk::clear( $phone, 'cli', (string) $assoc['reason'] );
+		} else {
+			$r = YM_Risk::record( $phone, true );
+			if ( ! $r ) {
+				WP_CLI::log( 'No record.' );
+				return;
+			}
+		}
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::log( wp_json_encode( $r, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
 	}
 }

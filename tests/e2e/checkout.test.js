@@ -16,7 +16,8 @@ const iqPhone = h.phone.iq;
 test('Egypt: 2-set offer to order, server price + Cairo delivery, COD, snapshot', async () => {
   const { ctx, page } = await fresh();
   const phone = egPhone();
-  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', offer: 1, customer: { phone, phone2: '01198765432', landmark: 'جنب الصيدلية' } });
+  const phone2 = h.phone.eg().replace(/^010/, '011');
+  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', offer: 1, customer: { phone, phone2, landmark: 'جنب الصيدلية' } });
   const o = h.order('eg', id);
   assert.equal(o.status, 'processing');
   assert.equal(o.payment, 'cod');
@@ -25,7 +26,7 @@ test('Egypt: 2-set offer to order, server price + Cairo delivery, COD, snapshot'
   assert.deepEqual(o.items, [{ sku: 'EG030108BUND99', qty: 1, total: 749 }]);
   assert.equal(o.shipping, 95);
   assert.equal(o.total, 844);
-  assert.equal(o.phone2, '01198765432');
+  assert.equal(o.phone2, phone2);
   assert.equal(o.landmark, 'جنب الصيدلية');
   assert.equal(o.snapshot.policy_version, '2026-10-28');
   assert.equal(o.snapshot.items[0].unit_price, 749);

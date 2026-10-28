@@ -266,3 +266,6 @@ a { color: var(--ym-berry); }
 .ym-consent__actions .ym-btn { min-height: 44px; font-size: 15px; }
 @media (min-width: 960px) { .ym-consent { inset: auto 24px 24px auto; max-width: 420px; border: 1px solid var(--ym-rule); border-radius: var(--ym-radius); } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Anti-abuse honeypot: off-screen for people, still in the form for bots. */
+.ym-hp { position: absolute !important; inset-inline-start: -10000px; width: 1px; height: 1px; overflow: hidden; }
