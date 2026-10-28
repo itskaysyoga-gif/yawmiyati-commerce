@@ -1,0 +1,46 @@
+# Builds both local stores from pinned versions and runs the order-flow tests.
+# Status: written 28 Oct 2026, not yet run on GitHub. Check the first run before relying on it.
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  stores:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli, zip, intl, gd, exif
+          tools: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: MariaDB 10.11 (same server the local stores use)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q mariadb-server mariadb-client
+          sudo systemctl stop mariadb || true
+      - name: Install WordPress, WooCommerce and both stores
+        run: dev/setup.sh
+      - name: Start stores
+        run: dev/serve.sh && sleep 2 && curl -fsS -o /dev/null http://localhost:8081/ && curl -fsS -o /dev/null http://localhost:8082/
+      - name: Integration checks
+        run: |
+          dev/wp.sh eg eval-file "$PWD/tests/integration/run.php"
+          dev/wp.sh iq eval-file "$PWD/tests/integration/run.php"
+      - name: Playwright
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: End-to-end order flow
+        run: npm test
+      - name: Store logs on failure
+        if: failure()
+        run: tail -n 200 dev/.cache/serve-*.log dev/sites/*/wp-content/debug.log 2>/dev/null || true

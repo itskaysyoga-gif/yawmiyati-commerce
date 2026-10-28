@@ -65,6 +65,20 @@ final class YM_Country {
 				'one_fee'      => 'التوصيل مرة واحدة على الطلب كله.',
 				'thanks'       => 'طلبك وصل',
 				'pick_gov'     => 'اختاري المحافظة وهيظهر سعر التوصيل.',
+				'fit_q'        => 'هتيجي مظبوطة عندك؟',
+				'why'          => 'ليه هتحبيها',
+				'expired'      => 'انتهت صلاحية الصفحة. حدّثيها وجرّبي تاني.',
+				'offer_na'     => 'العرض ده مش متاح دلوقتي.',
+				'added'        => 'اتضاف للسلة.',
+				'max_qty'      => 'أقصى كمية من المنتج ده %d في الطلب الواحد.',
+				'sold_out_tag' => 'خلص من المخزن',
+				'sold_out'     => 'المنتج ده خلص من المخزن دلوقتي.',
+				'phone2'       => 'رقم تاني',
+				'phone2_help'  => 'بيساعد إن الطلب يوصل لو الأول مقفول',
+				'phone2_err'   => 'الرقم التاني: ',
+				'wrong_country' => 'التوصيل متاح جوّه مصر بس.',
+				'refresh'      => 'حدّثي الصفحة وجرّبي تاني.',
+				'dup'          => 'الطلب ده اتبعت خلاص. لو عايزة تطلبي تاني، حدّثي الصفحة.',
 			),
 		),
 		'IQ' => array(
@@ -110,6 +124,20 @@ final class YM_Country {
 				'one_fee'      => 'التوصيل مرة وحدة على الطلب كله.',
 				'thanks'       => 'وصلنا طلبج',
 				'pick_gov'     => 'اختاري المحافظة حتى يطلع سعر التوصيل.',
+				'fit_q'        => 'راح تجي مضبوطة عدج؟',
+				'why'          => 'ليش راح تحبينها',
+				'expired'      => 'انتهت صلاحية الصفحة. حدّثيها وجرّبي مرة ثانية.',
+				'offer_na'     => 'هذا العرض مو متوفر هسّه.',
+				'added'        => 'انضاف للسلة.',
+				'max_qty'      => 'أكثر كمية من هذا المنتج %d بالطلب الواحد.',
+				'sold_out_tag' => 'خلصت الكمية',
+				'sold_out'     => 'هذا المنتج خلص هسّه.',
+				'phone2'       => 'رقم ثاني',
+				'phone2_help'  => 'يفيد حتى يوصل الطلب إذا الرقم الأول مسدود',
+				'phone2_err'   => 'الرقم الثاني: ',
+				'wrong_country' => 'التوصيل داخل العراق بس.',
+				'refresh'      => 'حدّثي الصفحة وجرّبي مرة ثانية.',
+				'dup'          => 'هذا الطلب انبعث. إذا تريدين تطلبين مرة ثانية، حدّثي الصفحة.',
 			),
 		),
 	);
@@ -176,7 +204,13 @@ final class YM_Country {
 		return (bool) preg_match( self::rules( $country )['phone_regex'], self::normalise_phone( $raw, $country ) );
 	}
 
+	/** Same digits and separators as WooCommerce's own prices (cart, checkout, emails). */
+	public static function number( $amount ) {
+		$sep = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : ',';
+		return number_format( (float) $amount, 0, '.', $sep );
+	}
+
 	public static function money( $amount ) {
-		return number_format_i18n( (float) $amount, 0 ) . ' ' . self::rules()['symbol'];
+		return self::number( $amount ) . ' ' . self::rules()['symbol'];
 	}
 }

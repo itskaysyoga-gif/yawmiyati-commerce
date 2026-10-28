@@ -45,7 +45,7 @@ add_shortcode( 'ym_header', function () {
 		</div>
 	</header>
 	<?php
-	return ob_get_clean();
+	return preg_replace( '/\s*\n\s*/', ' ', ob_get_clean() );
 } );
 
 /** [ym_footer] */

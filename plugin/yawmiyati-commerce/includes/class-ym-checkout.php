@@ -42,7 +42,7 @@ final class YM_Checkout {
 		$billing = array(
 			'billing_first_name' => array_merge( $fields['billing']['billing_first_name'], array( 'label' => 'الاسم بالكامل', 'placeholder' => 'الاسم الأول والأخير', 'class' => array( 'form-row-wide' ), 'priority' => 10, 'autocomplete' => 'name' ) ),
 			'billing_phone'      => array_merge( $fields['billing']['billing_phone'], array( 'label' => 'رقم الموبايل', 'required' => true, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 20, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ) ),
-			'ym_phone2'          => array( 'type' => 'tel', 'label' => 'رقم تاني', 'description' => 'بيساعد إن الطلب يوصل لو الأول مقفول', 'required' => false, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 30, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ),
+			'ym_phone2'          => array( 'type' => 'tel', 'label' => YM_Country::copy( 'phone2' ), 'description' => YM_Country::copy( 'phone2_help' ), 'required' => false, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 30, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ),
 			'billing_country'    => array_merge( $fields['billing']['billing_country'], array( 'priority' => 35, 'class' => array( 'form-row-wide', 'ym-hidden' ) ) ),
 			'billing_state'      => array_merge( $fields['billing']['billing_state'], array( 'label' => 'المحافظة', 'placeholder' => 'اختاري المحافظة', 'required' => true, 'class' => array( 'form-row-wide', 'update_totals_on_change' ), 'priority' => 40 ) ),
 			'billing_address_1'  => array_merge( $fields['billing']['billing_address_1'], array( 'label' => 'المنطقة والشارع', 'placeholder' => '', 'class' => array( 'form-row-wide' ), 'priority' => 50 ) ),
@@ -115,7 +115,7 @@ final class YM_Checkout {
 		}
 		$cc = YM_Country::code();
 		if ( ( $data['billing_country'] ?? '' ) !== $cc ) {
-			$errors->add( 'ym_country', 'التوصيل متاح للدولة دي بس.', array( 'id' => 'billing_country' ) );
+			$errors->add( 'ym_country', YM_Country::copy( 'wrong_country' ), array( 'id' => 'billing_country' ) );
 		}
 		$name = trim( (string) ( $data['billing_first_name'] ?? '' ) );
 		if ( count( preg_split( '/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY ) ) < 2 ) {
@@ -125,7 +125,7 @@ final class YM_Checkout {
 			$errors->add( 'ym_phone', YM_Country::rules()['phone_hint'], array( 'id' => 'billing_phone' ) );
 		}
 		if ( ! empty( $data['ym_phone2'] ) && ! YM_Country::valid_phone( $data['ym_phone2'] ) ) {
-			$errors->add( 'ym_phone2', 'الرقم التاني: ' . YM_Country::rules()['phone_hint'], array( 'id' => 'ym_phone2' ) );
+			$errors->add( 'ym_phone2', YM_Country::copy( 'phone2_err' ) . YM_Country::rules()['phone_hint'], array( 'id' => 'ym_phone2' ) );
 		}
 		if ( null === YM_Country::fee( $data['billing_state'] ?? '' ) ) {
 			$errors->add( 'ym_state', 'اختاري المحافظة.', array( 'id' => 'billing_state' ) );
@@ -138,11 +138,11 @@ final class YM_Checkout {
 		}
 		$token = isset( $_POST['ym_token'] ) ? sanitize_text_field( wp_unslash( $_POST['ym_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- WooCommerce verifies the checkout nonce before this hook.
 		if ( ! wp_is_uuid( $token ) ) {
-			$errors->add( 'ym_token', 'حدّثي الصفحة وجرّبي تاني.' );
+			$errors->add( 'ym_token', YM_Country::copy( 'refresh' ) );
 			return;
 		}
 		if ( ! add_option( self::TOKEN_PREFIX . md5( $token ), time(), '', false ) ) {
-			$errors->add( 'ym_duplicate_submit', 'الطلب ده اتبعت خلاص. لو عايزة تطلبي تاني، حدّثي الصفحة.' );
+			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
 		}
 	}
 

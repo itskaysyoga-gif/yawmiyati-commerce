@@ -2,6 +2,8 @@
 
 Status: **priced from research, not supplier-verified.** Every row in `data/launch_assortment_v2.csv` carries its exact Taager product ID and SKU from the catalog export (captured before 28 Oct 2026). Price, stock, size and contents must be re-checked in Taager before an offer goes live.
 
+Implemented: the same SKUs, Taager IDs, costs and prices are seeded into the local stores from `plugin/yawmiyati-commerce/seed/eg.json` and `iq.json`; the integration checks confirm every product has a SKU, a Taager ID and a price above cost.
+
 Benchmarks: `data/benchmarks_egy_v2.csv`, `data/benchmarks_irq_v2.csv`, built by `scripts/benchmarks.py`.
 - Identical items (same product) and similar items are counted separately; bundles, different sets and components are excluded.
 - A competitor's delivery fee counts only when the page states it. "Not shown", "varies" and "likely free" are unknown, never zero.

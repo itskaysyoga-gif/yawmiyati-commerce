@@ -92,7 +92,7 @@ final class YM_Offers {
 			WC()->session->set_customer_session_cookie( true );
 		}
 		if ( ! isset( $_POST['ym_offer_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ym_offer_nonce'] ) ), 'ym_offer' ) ) {
-			wc_add_notice( 'انتهت صلاحية الصفحة. حدّثيها وجرّبي تاني.', 'error' );
+			wc_add_notice( YM_Country::copy( 'expired' ), 'error' );
 			wp_safe_redirect( $back );
 			exit;
 		}
@@ -101,7 +101,7 @@ final class YM_Offers {
 		$valid = $offer && $page && $offer->is_purchasable() && $offer->is_in_stock()
 			&& in_array( $offer->get_id(), array_map( fn( $p ) => $p->get_id(), self::group( $page ) ), true );
 		if ( ! $valid ) {
-			wc_add_notice( 'العرض ده مش متاح دلوقتي.', 'error' );
+			wc_add_notice( YM_Country::copy( 'offer_na' ), 'error' );
 			wp_safe_redirect( $back );
 			exit;
 		}
@@ -117,7 +117,7 @@ final class YM_Offers {
 		if ( 'buy' === $intent ) {
 			wp_safe_redirect( wc_get_checkout_url() );
 		} else {
-			wc_add_notice( 'اتضاف للسلة.', 'success' );
+			wc_add_notice( YM_Country::copy( 'added' ), 'success' );
 			wp_safe_redirect( get_permalink( $page->get_id() ) );
 		}
 		exit;
@@ -131,7 +131,7 @@ final class YM_Offers {
 			}
 		}
 		if ( $in_cart + (int) $qty > self::MAX_QTY ) {
-			wc_add_notice( 'أقصى كمية من المنتج ده ' . self::MAX_QTY . ' في الطلب الواحد.', 'error' );
+			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::MAX_QTY ), 'error' );
 			return false;
 		}
 		return $passed;
@@ -139,7 +139,7 @@ final class YM_Offers {
 
 	public static function limit_update( $passed, $key, $values, $qty ) {
 		if ( (int) $qty > self::MAX_QTY ) {
-			wc_add_notice( 'أقصى كمية من المنتج ده ' . self::MAX_QTY . ' في الطلب الواحد.', 'error' );
+			wc_add_notice( sprintf( YM_Country::copy( 'max_qty' ), self::MAX_QTY ), 'error' );
 			return false;
 		}
 		return $passed;
@@ -161,7 +161,8 @@ final class YM_Offers {
 		}
 		ob_start();
 		self::render( self::primary( $product ) );
-		return ob_get_clean();
+		// The shortcode block runs wpautop over its output; without line breaks there is nothing for it to wrap.
+		return preg_replace( '/\s*\n\s*/', ' ', ob_get_clean() );
 	}
 
 	public static function render( WC_Product $page ) {
@@ -171,7 +172,7 @@ final class YM_Offers {
 		$default = $page;
 		$fees    = array_unique( array_map( fn( $g ) => $g[1], $rules['governorates'] ) );
 		sort( $fees );
-		$fee_txt = count( $fees ) > 1 ? 'التوصيل ' . number_format_i18n( min( $fees ) ) . ' إلى ' . YM_Country::money( max( $fees ) ) . ' حسب المحافظة' : 'التوصيل ' . YM_Country::money( $fees[0] );
+		$fee_txt = count( $fees ) > 1 ? 'التوصيل ' . YM_Country::number( min( $fees ) ) . ' إلى ' . YM_Country::money( max( $fees ) ) . ' حسب المحافظة' : 'التوصيل ' . YM_Country::money( $fees[0] );
 		?>
 		<article class="ym-pdp" data-ym-pdp>
 			<?php wc_print_notices(); ?>
@@ -212,7 +213,7 @@ final class YM_Offers {
 										<span class="ym-offer__label"><?php echo esc_html( $o->get_meta( '_ym_offer_label' ) ? $o->get_meta( '_ym_offer_label' ) : $o->get_name() ); ?></span>
 										<?php if ( $o->get_meta( '_ym_offer_note' ) ) : ?><span class="ym-offer__note"><?php echo esc_html( $o->get_meta( '_ym_offer_note' ) ); ?></span><?php endif; ?>
 										<?php if ( $o->get_meta( '_ym_offer_saving' ) ) : ?><span class="ym-offer__saving"><?php echo esc_html( $o->get_meta( '_ym_offer_saving' ) ); ?></span><?php endif; ?>
-										<?php if ( ! $o->is_in_stock() ) : ?><span class="ym-offer__note">خلص من المخزن</span><?php endif; ?>
+										<?php if ( ! $o->is_in_stock() ) : ?><span class="ym-offer__note"><?php echo esc_html( YM_Country::copy( 'sold_out_tag' ) ); ?></span><?php endif; ?>
 									</span>
 									<span class="ym-offer__price"><?php echo esc_html( YM_Country::money( $o->get_price() ) ); ?></span>
 								</label>
@@ -225,7 +226,7 @@ final class YM_Offers {
 						<button type="submit" name="ym_intent" value="buy" class="ym-btn ym-btn--primary"><?php echo esc_html( YM_Country::copy( 'buy' ) ); ?></button>
 						<button type="submit" name="ym_intent" value="cart" class="ym-btn ym-btn--secondary"><?php echo esc_html( YM_Country::copy( 'add' ) ); ?></button>
 					<?php else : ?>
-						<p class="ym-out">المنتج ده خلص من المخزن دلوقتي.</p>
+						<p class="ym-out"><?php echo esc_html( YM_Country::copy( 'sold_out' ) ); ?></p>
 					<?php endif; ?>
 				</form>
 			</section>
@@ -239,7 +240,7 @@ final class YM_Offers {
 
 			<?php if ( $page->get_meta( '_ym_fit' ) ) : ?>
 				<section class="ym-section">
-					<h2>هتيجي مظبوطة عندك؟</h2>
+					<h2><?php echo esc_html( YM_Country::copy( 'fit_q' ) ); ?></h2>
 					<p><?php echo esc_html( $page->get_meta( '_ym_fit' ) ); ?></p>
 				</section>
 			<?php endif; ?>
@@ -247,7 +248,7 @@ final class YM_Offers {
 			<?php $benefits = self::json_meta( $page, '_ym_benefits' ); ?>
 			<?php if ( $benefits ) : ?>
 				<section class="ym-section">
-					<h2>ليه هتحبيها</h2>
+					<h2><?php echo esc_html( YM_Country::copy( 'why' ) ); ?></h2>
 					<?php foreach ( $benefits as $b ) : ?>
 						<p><strong><?php echo esc_html( $b[0] ); ?></strong> <?php echo esc_html( $b[1] ?? '' ); ?></p>
 					<?php endforeach; ?>

@@ -39,6 +39,13 @@ if ( 'EG' === $cc ) {
 	ym_check( 'IQ currency', 'IQD' === get_woocommerce_currency() );
 }
 
+// Every customer-facing string exists in both dialects (an Egyptian fallback must never reach Iraq).
+$eg_keys = array_keys( YM_Country::RULES['EG']['copy'] );
+$iq_keys = array_keys( YM_Country::RULES['IQ']['copy'] );
+sort( $eg_keys );
+sort( $iq_keys );
+ym_check( 'same copy keys in EG and IQ', $eg_keys === $iq_keys );
+
 // Only cash on delivery is offered.
 $gateways = WC()->payment_gateways()->payment_gateways();
 ym_check( 'COD only', array( 'cod' ) === array_keys( YM_Checkout::cod_only( $gateways ) ) );

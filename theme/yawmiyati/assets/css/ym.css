@@ -87,7 +87,6 @@ body { margin: 0; }
   .ym-gallery__thumbs { padding: 10px 0 0; }
   .ym-buy { padding: 0; }
   .ym-title { font-size: 34px; }
-  .ym-offers__set { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ym-diary, .ym-section, .ym-delivery { grid-column: 1 / -1; }
   .ym-diary, .ym-delivery { margin-inline: 0; }
   .ym-section { padding-inline: 0; }
@@ -99,7 +98,7 @@ body { margin: 0; }
 .ym-home__title { font-size: 26px; margin: 0 0 6px; }
 .ym-home ul.products { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
 .ym-home ul.products::before, .ym-home ul.products::after { display: none; }
-.ym-home ul.products li.product { width: auto; margin: 0; float: none; }
+.ym-home ul.products li.product, .ym-home .woocommerce ul.products[class*="columns-"] li.product { width: auto; margin: 0; float: none; clear: none; }
 .ym-home ul.products li.product a img { border-radius: 10px; aspect-ratio: 1 / 1; object-fit: cover; margin: 0 0 6px; }
 .ym-home ul.products li.product .woocommerce-loop-product__title { font-size: 14px; font-weight: 400; padding: 0; margin: 0; }
 .ym-home ul.products li.product .price { color: var(--ym-ink); font-weight: 600; font-size: 16px; }
