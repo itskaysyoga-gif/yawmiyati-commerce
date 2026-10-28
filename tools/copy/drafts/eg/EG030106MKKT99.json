@@ -1,0 +1,35 @@
+{
+  "name": "طقم موكيت",
+  "benefit": "طقم من قطعتين، طويلة وصغيرة، للمطبخ والحمام.",
+  "diary": "الطويلة قدّام الحوض والصغيرة على باب الحمام.",
+  "fit": null,
+  "offer_labels": {
+    "EG030106MKKT99": "طقم واحد: قطعتين",
+    "EG030108BUND99": "طقمين: 4 قطع"
+  },
+  "used_facts": [
+    "في الطقم: قطعتين",
+    "قطعتين: طويلة + صغيرة",
+    "4 قطع، للمطبخ والحمام",
+    "طقم موكيت"
+  ],
+  "_model": "claude-sonnet-5-5",
+  "_usage": {
+    "input_tokens": 1802,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1095,
+    "output_tokens_details": {
+      "thinking_tokens": 843
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "_at": "2026-10-28T18:18:03.581Z",
+  "_status": "draft: not native-reviewed, not fact-approved"
+}

@@ -1,0 +1,32 @@
+{
+  "name": "دفاية كهربائية 2 في 1 بريموت",
+  "benefit": "دفاية كهربائية بتتحكمي فيها بالريموت من مكانك.",
+  "diary": "حطّيها في أوضة قريبة من فيشة، وسيبي حواليها مساحة فاضية.",
+  "fit": null,
+  "offer_labels": {
+    "EG030301HAEE99": "دفاية بريموت"
+  },
+  "used_facts": [
+    "name: دفاية كهربائية 2 في 1 بريموت",
+    "sku: EG030301HAEE99"
+  ],
+  "_model": "claude-sonnet-5-5",
+  "_usage": {
+    "input_tokens": 1705,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1010,
+    "output_tokens_details": {
+      "thinking_tokens": 789
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "_at": "2026-10-28T18:18:21.756Z",
+  "_status": "draft: not native-reviewed, not fact-approved"
+}
