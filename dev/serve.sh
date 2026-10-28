@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Start both local stores in the background: Egypt :8081, Iraq :8082
+# Start MariaDB and both local stores in the background: Egypt :8081, Iraq :8082
 DEV="$(cd "$(dirname "$0")" && pwd)"
+"$DEV/db.sh" start
 for pair in eg:8081 iq:8082; do
   cc=${pair%%:*}; port=${pair##*:}
-  (cd "$DEV/sites/$cc" && nohup php -S 0.0.0.0:$port -t . > "$DEV/.cache/serve-$cc.log" 2>&1 &)
+  if ! curl -s -o /dev/null "http://localhost:$port/"; then
+    (cd "$DEV/sites/$cc" && nohup php -d memory_limit=512M -S 127.0.0.1:$port -t . "$DEV/router.php" > "$DEV/.cache/serve-$cc.log" 2>&1 &)
+  fi
   echo "$cc -> http://localhost:$port"
 done

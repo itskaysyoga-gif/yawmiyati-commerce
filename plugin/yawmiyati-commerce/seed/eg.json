@@ -1,0 +1,45 @@
+{
+  "source": "research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
+  "products": [
+    {
+      "sku": "EG030106MKKT99", "taager_product_id": 13438, "taager_cost": 180, "price": 399,
+      "slug": "absorbent-mats", "name": "طقم موكيت فائق الامتصاص",
+      "group": "absorbent-mats", "primary": true, "order": 1,
+      "label": "طقم واحد", "note": "قطعتين: طويلة + صغيرة",
+      "benefit": "قطعتين في الطقم: واحدة طويلة وواحدة صغيرة. بيشرب المية بدل ما تفضل على الأرض.",
+      "diary": "الطويلة قدّام الحوض والصغيرة على باب الحمام، كده أول خطوة بعد المية تكون على حاجة بتشرب.",
+      "fit": "قيسي المساحة قدّام الحوض أو باب الحمام وقارنيها بمقاس القطعتين. لو المكان أضيق، الصغيرة تنفع لوحدها قدّام الغسالة.",
+      "benefits": [["بتشرب المية بسرعة.", "سطح فائق الامتصاص حسب مواصفات المورد."], ["مقاسين في طقم واحد.", "طويلة للمطبخ أو الحوض، وصغيرة للحمام أو الغسالة."], ["لون هادي.", "رمادي بخطوط فاتحة، زي الصورة."]],
+      "specs": [["في الطقم", "قطعتين"], ["المقاسات", null], ["الخامة", null], ["الغسيل", null]],
+      "images": [{"file": "eg-mats-1.jpg", "alt": "القطعتين جنب بعض"}, {"file": "eg-mats-2.jpg", "alt": "القطعة الصغيرة عن قرب"}]
+    },
+    {
+      "sku": "EG030108BUND99", "taager_product_id": 16842, "taager_cost": 350, "price": 749,
+      "slug": "absorbent-mats-2-sets", "name": "طقمين موكيت فائق الامتصاص",
+      "group": "absorbent-mats", "order": 2,
+      "label": "طقمين", "note": "4 قطع، للمطبخ والحمام", "saving": "أوفر 49 ج.م، والتوصيل مرة واحدة",
+      "images": [{"file": "eg-mats-1.jpg", "alt": "القطعتين جنب بعض"}]
+    },
+    {
+      "sku": "EG030106STPG99", "taager_product_id": 21300, "taager_cost": 445, "price": 649,
+      "slug": "double-clothes-rack", "name": "ستاند ملابس زوجي بعجل",
+      "benefit": "ماسورتين للتعليق ورف تحت للجزم أو الشنط، وبيتحرك على عجل.",
+      "specs": [["الارتفاع والعرض", null], ["الخامة", null], ["أقصى وزن", null]],
+      "images": [{"file": "eg-rack-1.jpg", "alt": "ستاند ملابس بماسورتين ورف تحت"}]
+    },
+    {
+      "sku": "EG030301HAEE99", "taager_product_id": 12437, "taager_cost": 565, "price": 799,
+      "slug": "heater-2in1-remote", "name": "دفاية كهربائية 2 في 1 بريموت",
+      "benefit": "دفاية صغيرة بشكل مدفأة وشاشة وريموت.",
+      "specs": [["القدرة (وات)", null], ["الضمان", null], ["الفولت", null]],
+      "images": [{"file": "eg-heater-1.jpg", "alt": "دفاية بشكل مدفأة وريموت"}]
+    },
+    {
+      "sku": "EG030401GB99", "taager_product_id": 17954, "taager_cost": 430, "price": 629,
+      "slug": "wearable-blanket", "name": "بطانية تتلبس",
+      "benefit": "بطانية بكابيشون تتلبس وانتي قاعدة، لون رمادي.",
+      "specs": [["المقاس", null], ["الخامة", null], ["الغسيل", null]],
+      "images": [{"file": "eg-blanket-1.jpg", "alt": "بطانية رمادي بكابيشون"}]
+    }
+  ]
+}

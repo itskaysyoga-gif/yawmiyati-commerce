@@ -1,0 +1,58 @@
+{
+  "source": "research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
+  "products": [
+    {
+      "sku": "IQ030403SENK99", "taager_product_id": 10966, "taager_cost": 30000, "price": 43000,
+      "slug": "sink-rack", "name": "رف فوق السنك",
+      "group": "sink-rack", "primary": true, "order": 1,
+      "label": "الرف لوحده", "note": "المجموع مع التوصيل 50,000 د.ع",
+      "benefit": "الصحون تنشف فوق السنك، والكاونتر يبقى فاضي للشغل.",
+      "diary": "قبل لا تطلبين، قيسي عرض السنك مالتج من الحافة للحافة وقارنيه بمقاس الرف.",
+      "fit": "قيسي عرض السنك من الحافة للحافة، وتأكدي إنه أقل من الفتحة بين رجول الرف.",
+      "specs": [["العرض المناسب للسنك", null], ["الخامة", null], ["محتويات الكرتونة", null], ["التركيب", null]],
+      "images": [{"file": "iq-sink-rack-1.jpg", "alt": "الرف فوق السنك"}, {"file": "iq-sink-rack-2.jpg", "alt": "الطابق التحتاني وحامل الأدوات"}]
+    },
+    {
+      "sku": "IQ030501SDMN99", "taager_product_id": 21568, "taager_cost": 36000, "price": 58000,
+      "slug": "sink-rack-with-mats", "name": "رف فوق السنك + طقم موكيت قطعتين",
+      "group": "sink-rack", "order": 2,
+      "label": "الرف + طقم موكيت قطعتين", "note": "المجموع مع التوصيل 65,000 د.ع", "saving": "توفرين 3,000 د.ع، والتوصيل مرة وحدة",
+      "images": [{"file": "iq-mats-1.jpg", "alt": "طقم موكيت قطعتين"}]
+    },
+    {
+      "sku": "IQ030106MATT99", "taager_product_id": 12998, "taager_cost": 10000, "price": 18000,
+      "slug": "absorbent-mats", "name": "طقم موكيت فائق الامتصاص قطعتين",
+      "benefit": "قطعتين يشربن المي، وحدة للمطبخ ووحدة للحمام.",
+      "specs": [["بالطقم", "قطعتين"], ["المقاسات", null], ["الخامة", null]],
+      "images": [{"file": "iq-mats-1.jpg", "alt": "طقم موكيت رمادي"}]
+    },
+    {
+      "sku": "IQ030301SOBA99", "taager_product_id": 12493, "taager_cost": 23000, "price": 32000,
+      "slug": "heater-180", "name": "صوبة كهربائية 180 درجة",
+      "benefit": "صوبة دائرية تدور 180 درجة حتى توزع الدفو بالغرفة.",
+      "specs": [["القدرة (واط)", null], ["الضمان", null]],
+      "images": [{"file": "iq-heater-1.jpg", "alt": "صوبة دائرية بيضاء"}]
+    },
+    {
+      "sku": "IQ030106MONZ99", "taager_product_id": 13630, "taager_cost": 19000, "price": 28000,
+      "slug": "corner-clothes-organizer", "name": "منظم ملابس زاوية",
+      "benefit": "يستغل زاوية الغرفة للتعليق والرفوف.",
+      "specs": [["الارتفاع", null], ["عدد الرفوف", null], ["الخامة", null]],
+      "images": [{"file": "iq-organizer-1.jpg", "alt": "منظم ملابس بالزاوية"}]
+    },
+    {
+      "sku": "IQ030107MASA99", "taager_product_id": 13453, "taager_cost": 10000, "price": 18000,
+      "slug": "magnetic-window-cleaner", "name": "مساحة زجاج مغناطيسية مزدوجة",
+      "benefit": "تنظف الزجاج من الجهتين مرة وحدة.",
+      "specs": [["سمك الزجاج المناسب", null]],
+      "images": [{"file": "iq-window-cleaner-1.jpg", "alt": "مساحة زجاج مغناطيسية"}]
+    },
+    {
+      "sku": "IQ030104STAN99", "taager_product_id": 14417, "taager_cost": 20000, "price": 30000,
+      "slug": "double-clothes-rack", "name": "ستاند ملابس زوجي",
+      "benefit": "ستاند بماسورتين ورف تحت.",
+      "specs": [["الارتفاع والعرض", null], ["الخامة", null]],
+      "images": [{"file": "iq-rack-1.jpg", "alt": "ستاند ملابس زوجي"}]
+    }
+  ]
+}

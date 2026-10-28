@@ -1,0 +1,13 @@
+{
+  "name": "yawmiyati-commerce",
+  "private": true,
+  "description": "Tests and tooling for the Yawmiyati stores",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/e2e/*.test.js",
+    "test:integration": "dev/wp.sh eg eval-file \"$PWD/tests/integration/run.php\" && dev/wp.sh iq eval-file \"$PWD/tests/integration/run.php\""
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  },
+  "engines": { "node": ">=22" }
+}
