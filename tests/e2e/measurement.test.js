@@ -29,7 +29,8 @@ async function watchGTM(ctx) {
 }
 const dataLayer = (page) => page.evaluate(() => JSON.parse(JSON.stringify(window.dataLayer)));
 const events = (dl) => dl.filter((e) => e && e.event && !String(e.event).startsWith('gtm')).map((e) => e.event);
-const runQueue = (cc) => h.wp(cc, 'action-scheduler', 'run', '--group=yawmiyati', '--batch-size=50');
+// Run queued server events now. Filter by hook, not group: on a fresh install the group may not exist yet.
+const runQueue = (cc) => h.wp(cc, 'action-scheduler', 'run', '--hooks=ym_capi_send', '--batch-size=50');
 
 test('Consent: banner shows on first visit and nothing measuring loads until she accepts', async () => {
   const { ctx, page } = await h.context(browser, { consent: null });
