@@ -1,0 +1,32 @@
+{
+  "name": "طقم موكيت فائق الامتصاص قطعتين",
+  "benefit": "طقم موكيت من قطعتين، تختارين وين تحطين كل قطعة بالبيت.",
+  "diary": "قبل لا تطلبين، حددي المكانين اللي تريدين تحطين بيهم القطعتين.",
+  "fit": "الطقم قطعتين. شوفي إذا عدج مكانين بالبيت تحتاجين بيهم قطعة وقطعة.",
+  "offer_labels": {
+    "IQ030106MATT99": "طقم قطعتين"
+  },
+  "used_facts": [
+    "name: طقم موكيت فائق الامتصاص قطعتين",
+    "بالطقم: قطعتين"
+  ],
+  "_model": "claude-sonnet-5-5",
+  "_usage": {
+    "input_tokens": 1520,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1114,
+    "output_tokens_details": {
+      "thinking_tokens": 836
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "_at": "2026-10-28T18:12:35.171Z",
+  "_status": "draft: not native-reviewed, not fact-approved"
+}

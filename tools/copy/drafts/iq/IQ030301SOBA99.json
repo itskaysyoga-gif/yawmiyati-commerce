@@ -1,0 +1,32 @@
+{
+  "name": "صوبة كهربائية 180 درجة",
+  "benefit": "صوبة كهربائية لبيتج، تشغلينها بالكهرباء وقت تحتاجين الدفا.",
+  "diary": "قبل لا تطلبين، شوفي وين أقرب مقبس كهرباء للمكان اللي تريدين تحطين بيه الصوبة.",
+  "fit": "حددي المكان اللي تريدين تحطين بيه الصوبة، ورجاءً تأكدي أكو مقبس كهرباء قريب منه.",
+  "offer_labels": {
+    "IQ030301SOBA99": "الصوبة الكهربائية"
+  },
+  "used_facts": [
+    "name: صوبة كهربائية 180 درجة",
+    "sku: IQ030301SOBA99"
+  ],
+  "_model": "claude-sonnet-5-5",
+  "_usage": {
+    "input_tokens": 1498,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 1013,
+    "output_tokens_details": {
+      "thinking_tokens": 719
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "_at": "2026-10-28T18:12:43.703Z",
+  "_status": "draft: not native-reviewed, not fact-approved"
+}

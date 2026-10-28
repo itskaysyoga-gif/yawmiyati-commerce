@@ -1,0 +1,32 @@
+{
+  "name": "ستاند ملابس زوجي",
+  "benefit": "ستاند ملابس زوجي يساعدج تعلقين ملابسج وتخلين أغراض البيت مرتبة.",
+  "diary": "قبل لا تطلبين، قيسي المكان اللي تريدين تحطين بي الستاند، حتى تتأكدين إنه يناسب البيت.",
+  "fit": null,
+  "offer_labels": {
+    "IQ030104STAN99": "ستاند ملابس زوجي"
+  },
+  "used_facts": [
+    "name: ستاند ملابس زوجي",
+    "sku: IQ030104STAN99"
+  ],
+  "_model": "claude-sonnet-5-5",
+  "_usage": {
+    "input_tokens": 1499,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 821,
+    "output_tokens_details": {
+      "thinking_tokens": 579
+    },
+    "service_tier": "standard",
+    "inference_geo": "global",
+    "speed": "standard"
+  },
+  "_at": "2026-10-28T18:13:07.326Z",
+  "_status": "draft: not native-reviewed, not fact-approved"
+}
