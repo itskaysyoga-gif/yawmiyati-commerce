@@ -1,0 +1,18 @@
+# secrets and local config
+.env
+.env.*
+!.env.example
+*.key
+# customer and order data never enters git
+exports/
+orders/
+*customers*.csv
+# build output
+node_modules/
+vendor/
+dist/
+out/
+studio/renders/
+dev/wp-data/
+dev/db-data/
+.DS_Store
