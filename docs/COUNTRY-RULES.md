@@ -15,3 +15,11 @@ Egypt zones: Zone 1 Cairo, Giza, Alexandria (95). Zone 2 Delta and Canal (100). 
 
 Profit is credited 6-12 h after delivery and withdrawable 24 h later. Refused or cancelled orders earn nothing.
 Taager advice that shapes the form: full name, second phone number, detailed address with a landmark, total including delivery confirmed with the customer.
+
+## Taager answers to Rashid, 28 Oct 2026 (chat with Taager support)
+- One Taager account serves every country; each country needs its own store.
+- WooCommerce orders reach Taager automatically; order statuses sync back automatically. Stock does not sync; an assigned account manager advises stock.
+- A multi-item order pays one delivery fee.
+- Supplier images may be used.
+- No deduction when a customer refuses (Egypt's published policy still lists 5 EGP; model Egypt at 5, Iraq at 0).
+- Profit can be withdrawn to any bank account or Payoneer.

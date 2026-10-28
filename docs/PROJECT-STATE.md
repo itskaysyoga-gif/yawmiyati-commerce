@@ -21,6 +21,8 @@ _Last updated: 2026-10-28_
 - Taager catalog and media come through the Taager plugin's product import once a store is live and linked, plus any official export Taager provides. Taager's private merchant API is not used.
 
 ## Waiting on
+- Rashid: buy yawmiyati.shop and SiteGround GrowBig (blocks Taager link and test orders).
+- ANTHROPIC_API_KEY added as a GitHub Actions secret (28 Oct).
 - Taager: delivery fee per order or per item; status sync to WooCommerce; media import and ad rights; Iraq refusal fee;
   payout to a UAE account in the brother's name; official product export; Iraq return window (3 vs 14 days).
 - Rashid: buy yawmiyati.shop (available on 28 Oct) and SiteGround GrowBig.

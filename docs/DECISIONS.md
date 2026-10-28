@@ -2,6 +2,9 @@
 
 Newest first. Each entry: date, decision, why.
 
+- 2026-10-28 — Cart and bundles are the main profit lever: Taager charges one delivery fee per order.
+- 2026-10-28 — Design reviews happen on published preview pages (Claude artifacts) until a staging site exists; Rashid cannot reach the local dev stores.
+
 - 2026-10-28 — Separate WordPress install per country, not Multisite. SiteGround staging does not support Multisite; Taager links one store per country.
 - 2026-10-28 — No free-delivery offers. Taager: the customer always pays delivery. Bundles show savings in money instead.
 - 2026-10-28 — Cart plus one-screen express COD form on every country site; quantity breaks, bundles, one order bump, cart suggestions. No post-purchase upsell (Taager calls within 24 h).
