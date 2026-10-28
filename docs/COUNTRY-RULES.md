@@ -4,11 +4,13 @@
 | --- | --- | --- | --- | --- | --- |
 | Currency | EGP | IQD | SAR | AED | OMR (3 decimals) |
 | Delivery fee paid by customer | 95 / 100 / 105 by zone | 7,000 | 28 | 19 | 3 |
-| Refusal or return fee to merchant | 5 EGP | not published | not published | not published | not published |
+| Refusal or return fee to merchant | 5 EGP shipped-not-received, 5 EGP delivered-then-returned | not published (support said 0) | not published | not published | not published |
 | Confirmation calls | 11:00-21:00; before 19:00 = same day | 09:00-17:00; before 15:00 = same day | 09:00-17:00 | 09:00-17:00 | 09:00-17:00 |
-| Delivery time | 2 days Cairo/Giza/Alex; up to 5 days far zones | not published | 2-3 days near, 4-5 far | 24-48 h | not published |
-| Returns | 14 days for defects via Jawda; personal care not returnable | 3-day money back (policy) vs 14 days (tips): asked | 7 days | 7 days | 15 days |
-| VAT on uplift | — | — | 15% on profit above minimum | — | — |
+| Delivery time | 2 days Cairo/Giza/Alex; up to 5 days far zones | not published | 2-3 days Riyadh, Jeddah, Dammam; 4-5 elsewhere (by city, so not shown per region) | 24-48 h | not published |
+| Returns | 14 days for defects via Jawda; personal care not returnable | 3-day money back (policy) vs 14 days (tips): asked | 7 days, refund to bank account | 7 days, refund to bank account | 15 days for defects or mismatch, cash refund via courier |
+| Phone (national format) | 01[0125] + 8 digits | 07 + 9 digits | 05 + 8 digits | 05[024568] + 7 digits | [79] + 7 digits (no trunk 0) |
+| Regions in the form | 27 governorates | 18 governorates | 13 regions | 7 emirates | 11 governorates |
+| VAT on uplift | — | — | 15 % of the profit added above the minimum (published); whether it applies to a non-Saudi merchant: ask | — | — |
 | Package opening before payment | Not allowed | Not allowed | — | — | — |
 
 Egypt zones: Zone 1 Cairo, Giza, Alexandria (95). Zone 2 Delta and Canal (100). Zone 3 Upper Egypt, Sinai, Red Sea, Matrouh, North Coast (105).
@@ -16,7 +18,7 @@ Egypt zones: Zone 1 Cairo, Giza, Alexandria (95). Zone 2 Delta and Canal (100). 
 Profit is credited 6-12 h after delivery and withdrawable 24 h later. Refused or cancelled orders earn nothing.
 Taager advice that shapes the form: full name, second phone number, detailed address with a landmark, total including delivery confirmed with the customer.
 
-Implemented in `plugin/yawmiyati-commerce/includes/class-ym-country.php` (fees by governorate, phone rules, currency, dialect copy). Change this file first, then the code.
+Implemented in `plugin/yawmiyati-commerce/config/countries.php` (all five countries; gates in `config/markets.json`, docs/MARKETS.md) (fees by governorate, phone rules, currency, dialect copy). Change this file first, then the code.
 
 ## Taager answers to Rashid, 28 Oct 2026 (chat with Taager support)
 These are what Taager support said. None is supplier-verified until a real store and test order confirm it (see PROJECT-STATE.md, verification tasks).

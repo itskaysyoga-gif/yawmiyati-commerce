@@ -1,68 +1,61 @@
 # Project state
 
-_Last updated: 2026-10-28 (evening session)_
+_Last updated: 2026-10-28 (late session: ChatGPT completion brief applied, see docs/reports/2026-10-28-completion.md)_
 
 Status words used everywhere in this repo:
 - **Designed**: exists only on the design canvas.
 - **Implemented**: code in this repo runs on the local stores.
-- **Tested**: an automated check passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions (42 end-to-end tests green in CI on 28 Oct, including the iPhone/WebKit flow, which is skipped locally). No Taager involved.
-- **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog, or a written answer). A support chat answer is recorded as "Taager said", not verified.
+- **Tested**: an automated check passes locally and in GitHub Actions (CI). No Taager involved.
+- **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog, or a written answer). A support chat answer is "Taager said", not verified.
 
 Nothing is supplier-verified. There is no live store, no Taager link and no real order.
-Repository: GitHub reports it as **public**; Rashid to switch it to private (launch checklist #1).
+Repository: still **public** (launch checklist #1).
+
+Correction to the previous handoff: it said CI was green on commit 9922223. It was not: run 40748106500 failed on a
+real duplicate-order race (two simultaneous requests both created an order). Fixed in 0700841; CI green since.
 
 ## Where things stand
-| Area | Designed | Implemented | Tested | Supplier-verified |
-| --- | --- | --- | --- | --- |
-| Warm Yawmiyati look (ivory, white, berry; blush/sage accents; 4:5 full-product frames) | via the build | yes | screenshots | — |
-| Home, product page, checkout, order received, cart | — | yes | yes | — |
-| Country switcher (header) and support/policy pages (delivery, returns, FAQ, contact, privacy) | — | yes | rendered | policy facts partly pending |
-| Offer groups, Iraq rack default 50,000 / bundle 65,000 | — | yes | yes | — |
-| Delivery fee by governorate | — | yes | yes | Taager said |
-| COD checkout, dialect labels and errors | — | yes | yes | plugin hook unknown |
-| Buy now keeps the rest of the cart | — | yes | yes | — |
-| One order per submission: overlapping requests, retries replay to the same order, failed creation releases the token | — | yes | yes (real parallel requests) | Taager duplicate handling unknown |
-| Order page privacy (details only to the ordering browser) | — | yes | yes | — |
-| Catalog gate (identity, specs, media, price, stock) on staging/production | — | yes | yes | no product passes yet |
-| Seed command refuses production | — | yes | yes | — |
-| Supplier states: pending → sent / unconfirmed → not_found → manual; conflict detection | — | yes | yes (simulated reference) | real meta key unknown |
-| Measurement: consent, dataLayer, attribution, Meta/Snap CAPI (dry run) | spec | yes | yes (local) | live checks L1-L9 open |
-| SEO: noindex outside production, canonicals, hreflang (home), Product JSON-LD, OG, sitemaps | — | yes | yes (rendered pages) | Search Console at launch |
-| Scheduled jobs, alerts, health endpoint, funnel, launch-check | — | yes | partly (sweep, health) | status sync unknown |
-| Copy: per-country files, voice guides, language lint | — | yes | lint only | native review not done |
-| Anthropic copy drafts (GitHub Actions) | — | yes | drafts for all 10 product pages produced and auto-checked (branches copy-drafts/iq-40742863270, copy-drafts/eg-40743731736); the first two Egypt runs failed, cause not visible from here | not reviewed, not fact-approved |
-| Media | standards + per-SKU checklist | interim crops only | gate blocks them | originals requested |
-| Content studio, ads, Manychat | brief | no | — | — |
+| Area | Implemented | Tested | Supplier-verified |
+| --- | --- | --- | --- |
+| Five local stores from one plugin/theme: EG :8081, IQ :8082, SA :8083, AE :8084, OM :8085 | yes | yes (orders in all five; OMR 3 decimals) | — |
+| Market gates (prepared, catalog, checkout, ads) — all "prepared", none open | yes | yes | — |
+| One order per submission (conditional insert + DB lock; slow, crashed, parallel, lost-response cases) | yes | yes | Taager duplicate handling unknown |
+| Order lifecycle history, report (unique orders, charges once, stage funnel, outcomes, mature cohorts, unknowns) | yes | yes | status names unknown |
+| COD controls: honeypot, rate limits, review holds with reasons, risk records, Turnstile (off until keys) | yes | yes | Taager's handling of on-hold orders unknown |
+| Storefront: catalog, categories, search, curated home, quantity and totals, switcher, breadcrumbs, social links | yes | yes | — |
+| Reviews after verified delivery, moderated | yes | yes | — |
+| Media coverage gate (clean, detail, scale; exact SKU; source, rights, original) | yes | yes | no product passes: originals requested |
+| Measurement: consent, withdrawal, purchase ack, late consent, key removal, verified delivered, stable retries | yes | yes (local) | live checks L1-L12 open; no accounts yet |
+| SEO: indexing by market, canonicals, breadcrumbs, category pages, retired-product policy, sitemaps | yes | yes | Search Console at launch |
+| Operations board, operator role, 90-day logs, backups + restore drill | yes | yes (drill passed locally) | — |
+| Copy: Egyptian, Iraqi, shared Gulf (SA/AE/OM) | drafts | lint only | native review not done |
+| Product selection: shortlists EG 40, IQ 40, SA 40, AE 15, OM 22; pricing on delivered contribution | research | scripts run | nothing approved |
+| Performance (lab, local, throttled phone): LCP 0.9-2.0 s on shop pages, CLS 0, INP ≤ 96 ms | — | lab only | real host and field not measured |
 
-Previews: Claude artifact "Yawmiyati Store Preview" (static snapshot of the real build) and the zip from
-`npm run preview`.
-
-## Verification tasks (open)
-Each needs the staging store, a test order **per country**, or a written answer. One test order cannot verify all
-countries, payouts, returns and stock.
-1. Taager plugin: order hook, the reference meta key it writes, and its handling of on-hold orders (EG and IQ).
-2. Governorate codes ↔ Taager province names (EG and IQ).
-3. Stock per offer, re-confirmed every 48 h (no stock sync).
-4. Payout to a third-party bank beneficiary (the brother's UAE account).
-5. Iraq return window (3 or 14 days); refund method and who collects returns, both countries.
-6. Status sync back to WooCommerce (EG and IQ) and its status names (for the funnel map).
-7. Delivery fee on a real 2-item order.
-8. Caller identity on the confirmation call, parcel and invoice branding, return communications: whether customers
-   see Yawmiyati or Taager.
-9. Iraq delivery times per governorate.
-10. SiteGround GrowBig database version (local: MariaDB 10.11).
+## Verification tasks (open; per country, one test order verifies nothing for another country)
+1. Taager plugin: order hook, reference meta key, **whether on-hold orders are sent** (read its code, then a held test order).
+2. Status names synced back (for `ym_stage_map`), then `ym_status_sync_verified`.
+3. Governorate/region codes ↔ Taager province names.
+4. Stock per offer every 48 h (Iraq has no stock data in the export at all).
+5. Payout to a third-party beneficiary; payout fees.
+6. Refusal and return charges: SA, AE, OM unpublished; Iraq "Taager said 0"; Egypt published 5 + 5.
+7. Saudi VAT on uplift for a non-Saudi merchant.
+8. Caller identity, parcel and invoice branding, return communications.
+9. Iraq return window (3 or 14 days) and delivery days.
+10. SiteGround database version.
 11. Media originals and rights in writing.
 
 ## Waiting on Rashid
 - Make the repo private.
-- A yes on the warm design direction.
+- Yes on the design, now including catalog, search, reviews and the operations board.
 - Buy yawmiyati.shop and SiteGround GrowBig (approved, not bought).
-- Send Taager the round-3 questions (docs/requests/taager-round-3.md).
-- Find one native reviewer each for Egyptian and Iraqi copy.
+- Send Taager rounds 3 and 4 (docs/requests/).
+- Native reviewers: Egyptian and Iraqi now; Gulf later.
+- Approve a first assortment per country from docs/PRODUCT-SELECTION.md.
 
 ## Next
-Launch checklist P0 in order (docs/LAUNCH-CHECKLIST.md): staging, Egypt Taager link and test order, Iraq test order,
-verified product records, policy facts, native review. Ads only after P1.
+Launch checklist P0 in order (docs/LAUNCH-CHECKLIST.md): staging, Egypt Taager link + ordinary and held test orders,
+Iraq the same, verified product records, policy facts, native review. Ads only after P1.
 
 ## How to run locally
-See README.md.
+See README.md. Five stores, about 18 minutes for the full CI run.

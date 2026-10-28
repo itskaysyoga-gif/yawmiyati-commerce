@@ -1,18 +1,21 @@
 # SEO setup
 
 Implemented in `plugin/yawmiyati-commerce/includes/class-ym-seo.php`, verified on rendered pages by
-`tests/e2e/seo.test.js` (7 checks, passing locally). No SEO plugin is used.
+`tests/e2e/seo.test.js` and `storefront.test.js`. No SEO plugin is used.
 
 ## What the stores output
 | Item | Behaviour |
 | --- | --- |
-| Indexing | Only a production store (WP_ENVIRONMENT_TYPE=production and Settings > Reading allows search engines) is indexable. Local and staging: noindex on every page, robots disallow all. Production: cart, checkout, order pages, account, search and 404 are noindex. |
+| Indexing | Only a production store whose market "catalog" gate is on (docs/MARKETS.md) is indexable; a closed market is noindex, disallows crawling and has no sitemap. Local and staging: noindex on every page, robots disallow all. Production: cart, checkout, order pages, account, search and 404 are noindex. |
 | Canonical | One per page, without query strings. Secondary offers 301 to their product page. |
-| hreflang | Country home pages: ar-EG ↔ ar-IQ, plus x-default to the chooser at the domain root (option `ym_xdefault_url`). Products: none, because no launch product is the same item in both countries; a product can opt in with meta `_ym_equivalent` once verified identical. |
-| Sitemaps | `/eg/wp-sitemap.xml`, `/iq/wp-sitemap.xml`: product pages and support pages only. No users, no taxonomies, no cart/checkout/account, no secondary offers, and on staging/production no product the catalog gate blocks. |
-| Structured data | Product: name, description, SKU, images, one Offer (price, currency, availability, condition, seller, delivery fee by region; Egypt regions as ISO 3166-2 codes). No ratings, reviews or return policy until those exist and are verified. Home: Organization + WebSite. WooCommerce's own Product markup is turned off to avoid duplicates. |
+| hreflang | Country home pages of open markets only (ar-EG, ar-IQ, ar-SA, ar-AE, ar-OM as they open), plus x-default to the chooser at the domain root (option `ym_xdefault_url`). Products: none, because no launch product is the same item in both countries; a product can opt in with meta `_ym_equivalent` once verified identical. |
+| Sitemaps | `/eg/wp-sitemap.xml`, `/iq/wp-sitemap.xml`: product pages and support pages only. No users, no review page, no retired products, no cart/checkout/account, no secondary offers, and on staging/production no product the catalog gate blocks. |
+| Structured data | Product: name, description, SKU, images, one Offer (price, currency, availability, condition, seller, delivery fee by region; Egypt regions as ISO 3166-2 codes). Rating only from 3+ approved reviews of verified deliveries (docs/REVIEWS.md); no return policy until verified. BreadcrumbList on product and category pages, identical to the breadcrumb shown. Home: Organization (sameAs Facebook and Instagram) + WebSite. WooCommerce's own Product markup is turned off to avoid duplicates. |
 | Social previews | og:title, og:description, og:image (main product image; default image for other pages), og:locale ar_EG / ar_IQ, product price tags, twitter:card summary_large_image. |
-| Titles and descriptions | "<page> | يومياتي"; descriptions from the product's benefit line or the page's first sentence. |
+| Titles and descriptions | "<page> | يومياتي"; descriptions from the product's benefit line, the category description or the page's first sentence. |
+| Catalog and categories | `/shop/` and `/product-category/<slug>/` are indexable with their own canonical (paginated pages canonical to themselves); internal search results are noindex. |
+| Unavailable products | Temporarily out of stock: page stays, Offer availability OutOfStock. Retired for good (`wp ym retire <sku> --reason=…`): 301 to the replacement or its category, removed from catalog and sitemap. |
+| AI search | Nothing special: Google says no special markup or extra "AI files" are needed for its AI features. Accurate facts and useful pages are the work. |
 
 ## Domain root (outside WordPress)
 Upload `deploy/root/index.html` (country chooser with hreflang) and `deploy/root/robots.txt` to the domain root

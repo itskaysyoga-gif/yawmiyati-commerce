@@ -27,15 +27,58 @@ One test order does not close them all: each country, the payout route, returns 
    only job names and minutes since last run.
 5. `wp ym launch-check` on each store must exit 0 before ads.
 
-## Daily routine (Rashid, 15 minutes)
-- Morning: open the daily digest. For each unconfirmed order, search Taager (phone, name, date) and record the result
-  in the order's "تاجر" box: found (enter its ID) or not found. Manual entry is possible only after "not found",
-  within 2 hours.
-- Stock: confirm each active offer in Taager, then `wp ym check <sku> --stock` (or the admin action once added).
-  Unconfirmed stock stops the offer selling after 48 hours.
-- Duplicate holds: call or message, then move the order to processing or cancel it.
-- Evening: ad spend per platform into the spend log (not automated yet), refused orders noted.
+## Operations board
+WooCommerce > **Yawmiyati ops** (or `wp ym ops`), per store. Top: "Actions for Rashid", the short list only he can do.
+Below: orders held for review, orders without supplier acknowledgement, stock checks due, products not ready to sell
+(missing checks or media views), shipments with no outcome after 7 days, returns without a refund, server
+measurement failures, overdue jobs, contribution by product (mature orders only), market gates.
 
-## Weekly (Monday)
-Weekly report email → keep / improve / stop / next test per product. Claude can draft this review once a Claude
-scheduled task is set up against the live store (not created yet: there is no live store).
+## Daily (about 15 minutes per open country)
+1. Open the board. Do "Actions for Rashid" top to bottom.
+2. **Held orders** (`wp ym review list`): call or message; then `wp ym review release <order> --note="…"` or
+   `cancel`. Nothing held reaches the supplier until released (to be proven for Taager's plugin, docs/RISK.md §5).
+3. **Supplier acknowledgement:** for each unconfirmed order search Taager (phone, name, date) and record found / not
+   found in the order's "تاجر" box. Manual entry only after "not found", within 2 hours. A "possible double" is
+   cancelled in Taager the same day.
+4. **Outcomes:** record deliveries, refusals (with the reason), returns from Taager's statuses until the status sync
+   is verified: `wp ym outcome <order> delivered --evidence="Taager #… delivered 3 Nov"`.
+5. **Stock:** confirm every advertised offer in Taager, then `wp ym check <sku> --stock` (it stops selling after 48 h).
+6. **Money:** ad spend for the day `wp ym money spend <amount> <date> --source="Ads Manager"`; wallet credits and
+   payouts when they happen.
+7. **Reviews:** send review links for yesterday's verified deliveries (`wp ym review-link <order>`); approve or reject
+   pending reviews (`wp ym reviews`).
+
+## Weekly (Monday, about 45 minutes)
+Read the Monday email (last 7 days + the mature 4-week cohort). Per product: keep / improve / pause, judged on the
+mature cohort's delivered-and-kept rate and contribution, never on yesterday's undelivered orders. Check the
+shortlist (docs/PRODUCT-SELECTION.md) for the next candidate to research. Look at refusal reasons: operational causes
+go to Taager; customer causes feed the risk records automatically. Run the restore drill monthly.
+
+## Access
+| Role | Can | Cannot |
+| --- | --- | --- |
+| Administrator (Rashid) | everything | — |
+| Yawmiyati operator (`ym_operator`) | ops board, orders (view, edit, release/cancel holds), record outcomes, moderate reviews, reports | settings, plugins, themes, users, payment methods, products |
+| Customer | own account | admin |
+
+Each person has their own login; no shared passwords. Secrets (CAPI tokens, Turnstile secret, alert webhook,
+database password) live in the host's environment and the password manager, never in git, options or chat.
+
+## Notifications and logs
+Alerts go by email and to `YM_ALERT_WEBHOOK` (e.g. a Slack or Telegram relay), at most once an hour per alert.
+Uptime monitors on `/wp-json/ym/v1/health` per store. Logs (WooCommerce > Status > Logs, source "yawmiyati") are kept
+90 days, then deleted automatically; they never contain names, phones or addresses (tested).
+
+## Backups and restore
+`deploy/backup.sh <store> <dir>`: database + uploads with checksums, 14 daily copies kept; one weekly copy goes off the
+host. SiteGround's own daily backups are a second layer, not the only one. `deploy/restore.sh <backup> <store>`
+restores after verifying checksums. **Restore drill:** `dev/restore-drill.sh` restores the Egypt store into a scratch
+store and compares orders, products, country, money ledger and media (passed 28 Oct 2026, locally). On hosting, run
+the same drill monthly on staging.
+
+## Releases and rollback
+One repository, one release for every country store. A release is a git tag (`release-YYYYMMDD-N`) that passed CI.
+Deploy: pull the tag on staging, run `wp ym launch-check` and a test order per open country, then pull the same tag
+on production stores. Rollback: put the store in maintenance, check out the previous tag, `wp cache flush`, check
+`wp ym ops` and the health endpoint. The plugin keeps data in options and order meta only (no table migrations), so
+an older release reads newer data safely. If data itself is bad, restore the last backup (export newer orders first).

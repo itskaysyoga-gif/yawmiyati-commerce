@@ -1,0 +1,122 @@
+[
+ {
+  "consent": "denied",
+  "name": "EG home",
+  "lcp_ms": 1448,
+  "cls": "0.000",
+  "inp_ms": 64,
+  "ttfb_ms": 128,
+  "kb": 335,
+  "requests": 13
+ },
+ {
+  "consent": "denied",
+  "name": "EG catalog",
+  "lcp_ms": 2000,
+  "cls": "0.000",
+  "inp_ms": 64,
+  "ttfb_ms": 119,
+  "kb": 333,
+  "requests": 13
+ },
+ {
+  "consent": "denied",
+  "name": "EG product",
+  "lcp_ms": 1228,
+  "cls": "0.000",
+  "inp_ms": 80,
+  "ttfb_ms": 152,
+  "kb": 228,
+  "requests": 13
+ },
+ {
+  "consent": "denied",
+  "name": "IQ product",
+  "lcp_ms": 1260,
+  "cls": "0.000",
+  "inp_ms": 72,
+  "ttfb_ms": 191,
+  "kb": 280,
+  "requests": 14
+ },
+ {
+  "consent": "denied",
+  "name": "OM product",
+  "lcp_ms": 940,
+  "cls": "0.000",
+  "inp_ms": 32,
+  "ttfb_ms": 118,
+  "kb": 156,
+  "requests": 9
+ },
+ {
+  "consent": "denied",
+  "name": "IQ checkout",
+  "lcp_ms": 2340,
+  "cls": "0.000",
+  "inp_ms": 0,
+  "ttfb_ms": 283,
+  "kb": 495,
+  "requests": 22
+ },
+ {
+  "consent": "granted",
+  "name": "EG home",
+  "lcp_ms": 1372,
+  "cls": "0.000",
+  "inp_ms": 56,
+  "ttfb_ms": 123,
+  "kb": 335,
+  "requests": 13
+ },
+ {
+  "consent": "granted",
+  "name": "EG catalog",
+  "lcp_ms": 1936,
+  "cls": "0.000",
+  "inp_ms": 40,
+  "ttfb_ms": 114,
+  "kb": 333,
+  "requests": 13
+ },
+ {
+  "consent": "granted",
+  "name": "EG product",
+  "lcp_ms": 1168,
+  "cls": "0.000",
+  "inp_ms": 96,
+  "ttfb_ms": 136,
+  "kb": 228,
+  "requests": 13
+ },
+ {
+  "consent": "granted",
+  "name": "IQ product",
+  "lcp_ms": 1216,
+  "cls": "0.000",
+  "inp_ms": 80,
+  "ttfb_ms": 188,
+  "kb": 280,
+  "requests": 14
+ },
+ {
+  "consent": "granted",
+  "name": "OM product",
+  "lcp_ms": 980,
+  "cls": "0.000",
+  "inp_ms": 40,
+  "ttfb_ms": 154,
+  "kb": 156,
+  "requests": 9
+ },
+ {
+  "consent": "granted",
+  "name": "IQ checkout",
+  "lcp_ms": 2284,
+  "cls": "0.000",
+  "inp_ms": 0,
+  "ttfb_ms": 313,
+  "kb": 495,
+  "requests": 22
+ }
+]

@@ -100,6 +100,8 @@ class YM_CLI {
 		$pages = YM_Pages::install( $cc );
 		YM_Board::install_role();
 		update_option( 'woocommerce_logs_retention_period_days', 90 ); // operational logs kept 90 days, then deleted
+		// WooCommerce's own order attribution sets tracking cookies before consent and duplicates ours (YM_Tracking).
+		update_option( 'woocommerce_feature_order_attribution_enabled', 'no' );
 		update_option( 'blogname', 'يومياتي' );
 		update_option( 'blogdescription', YM_Country::copy( 'home_lede', $cc ) );
 		flush_rewrite_rules();

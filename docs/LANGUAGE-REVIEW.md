@@ -1,7 +1,9 @@
 # Language review
 
-Translation-key completeness (the integration check that Egypt and Iraq define the same keys) proves nothing about
-quality. This file is the language sign-off. Every line below was drafted by Claude on 28 Oct 2026 and has **not** been
+Translation-key completeness (the integration check that all five countries define the same keys) proves nothing about
+quality. Saudi Arabia, UAE and Oman share `copy/gulf.json` plus small country files (docs/voice/GULF.md); each needs its
+own native reviewer before that market opens. New keys added 28 Oct (late): search, categories, catalog, quantity,
+totals, reviews, abuse-control messages, closed-market message; they are drafts like the rest. This file is the language sign-off. Every line below was drafted by Claude on 28 Oct 2026 and has **not** been
 reviewed by a native speaker. `wp ym launch-check` stays red until the option `ym_language_reviewed_<CC>` is set after
 the review for that country.
 

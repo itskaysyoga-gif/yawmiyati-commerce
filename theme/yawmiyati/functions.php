@@ -8,9 +8,24 @@ defined( 'ABSPATH' ) || exit;
 
 add_action( 'after_setup_theme', function () {
 	add_theme_support( 'woocommerce' );
-	add_theme_support( 'wc-product-gallery-zoom' );
 	remove_theme_support( 'core-block-patterns' );
 } );
+
+// Only what a page uses. WooCommerce's own CSS and jQuery-based scripts are needed on cart, checkout and account
+// pages only; the shop, product and content pages are styled by ym.css and run ym.js (no jQuery). No emoji script.
+remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+remove_action( 'wp_print_styles', 'print_emoji_styles' );
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! function_exists( 'is_checkout' ) || is_cart() || is_checkout() || is_account_page() ) {
+		return;
+	}
+	foreach ( array( 'woocommerce-general', 'woocommerce-layout', 'woocommerce-smallscreen', 'woocommerce-blocktheme', 'wc-blocks-style' ) as $h ) {
+		wp_dequeue_style( $h );
+	}
+	foreach ( array( 'wc-add-to-cart', 'woocommerce', 'jquery-blockui', 'js-cookie', 'wc-single-product', 'zoom', 'flexslider', 'photoswipe', 'photoswipe-ui-default', 'sourcebuster-js', 'wc-order-attribution' ) as $h ) {
+		wp_dequeue_script( $h );
+	}
+}, 99 );
 
 add_action( 'wp_enqueue_scripts', function () {
 	$ver = wp_get_theme()->get( 'Version' );

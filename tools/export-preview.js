@@ -10,6 +10,7 @@ const OUT = path.resolve(process.argv[2] || 'preview');
 const STORES = {
   eg: { base: 'http://localhost:8081', name: 'مصر', products: ['absorbent-mats', 'double-clothes-rack', 'heater-2in1-remote', 'wearable-blanket'], buy: 'absorbent-mats', state: 'EGC', phone: '01000000000' },
   iq: { base: 'http://localhost:8082', name: 'العراق', products: ['sink-rack', 'absorbent-mats', 'heater-180', 'corner-clothes-organizer', 'magnetic-window-cleaner', 'double-clothes-rack'], buy: 'sink-rack', state: 'BG', phone: '07700000000' },
+  om: { base: 'http://localhost:8085', name: 'عُمان (محضّرة، غير مفتوحة)', products: ['dish-rack'], buy: 'dish-rack', state: 'MA', phone: '91234567' },
 };
 
 const saved = new Set();
@@ -89,6 +90,13 @@ async function save(page, cc, base, rel, opts = {}) {
         await save(page, cc, s.base, `product/${slug}`);
         links.push([await page.locator('h1').first().innerText(), `${cc}/product/${slug}/index.html`]);
       }
+      // Catalog, a category and an empty search (search pages are noindex on the live store).
+      for (const [rel, url, label] of [['shop', '/shop/', 'كل المنتجات'], ['category', '/product-category/kitchen/', 'قسم المطبخ'], ['search-empty', '/?s=%D8%BA%D8%B3%D8%A7%D9%84%D8%A9+%D9%81%D8%B6%D8%A7%D8%A6%D9%8A%D8%A9&post_type=product', 'بحث بلا نتائج']]) {
+        const r = await page.goto(s.base + url, { waitUntil: 'networkidle' });
+        if (!r || r.status() !== 200) continue;
+        await save(page, cc, s.base, rel);
+        links.push([label, `${cc}/${rel}/index.html`]);
+      }
       for (const [slug, label] of [['delivery', 'التوصيل والدفع'], ['returns', 'الاستبدال والاسترجاع'], ['faq', 'أسئلة'], ['contact', 'تواصل'], ['privacy', 'الخصوصية']]) {
         await page.goto(`${s.base}/${slug}/`, { waitUntil: 'networkidle' });
         await save(page, cc, s.base, slug);
@@ -100,7 +108,7 @@ async function save(page, cc, base, rel, opts = {}) {
       await save(page, cc, s.base, 'checkout', { stripScripts: true });
       links.push(['صفحة الطلب', `${cc}/checkout/index.html`]);
       await page.fill('#billing_first_name', 'معاينة متجر');
-      await page.fill('#billing_phone', s.phone);
+      await page.fill('#billing_phone', s.phone.slice(0, -3) + String(Date.now()).slice(-3));
       await page.evaluate((st) => jQuery('#billing_state').val(st).trigger('change'), s.state);
       await page.fill('#billing_address_1', 'عنوان تجريبي');
       await page.waitForTimeout(2000);
@@ -138,6 +146,6 @@ async function save(page, cc, base, rel, opts = {}) {
 <style>:root{--ink:#1F1D1E;--nila:#2B3192;--rule:#E7E5E1;--muted:#5E5A57;--paper:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#F2F1EF;--nila:#AEB4F5;--rule:#3A3836;--muted:#B8B3AE;--paper:#161515}}
 body{margin:0;padding:24px 16px;background:var(--paper);color:var(--ink);font:16px/1.7 system-ui,sans-serif}main{max-width:720px;margin:0 auto}h1{font-size:24px;margin:0 0 4px}p{color:var(--muted);margin:0 0 20px}
 h2{font-size:18px;margin:20px 0 8px}ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}li{border-bottom:1px solid var(--rule)}a{display:block;padding:10px 0;color:var(--nila);text-decoration:none}</style></head>
-<body><main><h1>معاينة يومياتي</h1><p>صفحات حقيقية من متجر WooCommerce المحلي، محفوظة يوم ${when}. الأسعار من ملف التشكيلة v2. الطلب معطّل في المعاينة.</p>${list}</main></body></html>`);
+<body><main><h1>معاينة يومياتي</h1><p>صفحات حقيقية من متاجر WooCommerce المحلية، محفوظة يوم ${when}. الأسعار من ملف التشكيلة v2 (عُمان: منتج تجربة محلي فقط). الطلب والبحث معطّلان في المعاينة. الصور مؤقتة ومحجوبة عن البيع حتى تصل الأصلية.</p>${list}</main></body></html>`);
   console.log('saved', saved.size, 'assets to', OUT);
 })();
