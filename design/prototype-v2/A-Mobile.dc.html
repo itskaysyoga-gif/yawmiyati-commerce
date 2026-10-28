@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>أ · طقم موكيت فائق الامتصاص · موبايل</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;family=Aref+Ruqaa:wght@400;700&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#2B3192}a:hover{color:#1E2470}
+input,select,button{font-family:inherit}
+input:focus,select:focus{outline:3px solid #9AA0E0;outline-offset:1px}
+button:focus-visible,a:focus-visible{outline:3px solid #9AA0E0;outline-offset:2px}
+</style>
+</helmet>
+<div dir="rtl" style="width: 390px; min-height: 3900px; box-sizing: border-box; background: #FFFFFF; color: #1F1D1E; font-family: 'Readex Pro', system-ui, sans-serif; font-size: 16px; line-height: 1.7">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #E7E5E1">
+    <img src="/_blob/2a54acae1d7be942bef7eb1d2443c637" alt="يومياتي" style="height: 40px; width: auto">
+    <div style="display: flex; align-items: center; gap: 6px">
+      <button type="button" style="height: 36px; padding: 0 12px; border: 1px solid #E7E5E1; border-radius: 18px; background: #FFFFFF; color: #1F1D1E; font-size: 14px; font-weight: 500">مصر</button>
+      <button type="button" aria-label="السلة، {{ cartCount }} منتج" style="position: relative; width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; color: #1F1D1E">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>
+        <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 4px; left: 4px; min-width: 18px; height: 18px; border-radius: 9px; background: #2B3192; color: #FFFFFF; font-size: 11px; line-height: 18px; text-align: center">{{ cartCount }}</span></sc-if>
+      </button>
+    </div>
+  </header>
+
+  <section aria-label="صور المنتج">
+    <img src="{{ mainImg }}" alt="{{ mainAlt }}" style="display: block; width: 390px; height: 390px; object-fit: cover; background: #F4F3F1">
+    <div style="display: flex; gap: 8px; padding: 10px 16px 0">
+      <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="2">
+        <button type="button" onClick="{{ t.pick }}" aria-label="{{ t.alt }}" style="{{ t.style }}"><img src="{{ t.src }}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="padding: 16px 16px 4px; display: flex; flex-direction: column; gap: 8px">
+    <h1 style="margin: 0; font-size: 24px; line-height: 1.35; font-weight: 600">طقم موكيت فائق الامتصاص</h1>
+    <p style="margin: 0; color: #5E5A57">قطعتين في الطقم: واحدة طويلة وواحدة صغيرة. بيشرب المية بدل ما تفضل على الأرض.</p>
+    <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+      <span style="font-size: 30px; font-weight: 700">{{ priceText }}</span>
+      <span style="font-size: 14px; color: #5E5A57">+ التوصيل 95 إلى 105 ج.م حسب المحافظة</span>
+    </div>
+  </section>
+
+  <section aria-label="اختاري الكمية" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 16px; font-weight: 600">الكمية</h2>
+    <button type="button" onClick="{{ pickOne }}" aria-pressed="{{ oneOn }}" style="{{ oneStyle }}">
+      <img src="/_blob/147a3de7d08459ba310548c940e39872" alt="" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex: none">
+      <span style="display: flex; flex-direction: column; align-items: flex-start; flex: 1; line-height: 1.5"><span style="font-weight: 600">طقم واحد</span><span style="font-size: 13px; color: #5E5A57">قطعتين: طويلة + صغيرة</span></span>
+      <span style="font-weight: 600; font-size: 17px">399 ج.م</span>
+    </button>
+    <button type="button" onClick="{{ pickTwo }}" aria-pressed="{{ twoOn }}" style="{{ twoStyle }}">
+      <span style="position: relative; width: 56px; height: 56px; flex: none"><img src="/_blob/147a3de7d08459ba310548c940e39872" alt="" style="position: absolute; top: 0; right: 0; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 2px solid #FFFFFF"><img src="/_blob/147a3de7d08459ba310548c940e39872" alt="" style="position: absolute; bottom: 0; left: 0; width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 2px solid #FFFFFF"></span>
+      <span style="display: flex; flex-direction: column; align-items: flex-start; flex: 1; line-height: 1.5"><span style="font-weight: 600">طقمين</span><span style="font-size: 13px; color: #5E5A57">4 قطع، للمطبخ والحمام</span><span style="font-size: 13px; color: #2B3192; font-weight: 500">أوفر 49 ج.م، والتوصيل مرة واحدة</span></span>
+      <span style="font-weight: 600; font-size: 17px">749 ج.م</span>
+    </button>
+  </section>
+
+  <section style="padding: 6px 16px 20px; display: flex; flex-direction: column; gap: 10px">
+    <a href="#order" style="display: flex; align-items: center; justify-content: center; height: 54px; border-radius: 12px; background: #2B3192; color: #FFFFFF; text-decoration: none; font-size: 18px; font-weight: 600">اطلبي دلوقتي، والدفع عند الاستلام</a>
+    <button type="button" onClick="{{ addToCart }}" style="height: 50px; border-radius: 12px; border: 1.5px solid #1F1D1E; background: #FFFFFF; color: #1F1D1E; font-size: 16px; font-weight: 500">{{ cartBtnText }}</button>
+  </section>
+
+  <section aria-label="ملاحظة من يومياتي" style="margin: 0 16px 24px; padding: 16px 18px 18px; background: #FBFAF7; border: 1px solid #E7E5E1; border-radius: 6px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px dashed #CFCBC4; padding-bottom: 6px; margin-bottom: 10px">
+      <span style="font-family: 'Aref Ruqaa', serif; font-size: 23px; color: #2B3192">ملاحظة من يومياتي</span>
+      <span style="font-size: 13px; color: #5E5A57">الأربعاء 28 أكتوبر</span>
+    </div>
+    <p style="margin: 0; font-size: 17px; line-height: 1.8">الطويلة قدّام الحوض والصغيرة على باب الحمام، كده أول خطوة بعد المية تكون على حاجة بتشرب.</p>
+  </section>
+
+  <section style="padding: 0 16px 24px; display: flex; flex-direction: column; gap: 12px">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600">هتيجي مظبوطة عندك؟</h2>
+    <div style="display: flex; gap: 12px; align-items: flex-end; padding: 16px; background: #F7F7F5; border-radius: 10px">
+      <div style="flex: 2; display: flex; flex-direction: column; gap: 6px; align-items: center"><div style="width: 100%; height: 34px; border-radius: 17px; background: #6B6866"></div><span style="font-size: 13px; color: #5E5A57; text-align: center">الطويلة: [الطول × العرض من تاجر]</span></div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; align-items: center"><div style="width: 100%; height: 56px; border-radius: 10px; background: #6B6866"></div><span style="font-size: 13px; color: #5E5A57; text-align: center">الصغيرة: [المقاس من تاجر]</span></div>
+    </div>
+    <p style="margin: 0">قيسي المساحة قدّام الحوض أو باب الحمام بالمتر، وقارنيها بالمقاس. لو المكان أضيق، الصغيرة تنفع لوحدها قدّام الغسالة.</p>
+  </section>
+
+  <section style="padding: 0 16px 24px; display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600">ليه هتحبيها</h2>
+    <p style="margin: 0"><strong style="font-weight: 600">بتشرب المية بسرعة.</strong> سطح فائق الامتصاص حسب مواصفات المورد.</p>
+    <p style="margin: 0"><strong style="font-weight: 600">مقاسين في طقم واحد.</strong> طويلة للمطبخ أو الحوض، وصغيرة للحمام أو الغسالة.</p>
+    <p style="margin: 0"><strong style="font-weight: 600">لون هادي.</strong> رمادي بخطوط فاتحة، زي الصورة بالظبط.</p>
+  </section>
+
+  <section style="padding: 0 16px 24px">
+    <h2 style="margin: 0 0 8px; font-size: 20px; font-weight: 600">المواصفات</h2>
+    <dl style="margin: 0; border-top: 1px solid #E7E5E1">
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid #E7E5E1"><dt style="color: #5E5A57">في الطقم</dt><dd style="margin: 0; font-weight: 500">قطعتين</dd></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid #E7E5E1"><dt style="color: #5E5A57">المقاسات</dt><dd style="margin: 0; font-weight: 500">[من تاجر]</dd></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid #E7E5E1"><dt style="color: #5E5A57">الخامة</dt><dd style="margin: 0; font-weight: 500">[من تاجر]</dd></div>
+      <div style="display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid #E7E5E1"><dt style="color: #5E5A57">الغسيل</dt><dd style="margin: 0; font-weight: 500">[من تاجر]</dd></div>
+    </dl>
+  </section>
+
+  <section style="margin: 0 16px 24px; padding: 18px; border-radius: 12px; background: #EEF0FA; display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600">التوصيل والدفع</h2>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px">
+      <thead><tr><th scope="col" style="text-align: right; padding: 6px 0; border-bottom: 1px solid #C9CCEB; font-weight: 600">المحافظات</th><th scope="col" style="text-align: right; padding: 6px 0; border-bottom: 1px solid #C9CCEB; font-weight: 600">التوصيل</th><th scope="col" style="text-align: right; padding: 6px 0; border-bottom: 1px solid #C9CCEB; font-weight: 600">المدة</th></tr></thead>
+      <tbody>
+        <tr><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">القاهرة، الجيزة، الإسكندرية</td><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">95 ج.م</td><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">يومين</td></tr>
+        <tr><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">الدلتا والقناة</td><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">100 ج.م</td><td style="padding: 6px 0; border-bottom: 1px solid #C9CCEB">لحد 3 أيام</td></tr>
+        <tr><td style="padding: 6px 0">الصعيد وسيناء والبحر الأحمر ومطروح</td><td style="padding: 6px 0">105 ج.م</td><td style="padding: 6px 0">من 2 لـ 5 أيام</td></tr>
+      </tbody>
+    </table>
+    <p style="margin: 0">التوصيل مرة واحدة على الطلب كله. فريق التأكيد هيكلمك خلال 24 ساعة من رقم غريب، ولو طلبتي قبل 7 بالليل بيتأكد نفس اليوم.</p>
+    <p style="margin: 0">الدفع كاش للمندوب. مش مسموح فتح الشحنة قبل الدفع، والفاتورة جوّه الشحنة. لو فيه عيب: استبدال أو استرجاع خلال 14 يوم.</p>
+  </section>
+
+  <section style="padding: 0 16px 24px">
+    <h2 style="margin: 0 0 8px; font-size: 20px; font-weight: 600">أسئلة بتتسأل كتير</h2>
+    <details style="border-top: 1px solid #E7E5E1; padding: 12px 0"><summary style="font-weight: 500; cursor: pointer">أقدر أفتح الشحنة قبل ما أدفع؟</summary><p style="margin: 8px 0 0; color: #5E5A57">لأ، شركة الشحن مش بتسمح. لو وصلك فيه عيب بنستبدله أو نرجّع فلوسك خلال 14 يوم.</p></details>
+    <details style="border-top: 1px solid #E7E5E1; border-bottom: 1px solid #E7E5E1; padding: 12px 0"><summary style="font-weight: 500; cursor: pointer">لو طلبت طقمين هدفع توصيل مرتين؟</summary><p style="margin: 8px 0 0; color: #5E5A57">لأ، التوصيل مرة واحدة على الطلب كله.</p></details>
+  </section>
+
+  <section id="order" aria-label="بيانات الطلب" style="margin: 0 16px 24px; padding: 18px 16px; border: 1.5px solid #1F1D1E; border-radius: 12px">
+    <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 600">بيانات التوصيل</h2>
+        <p style="margin: 0; font-size: 14px; color: #5E5A57">مش محتاجة حساب ولا إيميل. الخانات اللي عليها * مطلوبة.</p>
+        <sc-if value="{{ hasErrors }}" hint-placeholder-val="{{ false }}"><p role="alert" style="margin: 0; padding: 10px 12px; border-radius: 8px; background: #FDECEA; color: #B42318; font-size: 14px">راجعي الخانات اللي باللون الأحمر.</p></sc-if>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">الاسم بالكامل *<input type="text" autocomplete="name" onInput="{{ setName }}" aria-invalid="{{ err.name }}" style="{{ nameStyle }}"></label>
+        <sc-if value="{{ err.name }}" hint-placeholder-val="{{ false }}"><span style="margin-top: -8px; font-size: 13px; color: #B42318">اكتبي اسمك الأول والأخير.</span></sc-if>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">رقم الموبايل *<input type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr" onInput="{{ setPhone }}" aria-invalid="{{ err.phone }}" style="{{ phoneStyle }}"></label>
+        <sc-if value="{{ err.phone }}" hint-placeholder-val="{{ false }}"><span style="margin-top: -8px; font-size: 13px; color: #B42318">رقم مصري من 11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015.</span></sc-if>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">رقم تاني (اختياري)<span style="font-weight: 400; color: #5E5A57; font-size: 13px">بيساعد إن الطلب يوصل لو الأول مقفول</span><input type="tel" inputmode="tel" placeholder="01xxxxxxxxx" dir="ltr" style="height: 48px; padding: 0 12px; border: 1px solid #CFCBC4; border-radius: 10px; font-size: 16px; text-align: right; background: #FFFFFF; color: #1F1D1E"></label>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">المحافظة *
+          <select onChange="{{ onGov }}" aria-invalid="{{ err.gov }}" style="{{ govStyle }}">
+            <option value="">اختاري المحافظة</option>
+            <sc-for list="{{ govs }}" as="g" hint-placeholder-count="3"><option value="{{ g.key }}">{{ g.name }}</option></sc-for>
+          </select>
+        </label>
+        <sc-if value="{{ err.gov }}" hint-placeholder-val="{{ false }}"><span style="margin-top: -8px; font-size: 13px; color: #B42318">اختاري محافظتك عشان نحسب التوصيل.</span></sc-if>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">المنطقة والشارع *<input type="text" onInput="{{ setArea }}" aria-invalid="{{ err.area }}" placeholder="مثلاً: مدينة نصر، شارع عباس العقاد" style="{{ areaStyle }}"></label>
+        <sc-if value="{{ err.area }}" hint-placeholder-val="{{ false }}"><span style="margin-top: -8px; font-size: 13px; color: #B42318">اكتبي المنطقة واسم الشارع.</span></sc-if>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">العمارة<input type="text" style="height: 48px; padding: 0 12px; border: 1px solid #CFCBC4; border-radius: 10px; font-size: 16px; background: #FFFFFF; color: #1F1D1E"></label>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">الدور والشقة<input type="text" style="height: 48px; padding: 0 12px; border: 1px solid #CFCBC4; border-radius: 10px; font-size: 16px; background: #FFFFFF; color: #1F1D1E"></label>
+        </div>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 500">علامة مميزة جنبك<input type="text" placeholder="مثلاً: جنب صيدلية …" style="height: 48px; padding: 0 12px; border: 1px solid #CFCBC4; border-radius: 10px; font-size: 16px; background: #FFFFFF; color: #1F1D1E"></label>
+        <div style="padding-top: 12px; border-top: 1px solid #E7E5E1; display: flex; flex-direction: column; gap: 6px; font-size: 15px">
+          <div style="display: flex; justify-content: space-between"><span>{{ qtyLabel }}</span><span>{{ priceText }}</span></div>
+          <div style="display: flex; justify-content: space-between"><span>التوصيل</span><span>{{ feeText }}</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 700"><span>هتدفعي عند الاستلام</span><span>{{ totalText }}</span></div>
+        </div>
+        <button type="button" onClick="{{ submit }}" disabled="{{ sending }}" style="{{ submitStyle }}">{{ submitText }}</button>
+        <p style="margin: 0; font-size: 13px; color: #5E5A57; text-align: center">بتأكيد الطلب بتوافقي على <a href="#">سياسة الاسترجاع</a> و<a href="#">الخصوصية</a>.</p>
+      </div>
+    </sc-if>
+    <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+      <div role="status" style="display: flex; flex-direction: column; gap: 10px">
+        <span aria-hidden="true" style="width: 48px; height: 48px; border-radius: 24px; background: #EEF0FA; color: #2B3192; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 600">طلبك وصل، رقمه YM-EG-10421</h2>
+        <p style="margin: 0">فريق التأكيد هيكلمك خلال 24 ساعة من رقم غريب. ردّي عليهم عشان الطلب يطلع.</p>
+        <div style="padding: 12px; border-radius: 10px; background: #F7F7F5; display: flex; flex-direction: column; gap: 4px; font-size: 15px">
+          <div style="display: flex; justify-content: space-between"><span>{{ qtyLabel }}</span><span>{{ priceText }}</span></div>
+          <div style="display: flex; justify-content: space-between"><span>التوصيل</span><span>{{ feeText }}</span></div>
+          <div style="display: flex; justify-content: space-between; font-weight: 700"><span>هتدفعي عند الاستلام</span><span>{{ totalText }}</span></div>
+        </div>
+        <button type="button" onClick="{{ reset }}" style="height: 48px; border-radius: 12px; border: 1.5px solid #1F1D1E; background: #FFFFFF; color: #1F1D1E; font-size: 15px; font-weight: 500">ارجعي للتصميم (تجربة)</button>
+      </div>
+    </sc-if>
+  </section>
+
+  <footer style="padding: 24px 16px 96px; background: #1F1D1E; color: #FFFFFF; display: flex; flex-direction: column; gap: 10px">
+    <img src="/_blob/2a54acae1d7be942bef7eb1d2443c637" alt="يومياتي" style="height: 44px; width: auto; align-self: flex-start; filter: invert(1)">
+    <p style="margin: 0; font-size: 14px; color: #E7E5E1">عندك سؤال؟ ابعتيلنا على إنستجرام وهنرد عليكي.</p>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px"><a href="#" style="color: #FFFFFF">الشحن والتوصيل</a><a href="#" style="color: #FFFFFF">الاسترجاع</a><a href="#" style="color: #FFFFFF">الخصوصية</a></div>
+  </footer>
+
+  <div style="position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: #FFFFFF; border-top: 1px solid #E7E5E1">
+    <div style="display: flex; flex-direction: column; line-height: 1.3"><span style="font-size: 13px; color: #5E5A57">{{ qtyLabel }}</span><span style="font-size: 17px; font-weight: 700">{{ priceText }}</span></div>
+    <a href="#order" style="flex: 1; display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 12px; background: #2B3192; color: #FFFFFF; text-decoration: none; font-weight: 600">اطلبي دلوقتي</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":3900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.f = { name: '', phone: '', area: '' };
+    this.state = { qty: 1, gov: '', img: 0, cart: 0, err: {}, sending: false, done: false };
+  }
+  renderVals() {
+    var self = this, s = this.state;
+    var zones = { z1: 95, z2: 100, z3: 105 };
+    var list = [['القاهرة','z1'],['الجيزة','z1'],['الإسكندرية','z1'],['البحيرة','z2'],['الدقهلية','z2'],['الشرقية','z2'],['الغربية','z2'],['القليوبية','z2'],['المنوفية','z2'],['الإسماعيلية','z2'],['السويس','z2'],['بورسعيد','z2'],['كفر الشيخ','z2'],['دمياط','z2'],['بني سويف','z2'],['الفيوم','z3'],['المنيا','z3'],['أسيوط','z3'],['سوهاج','z3'],['قنا','z3'],['الأقصر','z3'],['أسوان','z3'],['الوادي الجديد','z3'],['مطروح','z3'],['البحر الأحمر','z3'],['شمال سيناء','z3'],['جنوب سيناء','z3']];
+    var govs = list.map(function (g, i) { return { key: String(i), name: g[0], zone: g[1] }; });
+    var imgs = [
+      { src: '/_blob/147a3de7d08459ba310548c940e39872', alt: 'القطعتين جنب بعض' },
+      { src: '/_blob/317bbbc171ff894e36c0b3bdba73d949', alt: 'القطعة الصغيرة عن قرب' }
+    ];
+    var price = s.qty === 2 ? 749 : 399;
+    var g = s.gov === '' ? null : govs[Number(s.gov)];
+    var fee = g ? zones[g.zone] : null;
+    var card = 'display: flex; align-items: center; gap: 12px; width: 100%; min-height: 76px; padding: 10px 12px; border-radius: 12px; color: #1F1D1E; text-align: right; cursor: pointer; ';
+    var field = 'height: 48px; padding: 0 12px; border-radius: 10px; font-size: 16px; background: #FFFFFF; color: #1F1D1E; ';
+    var ok = field + 'border: 1px solid #CFCBC4;', bad = field + 'border: 2px solid #B42318;';
+    var e = s.err;
+    function fmt(n) { return String(n) + ' ج.م'; }
+    return {
+      mainImg: imgs[s.img].src, mainAlt: imgs[s.img].alt,
+      thumbs: imgs.map(function (im, i) {
+        return { src: im.src, alt: im.alt, pick: function () { self.setState({ img: i }); },
+          style: 'width: 64px; height: 64px; padding: 0; border-radius: 8px; overflow: hidden; cursor: pointer; background: #F4F3F1; border: ' + (s.img === i ? '2px solid #2B3192' : '1px solid #E7E5E1') };
+      }),
+      govs: govs,
+      priceText: fmt(price),
+      qtyLabel: s.qty === 2 ? 'طقمين (4 قطع)' : 'طقم واحد (قطعتين)',
+      feeText: fee === null ? 'اختاري المحافظة' : fmt(fee),
+      totalText: fee === null ? fmt(price) + ' + التوصيل' : fmt(price + fee),
+      oneOn: s.qty === 1 ? 'true' : 'false', twoOn: s.qty === 2 ? 'true' : 'false',
+      oneStyle: card + (s.qty === 1 ? 'border: 2px solid #2B3192; background: #EEF0FA;' : 'border: 1px solid #CFCBC4; background: #FFFFFF;'),
+      twoStyle: card + (s.qty === 2 ? 'border: 2px solid #2B3192; background: #EEF0FA;' : 'border: 1px solid #CFCBC4; background: #FFFFFF;'),
+      pickOne: function () { self.setState({ qty: 1 }); },
+      pickTwo: function () { self.setState({ qty: 2 }); },
+      hasCart: s.cart > 0, cartCount: s.cart,
+      cartBtnText: s.cart > 0 ? 'اتضاف للسلة، كمّلي تسوّق' : 'أضيفي للسلة',
+      addToCart: function () { self.setState({ cart: s.cart + s.qty }); },
+      onGov: function (ev) { var v = ev.target.value; var ne = Object.assign({}, self.state.err); ne.gov = false; self.setState({ gov: v, err: ne }); },
+      setName: function (ev) { self.f.name = ev.target.value; },
+      setPhone: function (ev) { self.f.phone = ev.target.value; },
+      setArea: function (ev) { self.f.area = ev.target.value; },
+      err: { name: !!e.name, phone: !!e.phone, gov: !!e.gov, area: !!e.area },
+      hasErrors: !!(e.name || e.phone || e.gov || e.area),
+      nameStyle: e.name ? bad : ok, phoneStyle: (e.phone ? bad : ok) + ' text-align: right;', govStyle: e.gov ? bad : ok, areaStyle: e.area ? bad : ok,
+      sending: s.sending,
+      submitText: s.sending ? 'بنبعت طلبك…' : 'تأكيد الطلب',
+      submitStyle: 'height: 56px; border: 0; border-radius: 12px; color: #FFFFFF; font-size: 18px; font-weight: 600; cursor: pointer; background: ' + (s.sending ? '#7C80BE' : '#2B3192'),
+      showForm: !s.done, done: s.done,
+      submit: function () {
+        var f = self.f;
+        var ne = {
+          name: f.name.trim().split(/\s+/).filter(Boolean).length < 2,
+          phone: !/^01[0125][0-9]{8}$/.test(f.phone.replace(/\s/g, '')),
+          gov: self.state.gov === '',
+          area: f.area.trim().length < 3
+        };
+        if (ne.name || ne.phone || ne.gov || ne.area) { self.setState({ err: ne }); return; }
+        self.setState({ err: {}, sending: true });
+        setTimeout(function () { self.setState({ sending: false, done: true }); }, 900);
+      },
+      reset: function () { self.f = { name: '', phone: '', area: '' }; self.setState({ done: false, err: {}, gov: '' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
