@@ -1,0 +1,31 @@
+country,slug,decision,role,taager_cost,taager_min,our_price,delivery,customer_pays,profit_per_delivery,breakeven_cpa_30,breakeven_cpa_45,breakeven_cpa_60,price_valid,refusal_fee_unknown,why
+EGY,absorbent-mats,launch,shared hero,180,280,399,100,499,219.0,62.2,95.8,129.4,True,False,"2-piece set; comparable sets 259-580, median 499; our total 499"
+EGY,double-clothes-rack,launch,shared,445,610,649,100,749,204.0,57.7,89.05,120.4,True,False,typical 699 across 9 offers; healthy room
+EGY,heater-180,launch,"shared, winter",565,595,799,100,899,234.0,66.7,102.55,138.4,True,False,"same item 749-999, median 899; our total 899"
+EGY,wearable-blanket,launch,"winter, Egypt only",430,537,649,100,749,219.0,62.2,95.8,129.4,True,False,"market 390-800, median 681"
+EGY,clothes-care-bundle (steam iron + wrinkle spray),test,bundle / order bump,440,670,699,100,799,259.0,74.2,113.8,153.4,True,False,"iron sells ~345, spray ~410 separately; bundle total 799"
+EGY,portable-steam-iron,bump only,add-on,235,265,349,100,449,114.0,30.7,48.55,66.4,True,False,thin margin alone
+EGY,portable-clothes-dryer,hold,,600,900,999,100,1099,399.0,116.2,176.8,237.4,True,False,one listing of the same model says 110 V; confirm voltage with Taager
+EGY,shoe-storage-cabinet,hold,,540,730,799,100,899,259.0,74.2,113.8,153.4,True,False,only 1 comparable offer
+EGY,spice-drawer-rack,reject,,390,410,449,100,549,59.0,14.2,23.8,33.4,True,False,margin too thin at market price 450-604
+EGY,foldable-extendable-mop,reject,,320,340,340,100,440,20.0,2.5,6.25,10.0,True,False,"market 89-235, below Taager cost"
+EGY,easy-squeeze-mop,reject,,330,340,340,100,440,10.0,-0.5,1.75,4.0,True,False,"market 152-350, at or below cost"
+EGY,spray-mop,reject,,299,500,500,100,600,201.0,56.8,87.7,118.6,True,False,actually a glass squeegee; market 65-261
+EGY,lint-remover-usb,reject,,470,720,720,100,820,250.0,71.5,109.75,148.0,True,False,"same unit sold at 350-405, below cost"
+EGY,dish-drying-mat,reject,,430,450,450,100,550,20.0,2.5,6.25,10.0,True,False,"same set 320 on Jumia, below cost"
+EGY,reusable-kitchen-towel-roll,reject,,290,310,310,100,410,20.0,2.5,6.25,10.0,True,False,"same roll 240 on Jumia, below cost"
+IRQ,sink-rack,launch,Iraq hero,30000,34000,43000,7000,50000,13000.0,3900.0,5850.0,7800.0,True,True,"market 40,000-70,500, median 52,299; our total 50,000"
+IRQ,absorbent-mats,launch,shared hero,10000,12000,18000,7000,25000,8000.0,2400.0,3600.0,4800.0,True,True,"same item 22,500; sets to 33,999; our total 25,000"
+IRQ,heater-180,launch,"shared, winter",23000,26000,32000,7000,39000,9000.0,2700.0,4050.0,5400.0,True,True,"31,000-49,000; same unit 40,599; our total 39,000"
+IRQ,corner-clothes-organizer,launch,Iraq only,19000,21000,28000,7000,35000,9000.0,2700.0,4050.0,5400.0,True,True,"3 identical offers at 34,000-37,000; our total 35,000"
+IRQ,magnetic-window-cleaner,test,"Iraq only, strong demo",10000,12000,18000,7000,25000,8000.0,2400.0,3600.0,4800.0,True,True,"24,500-35,999; our total 25,000"
+IRQ,double-clothes-rack,test,shared,20000,23000,30000,7000,37000,10000.0,3000.0,4500.0,6000.0,True,True,"only 2 offers: 29,000 similar, 53,799 identical"
+IRQ,clothes-care-bundle (steam iron 4in1 + wrinkle spray),test,bundle,28000,34000,36000,7000,43000,8000.0,2400.0,3600.0,4800.0,True,True,"iron similar median 29,000; spray 19,000-25,000"
+IRQ,foldable-extendable-mop,bump only,add-on,10000,10500,15000,7000,22000,5000.0,1500.0,2250.0,3000.0,True,True,thin margin
+IRQ,wrinkle-release-spray,bump only,add-on,9000,12000,13000,7000,20000,4000.0,1200.0,1800.0,2400.0,True,True,thin margin alone
+IRQ,spray-mop,hold,,12000,14000,20000,7000,27000,8000.0,2400.0,3600.0,4800.0,True,True,1 offer; Egypt twin turned out to be a glass squeegee; verify item
+IRQ,easy-squeeze-mop-bundle,hold,,12500,17500,20000,7000,27000,7500.0,2250.0,3375.0,4500.0,True,True,no comparable Iraqi offer found
+IRQ,bathroom-corner-shelf-4,hold,,15000,17000,20000,7000,27000,5000.0,1500.0,2250.0,3000.0,True,True,"competitor sells 2 for 29,000; margin thin"
+IRQ,shoe-cabinet-3in1,hold,,18000,21000,24000,7000,31000,6000.0,1800.0,2700.0,3600.0,True,True,"similar fabric stand at 20,000; check material"
+IRQ,portable-clothes-dryer,reject,,25500,25500,25500,7000,32500,0.0,0.0,0.0,0.0,True,True,"market 25,000-28,500 at Taager minimum; total would exceed market"
+IRQ,lint-remover,reject,,11000,13000,14000,7000,21000,3000.0,900.0,1350.0,1800.0,True,True,"branded alternatives 8,000-11,000"
