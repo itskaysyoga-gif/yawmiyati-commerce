@@ -16,3 +16,9 @@ Single items carry thin profit, so paid traffic goes to 2-piece offers and bundl
 - Re-check each Taager price and stock on the day (export predates 28 Oct; Iraq rows have no stock data).
 - Verify identity, size and contents from Taager media (media.taager.com access pending).
 - Confirm the Iraq refusal fee (modelled as 0 here, so Iraq figures are optimistic).
+
+## Image check (28 Oct, Taager thumbnails)
+- The Egypt and Iraq "180° heaters" are different products: Egypt is a fireplace-style 2-in-1 heater with a remote; Iraq is a round rotating fan heater. They are not twins; each gets its own content.
+- The double clothes racks differ in design (Egypt on wheels with a shoe shelf; Iraq a bar rack with a lower shelf); one reel can show the category but not one exact product.
+- The absorbent mat sets look alike in both countries; they remain the shared organic hero.
+- Taager thumbnails are ad graphics with Arabic text; the store needs clean product images from the full gallery (plugin import) plus cut-outs.
