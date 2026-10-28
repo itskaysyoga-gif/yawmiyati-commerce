@@ -11,7 +11,12 @@ class YM_CLI {
 	 * Configure this install for one country: currency, selling/shipping country, COD, delivery zone, pages.
 	 *
 	 * ## OPTIONS
-	 * --country=<EG|IQ>
+	 *
+	 * --country=<country>
+	 * : EG or IQ.
+	 *
+	 * [--store-urls=<json>]
+	 * : Home URL of every country store (country switcher, hreflang), e.g. {"EG":"https://yawmiyati.shop/eg/","IQ":"https://yawmiyati.shop/iq/"}
 	 *
 	 * @when after_wp_load
 	 */
@@ -50,8 +55,8 @@ class YM_CLI {
 			'woocommerce_cod_settings'                => array(
 				'enabled'            => 'yes',
 				'title'              => 'الدفع عند الاستلام',
-				'description'        => YM_Country::RULES[ $cc ]['copy']['payment'],
-				'instructions'       => YM_Country::RULES[ $cc ]['copy']['payment'],
+				'description'        => YM_Country::copy( 'payment', $cc ),
+				'instructions'       => YM_Country::copy( 'payment', $cc ),
 				'enable_for_methods' => array(),
 				'enable_for_virtual' => 'no',
 			),
@@ -85,8 +90,18 @@ class YM_CLI {
 			}
 			update_option( "woocommerce_{$key}_page_id", $id );
 		}
+		if ( ! empty( $assoc['store-urls'] ) ) {
+			$urls = json_decode( $assoc['store-urls'], true );
+			if ( ! is_array( $urls ) ) {
+				WP_CLI::error( '--store-urls must be JSON, e.g. {"EG":"https://yawmiyati.shop/eg/"}' );
+			}
+			update_option( 'ym_store_urls', array_map( 'esc_url_raw', $urls ) );
+		}
+		$pages = YM_Pages::install( $cc );
+		update_option( 'blogname', 'يومياتي' );
+		update_option( 'blogdescription', YM_Country::copy( 'home_lede', $cc ) );
 		flush_rewrite_rules();
-		WP_CLI::success( "Configured for $cc." );
+		WP_CLI::success( "Configured for $cc (" . count( $pages ) . ' support pages).' );
 	}
 
 	/**
@@ -95,6 +110,10 @@ class YM_CLI {
 	 * @when after_wp_load
 	 */
 	public function seed( $args, $assoc ) {
+		// Seed data is interim and unverified. It must never reach a live store, with or without a flag.
+		if ( YM_Env::is_production() ) {
+			WP_CLI::error( 'Refusing to seed: this is a production store (WP_ENVIRONMENT_TYPE=production). Seed data is for local and staging stores only.' );
+		}
 		$cc   = YM_Country::code();
 		$file = YM_DIR . '/seed/' . strtolower( $cc ) . '.json';
 		$data = json_decode( (string) file_get_contents( $file ), true );
@@ -119,7 +138,7 @@ class YM_CLI {
 			$p->set_short_description( $row['benefit'] ?? '' );
 			$imgs = array();
 			foreach ( $row['images'] ?? array() as $img ) {
-				$imgs[] = self::import_image( $media_dir . $img['file'], $img['alt'] );
+				$imgs[] = self::import_image( $media_dir . $img['file'], $img['alt'], ! empty( $img['complete'] ) );
 			}
 			$imgs = array_values( array_filter( $imgs ) );
 			if ( $imgs ) {
@@ -141,6 +160,7 @@ class YM_CLI {
 				'_ym_taager_product_id'=> $row['taager_product_id'],
 				'_ym_taager_cost'      => $row['taager_cost'],
 				'_ym_source'           => $data['source'],
+				'_ym_dev_seed'         => 'yes',
 			);
 			foreach ( $meta as $k => $v ) {
 				$p->update_meta_data( $k, $v );
@@ -152,12 +172,24 @@ class YM_CLI {
 		WP_CLI::success( 'Seeded ' . count( $data['products'] ) . " offers for $cc." );
 	}
 
-	private static function import_image( $path, $alt ) {
+	private static function import_image( $path, $alt, $complete = false ) {
 		if ( ! file_exists( $path ) ) {
 			return 0;
 		}
+		// Interim media: Taager listing thumbnails cropped to remove ad text. Recorded as such so the gate blocks them.
+		$media = wp_json_encode(
+			array(
+				'source'   => 'Taager listing thumbnail (600 px), captured 2026-10-28, cropped to remove ad text: media/interim/' . basename( $path ),
+				'rights'   => 'Taager support chat 2026-10-28: supplier images may be used (not written terms)',
+				'captured' => '2026-10-28',
+				'final'    => false,
+				'ad_crop'  => true,
+				'complete' => (bool) $complete,
+			)
+		);
 		$existing = get_posts( array( 'post_type' => 'attachment', 'meta_key' => '_ym_source_file', 'meta_value' => basename( $path ), 'fields' => 'ids', 'numberposts' => 1 ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		if ( $existing ) {
+			update_post_meta( $existing[0], '_ym_media', $media );
 			return $existing[0];
 		}
 		$tmp = wp_tempnam( basename( $path ) );
@@ -168,6 +200,7 @@ class YM_CLI {
 		}
 		update_post_meta( $id, '_wp_attachment_image_alt', $alt );
 		update_post_meta( $id, '_ym_source_file', basename( $path ) );
+		update_post_meta( $id, '_ym_media', $media );
 		return $id;
 	}
 
@@ -180,22 +213,162 @@ class YM_CLI {
 	 */
 	public function supplier_check( $args ) {
 		YM_Supplier::check( (int) $args[0] );
-		$o = wc_get_order( (int) $args[0] );
-		WP_CLI::log( (string) $o->get_meta( '_ym_supplier_status' ) );
+		WP_CLI::log( YM_Supplier::status( wc_get_order( (int) $args[0] ) ) );
 	}
 
 	/**
-	 * Record a manual Taager entry for an order.
+	 * Record the result of looking the order up in Taager.
+	 *
+	 * <order_id>
+	 * [--found=<taager_order_id>]
+	 * [--not-found]
+	 * [--by=<name>]
+	 *
+	 * @subcommand supplier-reconcile
+	 */
+	public function supplier_reconcile( $args, $assoc ) {
+		$o  = wc_get_order( (int) $args[0] );
+		$by = $assoc['by'] ?? 'cli';
+		if ( ! empty( $assoc['found'] ) ) {
+			$r = YM_Supplier::mark_found( $o, $assoc['found'], $by );
+		} elseif ( ! empty( $assoc['not-found'] ) ) {
+			$r = YM_Supplier::mark_not_found( $o, $by );
+		} else {
+			WP_CLI::error( 'Use --found=<id> or --not-found.' );
+		}
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_code() . ': ' . $r->get_error_message() );
+		}
+		WP_CLI::success( YM_Supplier::status( wc_get_order( (int) $args[0] ) ) );
+	}
+
+	/**
+	 * Record a manual Taager entry for an order (only after a fresh --not-found reconciliation).
 	 *
 	 * <order_id> <taager_order_id>
 	 *
 	 * @subcommand supplier-manual
 	 */
 	public function supplier_manual( $args ) {
-		$r = YM_Supplier::mark_manual( wc_get_order( (int) $args[0] ), $args[1] );
+		$r = YM_Supplier::mark_manual( wc_get_order( (int) $args[0] ), $args[1], 'cli' );
 		if ( is_wp_error( $r ) ) {
 			WP_CLI::error( $r->get_error_code() . ': ' . $r->get_error_message() );
 		}
 		WP_CLI::success( 'manual' );
+	}
+
+	/**
+	 * Record a catalog check for a product.
+	 *
+	 * <sku>
+	 * [--identity=<note>]
+	 * [--specs=<note>]
+	 * [--media=<note>]
+	 * [--price=<note>]
+	 * [--stock]
+	 * [--by=<name>]
+	 *
+	 * @subcommand check
+	 */
+	public function check( $args, $assoc ) {
+		$p = wc_get_product( wc_get_product_id_by_sku( $args[0] ) );
+		if ( ! $p ) {
+			WP_CLI::error( 'Unknown SKU ' . $args[0] );
+		}
+		$by = $assoc['by'] ?? 'Rashid';
+		foreach ( array( 'identity', 'specs', 'media', 'price' ) as $c ) {
+			if ( ! empty( $assoc[ $c ] ) ) {
+				YM_Catalog::record( $p, $c, $by, (string) $assoc[ $c ] );
+			}
+		}
+		if ( ! empty( $assoc['stock'] ) ) {
+			YM_Catalog::record( $p, 'stock', $by );
+		}
+		$this->gate( array( $args[0] ), array() );
+	}
+
+	/**
+	 * List what blocks each product from being sold (the gate is enforced on staging and production).
+	 *
+	 * [<sku>...]
+	 * [--format=<format>]
+	 *
+	 * @subcommand gate
+	 */
+	public function gate( $args, $assoc ) {
+		$rows = array();
+		$ps   = $args ? array_map( fn( $s ) => wc_get_product( wc_get_product_id_by_sku( $s ) ), $args ) : wc_get_products( array( 'limit' => -1, 'status' => array( 'publish', 'draft' ) ) );
+		foreach ( array_filter( $ps ) as $p ) {
+			$b      = YM_Catalog::blockers( $p );
+			$rows[] = array( 'sku' => $p->get_sku(), 'status' => $p->get_status(), 'ready' => $b ? 'no' : 'yes', 'blockers' => implode( '; ', array_keys( $b ) ) );
+		}
+		WP_CLI\Utils\format_items( $assoc['format'] ?? 'table', $rows, array( 'sku', 'status', 'ready', 'blockers' ) );
+	}
+
+	/**
+	 * Submitted-to-delivered funnel per product.
+	 *
+	 * [--days=<days>]
+	 *
+	 * @subcommand funnel
+	 */
+	public function funnel( $args, $assoc ) {
+		WP_CLI::log( wp_json_encode( YM_Ops::funnel( (int) ( $assoc['days'] ?? 7 ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Everything that must be true before this store takes real orders. Exits non-zero while anything is open.
+	 *
+	 * @subcommand launch-check
+	 */
+	public function launch_check() {
+		$rows = array();
+		$add  = function ( $area, $ok, $detail ) use ( &$rows ) {
+			$rows[] = array( 'area' => $area, 'ok' => $ok ? 'yes' : 'NO', 'detail' => $detail );
+		};
+		$add( 'environment', YM_Env::is_production(), 'WP_ENVIRONMENT_TYPE=' . YM_Env::type() );
+		$sellable = 0;
+		foreach ( wc_get_products( array( 'limit' => -1, 'status' => 'publish' ) ) as $p ) {
+			$b = YM_Catalog::blockers( $p );
+			$sellable += $b ? 0 : 1;
+			$add( 'product ' . $p->get_sku(), ! $b, $b ? implode( '; ', array_keys( $b ) ) : 'ready' );
+			$add( 'seed data ' . $p->get_sku(), 'yes' !== $p->get_meta( '_ym_dev_seed' ), 'yes' === $p->get_meta( '_ym_dev_seed' ) ? 'created by wp ym seed; re-create from verified data' : 'ok' );
+		}
+		$add( 'sellable products', $sellable > 0, (string) $sellable );
+		$pending = YM_Pages::pending();
+		$add( 'policy pages', ! $pending, $pending ? count( $pending ) . ' unconfirmed fact(s): ' . implode( ' | ', wp_list_pluck( $pending, 'page' ) ) : 'ok' );
+		$copy = YM_Country::copy_all( YM_Country::code() );
+		$add( 'native language review', (bool) get_option( 'ym_language_reviewed_' . YM_Country::code() ), 'docs/LANGUAGE-REVIEW.md; set option ym_language_reviewed_' . YM_Country::code() . ' when signed off' );
+		foreach ( YM_Tracking::launch_checks() as $k => $v ) {
+			$add( 'measurement ' . $k, $v[0], $v[1] );
+		}
+		$add( 'supplier reference key', (bool) get_option( 'ym_supplier_ref_keys_verified' ), 'confirm which meta key the Taager plugin writes, then set ym_supplier_ref_keys and ym_supplier_ref_keys_verified' );
+		$add( 'status sync', (bool) get_option( 'ym_status_sync_verified' ), 'confirm Taager status sync and set ym_stage_map + ym_status_sync_verified' );
+		$add( 'search indexing', '1' === (string) get_option( 'blog_public' ), 'Settings > Reading: allow search engines (production only)' );
+		$runs = (array) get_option( 'ym_ops_runs', array() );
+		$add( 'scheduled jobs', count( $runs ) >= 3, count( $runs ) . ' job(s) have run' );
+		WP_CLI\Utils\format_items( 'table', $rows, array( 'area', 'ok', 'detail' ) );
+		$open = count( array_filter( $rows, fn( $r ) => 'NO' === $r['ok'] ) );
+		if ( $open ) {
+			WP_CLI::error( "$open item(s) open.", false );
+			exit( 1 );
+		}
+		WP_CLI::success( 'Ready.' );
+	}
+
+	/**
+	 * Run an operations job now: supplier_sweep, stock_guard, daily_digest, weekly_report.
+	 *
+	 * <job>
+	 *
+	 * @subcommand ops-run
+	 */
+	public function ops_run( $args ) {
+		$fn = 'run_' . $args[0];
+		if ( ! method_exists( 'YM_Ops', $fn ) ) {
+			WP_CLI::error( 'Unknown job' );
+		}
+		YM_Ops::$fn();
+		WP_CLI::success( wp_json_encode( get_option( 'ym_ops_runs' )[ $args[0] ] ?? array() ) );
 	}
 }

@@ -15,7 +15,6 @@ final class YM_Country {
 			'decimals'     => 0,
 			'symbol'       => 'ج.م',
 			'phone_regex'  => '/^01[0125][0-9]{8}$/',
-			'phone_hint'   => 'رقم مصري من 11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015.',
 			'phone_example'=> '01xxxxxxxxx',
 			'refusal_fee'  => 5,
 			'zones'        => array(
@@ -53,40 +52,12 @@ final class YM_Country {
 				'EGSIN' => array( 'شمال سيناء', 105, 'من 2 لـ 5 أيام' ),
 				'EGJS'  => array( 'جنوب سيناء', 105, 'من 2 لـ 5 أيام' ),
 			),
-			'copy'         => array(
-				'buy'          => 'اطلبي دلوقتي، والدفع عند الاستلام',
-				'buy_short'    => 'اطلبي دلوقتي',
-				'add'          => 'أضيفي للسلة',
-				'place'        => 'تأكيد الطلب',
-				'pay_on'       => 'هتدفعي عند الاستلام',
-				'confirm_call' => 'فريق التأكيد هيكلمك خلال 24 ساعة من رقم غريب، ردّي عشان الطلب يطلع. لو طلبتي قبل 7 بالليل بيتأكد نفس اليوم.',
-				'payment'      => 'الدفع كاش للمندوب. مش مسموح فتح الشحنة قبل الدفع، والفاتورة جوّه الشحنة.',
-				'returns'      => 'لو فيه عيب: استبدال أو استرجاع خلال 14 يوم.',
-				'one_fee'      => 'التوصيل مرة واحدة على الطلب كله.',
-				'thanks'       => 'طلبك وصل',
-				'pick_gov'     => 'اختاري المحافظة وهيظهر سعر التوصيل.',
-				'fit_q'        => 'هتيجي مظبوطة عندك؟',
-				'why'          => 'ليه هتحبيها',
-				'expired'      => 'انتهت صلاحية الصفحة. حدّثيها وجرّبي تاني.',
-				'offer_na'     => 'العرض ده مش متاح دلوقتي.',
-				'added'        => 'اتضاف للسلة.',
-				'max_qty'      => 'أقصى كمية من المنتج ده %d في الطلب الواحد.',
-				'sold_out_tag' => 'خلص من المخزن',
-				'sold_out'     => 'المنتج ده خلص من المخزن دلوقتي.',
-				'phone2'       => 'رقم تاني',
-				'phone2_help'  => 'بيساعد إن الطلب يوصل لو الأول مقفول',
-				'phone2_err'   => 'الرقم التاني: ',
-				'wrong_country' => 'التوصيل متاح جوّه مصر بس.',
-				'refresh'      => 'حدّثي الصفحة وجرّبي تاني.',
-				'dup'          => 'الطلب ده اتبعت خلاص. لو عايزة تطلبي تاني، حدّثي الصفحة.',
-			),
 		),
 		'IQ' => array(
 			'currency'     => 'IQD',
 			'decimals'     => 0,
 			'symbol'       => 'د.ع',
 			'phone_regex'  => '/^07[0-9]{9}$/',
-			'phone_hint'   => 'رقم عراقي من 11 رقم يبدأ بـ 07.',
 			'phone_example'=> '07xxxxxxxxx',
 			'refusal_fee'  => 0,
 			'zones'        => array(
@@ -111,33 +82,6 @@ final class YM_Country {
 				'QA' => array( 'الديوانية', 7000, '' ),
 				'SD' => array( 'صلاح الدين', 7000, '' ),
 				'DI' => array( 'ديالى', 7000, '' ),
-			),
-			'copy'         => array(
-				'buy'          => 'اطلبي هسّه والدفع عند الاستلام',
-				'buy_short'    => 'اطلبي هسّه',
-				'add'          => 'ضيفي للسلة',
-				'place'        => 'ثبّتي الطلب',
-				'pay_on'       => 'تدفعين عند الاستلام',
-				'confirm_call' => 'فريق التأكيد يتصل بيج خلال 24 ساعة، من 9 الصبح لـ 5 العصر. جاوبي حتى يطلع الطلب.',
-				'payment'      => 'الدفع كاش للمندوب. ما مسموح تفتحين الكرتونة قبل الدفع، والفاتورة داخلها.',
-				'returns'      => '',
-				'one_fee'      => 'التوصيل مرة وحدة على الطلب كله.',
-				'thanks'       => 'وصلنا طلبج',
-				'pick_gov'     => 'اختاري المحافظة حتى يطلع سعر التوصيل.',
-				'fit_q'        => 'راح تجي مضبوطة عدج؟',
-				'why'          => 'ليش راح تحبينها',
-				'expired'      => 'انتهت صلاحية الصفحة. حدّثيها وجرّبي مرة ثانية.',
-				'offer_na'     => 'هذا العرض مو متوفر هسّه.',
-				'added'        => 'انضاف للسلة.',
-				'max_qty'      => 'أكثر كمية من هذا المنتج %d بالطلب الواحد.',
-				'sold_out_tag' => 'خلصت الكمية',
-				'sold_out'     => 'هذا المنتج خلص هسّه.',
-				'phone2'       => 'رقم ثاني',
-				'phone2_help'  => 'يفيد حتى يوصل الطلب إذا الرقم الأول مسدود',
-				'phone2_err'   => 'الرقم الثاني: ',
-				'wrong_country' => 'التوصيل داخل العراق بس.',
-				'refresh'      => 'حدّثي الصفحة وجرّبي مرة ثانية.',
-				'dup'          => 'هذا الطلب انبعث. إذا تريدين تطلبين مرة ثانية، حدّثي الصفحة.',
 			),
 		),
 	);
@@ -165,9 +109,23 @@ final class YM_Country {
 		return self::RULES[ $country ? $country : self::code() ];
 	}
 
-	public static function copy( $key ) {
-		$r = self::rules();
-		return $r['copy'][ $key ] ?? '';
+	/**
+	 * Customer-facing text in this country's dialect, from copy/<cc>.json (Egyptian Arabic for EG, Iraqi Arabic
+	 * for IQ). Voice rules: docs/voice/. Review status: docs/LANGUAGE-REVIEW.md.
+	 */
+	public static function copy( $key, $country = null ) {
+		$all = self::copy_all( $country );
+		return (string) ( $all[ $key ] ?? '' );
+	}
+
+	public static function copy_all( $country = null ) {
+		static $cache = array();
+		$cc = $country ? $country : self::code();
+		if ( ! isset( $cache[ $cc ] ) ) {
+			$cache[ $cc ] = (array) json_decode( (string) file_get_contents( YM_DIR . '/copy/' . strtolower( $cc ) . '.json' ), true );
+			unset( $cache[ $cc ]['_status'] );
+		}
+		return $cache[ $cc ];
 	}
 
 	/** Arabic governorate names as WooCommerce states for this country. */
@@ -208,6 +166,16 @@ final class YM_Country {
 	public static function number( $amount ) {
 		$sep = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : ',';
 		return number_format( (float) $amount, 0, '.', $sep );
+	}
+
+	/** Home URL of each country store, from option ym_store_urls (set by `wp ym setup --store-urls=...`). */
+	public static function store_urls() {
+		$urls = (array) get_option( 'ym_store_urls', array() );
+		$out  = array();
+		foreach ( array_keys( self::RULES ) as $cc ) {
+			$out[ $cc ] = $urls[ $cc ] ?? ( self::code() === $cc ? home_url( '/' ) : '' );
+		}
+		return array_filter( $out );
 	}
 
 	public static function money( $amount ) {

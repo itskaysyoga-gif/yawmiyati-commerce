@@ -9,16 +9,9 @@ let browser;
 before(async () => { browser = await chromium.launch(); });
 after(async () => { await browser.close(); });
 
-async function fresh(width = 390) {
-  const ctx = await browser.newContext({ viewport: { width, height: 844 }, locale: 'ar' });
-  const page = await ctx.newPage();
-  return { ctx, page };
-}
-
-// Unique phone per test so duplicate review only triggers where a test wants it.
-let seq = Date.now() % 1e7;
-const egPhone = () => '010' + String(++seq).padStart(8, '0');
-const iqPhone = () => '0770' + String(++seq).padStart(7, '0');
+const fresh = (width = 390) => h.context(browser, { width });
+const egPhone = h.phone.eg;
+const iqPhone = h.phone.iq;
 
 test('Egypt: 2-set offer to order, server price + Cairo delivery, COD, snapshot', async () => {
   const { ctx, page } = await fresh();
@@ -37,7 +30,7 @@ test('Egypt: 2-set offer to order, server price + Cairo delivery, COD, snapshot'
   assert.equal(o.snapshot.policy_version, '2026-10-28');
   assert.equal(o.snapshot.items[0].unit_price, 749);
   assert.equal(o.supplier, 'pending');
-  assert.match(await page.locator('body').innerText(), /طلبك وصل/);
+  assert.match(await page.locator('body').innerText(), /وصلنا طلبك/);
   await ctx.close();
 });
 
@@ -72,7 +65,7 @@ test('Validation: a wrong phone number shows the rule and creates no order', asy
   await h.fillCheckout(page, { ...h.CUSTOMER.eg, phone: '0123' });
   await page.locator('#place_order').click();
   await page.waitForSelector(ERR);
-  assert.match(await page.locator(ERR).innerText(), /رقم مصري من 11 رقم/);
+  assert.match(await page.locator(ERR).innerText(), /رقم موبايل مصري من 11 رقم/);
   assert.equal(h.orderCount('eg'), before);
   await ctx.close();
 });
@@ -122,7 +115,7 @@ test('Tampering: a governorate outside the country is refused', async () => {
   await ctx.close();
 });
 
-test('Double submission: two identical checkout requests in flight create exactly one order', async () => {
+test('Double submission: the same checkout sent twice at once creates one order; the late copy lands on that order', async () => {
   const { ctx, page } = await fresh();
   const before = h.orderCount('eg');
   await page.goto(`${h.BASE.eg}/product/absorbent-mats/`);
@@ -132,14 +125,16 @@ test('Double submission: two identical checkout requests in flight create exactl
   let body;
   await page.route('**/?wc-ajax=checkout', (route) => { body = route.request().postData(); route.abort(); });
   await page.locator('#place_order').click();
-  await page.waitForFunction(() => true);
   for (let i = 0; i < 50 && !body; i++) await page.waitForTimeout(100);
   assert.ok(body, 'checkout request captured');
   const send = () => page.request.post(`${h.BASE.eg}/?wc-ajax=checkout`, { data: body, headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8' } }).then((r) => r.json());
   const results = await Promise.all([send(), send()]);
+  assert.equal(h.orderCount('eg'), before + 1, JSON.stringify(results));
   const ok = results.filter((r) => r.result === 'success');
-  assert.equal(ok.length, 1, JSON.stringify(results.map((r) => r.result)));
-  assert.equal(h.orderCount('eg'), before + 1);
+  assert.ok(ok.length >= 1, JSON.stringify(results));
+  // Every success points at the same order; anything else is the "still sending" message, never a second order.
+  assert.equal(new Set(ok.map((r) => r.redirect.match(/order-received\/(\d+)/)[1])).size, 1);
+  results.filter((r) => r.result !== 'success').forEach((r) => assert.match(r.messages, /بيتسجل|اتسجل/));
   await ctx.close();
 });
 
@@ -169,23 +164,15 @@ test('Duplicate review: same phone + same product within 24 h is held, not block
   assert.equal(o.review, 'possible_duplicate');
 });
 
-test('Supplier hand-off: missing reference is flagged; manual entry cannot duplicate', async () => {
+test('Supplier hand-off: a missing reference is "unconfirmed", never "failed"; a plugin reference marks it sent', async () => {
   const a = await fresh();
-  const failedId = await h.buy(a.page, 'eg', { slug: 'absorbent-mats', customer: { phone: egPhone() } });
+  const id = await h.buy(a.page, 'eg', { slug: 'absorbent-mats', customer: { phone: egPhone() } });
   await a.ctx.close();
-  assert.equal(h.wp('eg', 'ym', 'supplier-check', String(failedId)), 'failed');
-  h.wp('eg', 'ym', 'supplier-manual', String(failedId), 'TG-1001');
-  assert.equal(h.order('eg', failedId).supplier, 'manual');
-  assert.throws(() => h.wp('eg', 'ym', 'supplier-manual', String(failedId), 'TG-1002'));
-  assert.equal(h.order('eg', failedId).supplier_ref, 'TG-1001');
-
-  const b = await fresh();
-  const sentId = await h.buy(b.page, 'eg', { slug: 'absorbent-mats', customer: { phone: egPhone() } });
-  await b.ctx.close();
-  h.wpEval('eg', `$o = wc_get_order(${sentId}); $o->update_meta_data("_taager_order_id", "777"); $o->save();`);
-  assert.equal(h.wp('eg', 'ym', 'supplier-check', String(sentId)), 'sent');
-  assert.equal(h.order('eg', sentId).supplier_ref, '777');
-  assert.throws(() => h.wp('eg', 'ym', 'supplier-manual', String(sentId), 'TG-2000'));
+  assert.equal(h.wp('eg', 'ym', 'supplier-check', String(id)), 'unconfirmed');
+  h.wpEval('eg', `$o = wc_get_order(${id}); $o->update_meta_data("_taager_order_id", "777"); $o->save();`);
+  assert.equal(h.wp('eg', 'ym', 'supplier-check', String(id)), 'sent');
+  assert.equal(h.order('eg', id).supplier_ref, '777');
+  assert.throws(() => h.wp('eg', 'ym', 'supplier-manual', String(id), 'TG-2000'));
 });
 
 test('Iraq: an Egyptian phone format is refused', async () => {
@@ -196,7 +183,7 @@ test('Iraq: an Egyptian phone format is refused', async () => {
   await h.fillCheckout(page, { ...h.CUSTOMER.iq, phone: '01012345678' });
   await page.locator('#place_order').click();
   await page.waitForSelector(ERR);
-  assert.match(await page.locator(ERR).innerText(), /رقم عراقي/);
+  assert.match(await page.locator(ERR).innerText(), /رقم موبايل عراقي/);
   assert.equal(h.orderCount('iq'), before);
   await ctx.close();
 });

@@ -9,39 +9,59 @@
       "custom": false,
       "palette": [
         {
+          "slug": "ivory",
+          "name": "Ivory (page)",
+          "color": "#FAF6F1"
+        },
+        {
           "slug": "paper",
-          "name": "Paper",
+          "name": "White (surfaces)",
           "color": "#FFFFFF"
         },
         {
           "slug": "ink",
           "name": "Ink",
-          "color": "#1F1D1E"
-        },
-        {
-          "slug": "nila",
-          "name": "Nila indigo",
-          "color": "#2B3192"
-        },
-        {
-          "slug": "nila-tint",
-          "name": "Nila tint",
-          "color": "#EEF0FA"
-        },
-        {
-          "slug": "rule",
-          "name": "Rule",
-          "color": "#E7E5E1"
+          "color": "#2A2228"
         },
         {
           "slug": "muted",
           "name": "Muted text",
-          "color": "#5E5A57"
+          "color": "#6E6268"
+        },
+        {
+          "slug": "rule",
+          "name": "Rule",
+          "color": "#EEE6E0"
+        },
+        {
+          "slug": "berry",
+          "name": "Berry (actions)",
+          "color": "#7B2D58"
+        },
+        {
+          "slug": "berry-tint",
+          "name": "Berry tint",
+          "color": "#F6ECF1"
+        },
+        {
+          "slug": "blush",
+          "name": "Blush",
+          "color": "#F7E7E4"
+        },
+        {
+          "slug": "sage",
+          "name": "Sage",
+          "color": "#E7EDE4"
+        },
+        {
+          "slug": "sage-ink",
+          "name": "Sage ink",
+          "color": "#4C6448"
         },
         {
           "slug": "diary",
           "name": "Diary paper",
-          "color": "#FBFAF7"
+          "color": "#FFFDF9"
         },
         {
           "slug": "error",
@@ -195,7 +215,7 @@
   },
   "styles": {
     "color": {
-      "background": "var(--wp--preset--color--paper)",
+      "background": "var(--wp--preset--color--ivory)",
       "text": "var(--wp--preset--color--ink)"
     },
     "typography": {
@@ -215,7 +235,7 @@
     "elements": {
       "link": {
         "color": {
-          "text": "var(--wp--preset--color--nila)"
+          "text": "var(--wp--preset--color--berry)"
         }
       },
       "heading": {

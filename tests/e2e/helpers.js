@@ -6,7 +6,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const BASE = { eg: 'http://localhost:8081', iq: 'http://localhost:8082' };
 
 function wp(cc, ...args) {
-  return execFileSync(path.join(ROOT, 'dev/wp.sh'), [cc, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  return execFileSync(path.join(ROOT, 'dev/wp.sh'), [cc, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function wpEval(cc, php) {
@@ -25,7 +25,10 @@ function order(cc, id) {
     "items" => array_values(array_map(function($i){ return array("sku" => $i->get_product()->get_sku(), "qty" => $i->get_quantity(), "total" => (float) $i->get_total()); }, $o->get_items())),
     "snapshot" => json_decode($o->get_meta("_ym_snapshot"), true), "review" => $o->get_meta("_ym_review"),
     "supplier" => $o->get_meta("_ym_supplier_status"), "supplier_ref" => $o->get_meta("_ym_supplier_ref"),
-    "phone2" => $o->get_meta("_ym_phone2"), "landmark" => $o->get_meta("_ym_landmark")
+    "phone2" => $o->get_meta("_ym_phone2"), "landmark" => $o->get_meta("_ym_landmark"),
+    "consent" => $o->get_meta("_ym_consent"), "attr" => json_decode($o->get_meta("_ym_attr"), true),
+    "capi_meta" => json_decode($o->get_meta("_ym_capi_meta_purchase"), true), "capi_snap" => json_decode($o->get_meta("_ym_capi_snap_purchase"), true),
+    "key" => $o->get_order_key(), "token" => $o->get_meta("_ym_token")
   ));`));
 }
 
@@ -64,4 +67,18 @@ async function waitIdle(page) {
   await page.waitForFunction(() => !document.querySelector('.blockUI') && !(window.jQuery && jQuery.active), null, { timeout: 20000 });
 }
 
-module.exports = { BASE, ROOT, wp, wpEval, order, orderCount, buy, fillCheckout, waitIdle, CUSTOMER };
+// A fresh browser context. Consent defaults to "denied" so the banner does not cover buttons; pass null to see it.
+async function context(browser, { width = 390, consent = 'denied', device } = {}) {
+  const opts = device ? { ...device, locale: 'ar' } : { viewport: { width, height: 844 }, locale: 'ar' };
+  const ctx = await browser.newContext(opts);
+  if (consent) {
+    await ctx.addCookies(Object.values(BASE).map((u) => ({ name: 'ym_consent', value: consent, url: u })));
+  }
+  return { ctx, page: await ctx.newPage() };
+}
+
+// Unique phone numbers so the duplicate review only fires where a test wants it.
+let seq = (Date.now() % 1e6) * 10;
+const phone = { eg: () => '010' + String(++seq).padStart(8, '0').slice(-8), iq: () => '0770' + String(++seq).padStart(7, '0').slice(-7) };
+
+module.exports = { BASE, ROOT, wp, wpEval, order, orderCount, buy, fillCheckout, waitIdle, CUSTOMER, context, phone };

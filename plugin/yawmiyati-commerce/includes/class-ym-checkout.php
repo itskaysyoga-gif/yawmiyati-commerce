@@ -29,6 +29,10 @@ final class YM_Checkout {
 		add_action( 'woocommerce_review_order_before_submit', array( __CLASS__, 'token_field' ) );
 		add_action( 'woocommerce_after_checkout_validation', array( __CLASS__, 'validate' ), 20, 2 );
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'save_extra' ), 10, 2 );
+		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'test_fail' ), 99 );
+		add_action( 'woocommerce_checkout_order_created', array( __CLASS__, 'link_order' ), 1 );
+		add_action( 'woocommerce_before_checkout_process', array( __CLASS__, 'early_replay' ), 1 );
+		add_action( 'template_redirect', array( __CLASS__, 'guard_received' ) );
 		add_filter( 'gettext', array( __CLASS__, 'strings' ), 10, 3 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
 		add_action( 'ym_cleanup_tokens', array( __CLASS__, 'cleanup_tokens' ) );
@@ -40,14 +44,14 @@ final class YM_Checkout {
 	public static function fields( $fields ) {
 		$rules   = YM_Country::rules();
 		$billing = array(
-			'billing_first_name' => array_merge( $fields['billing']['billing_first_name'], array( 'label' => 'الاسم بالكامل', 'placeholder' => 'الاسم الأول والأخير', 'class' => array( 'form-row-wide' ), 'priority' => 10, 'autocomplete' => 'name' ) ),
-			'billing_phone'      => array_merge( $fields['billing']['billing_phone'], array( 'label' => 'رقم الموبايل', 'required' => true, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 20, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ) ),
+			'billing_first_name' => array_merge( $fields['billing']['billing_first_name'], array( 'label' => YM_Country::copy( 'name_label' ), 'placeholder' => YM_Country::copy( 'name_ph' ), 'class' => array( 'form-row-wide' ), 'priority' => 10, 'autocomplete' => 'name' ) ),
+			'billing_phone'      => array_merge( $fields['billing']['billing_phone'], array( 'label' => YM_Country::copy( 'phone_label' ), 'required' => true, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 20, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ) ),
 			'ym_phone2'          => array( 'type' => 'tel', 'label' => YM_Country::copy( 'phone2' ), 'description' => YM_Country::copy( 'phone2_help' ), 'required' => false, 'placeholder' => $rules['phone_example'], 'class' => array( 'form-row-wide' ), 'priority' => 30, 'custom_attributes' => array( 'dir' => 'ltr', 'inputmode' => 'tel' ) ),
 			'billing_country'    => array_merge( $fields['billing']['billing_country'], array( 'priority' => 35, 'class' => array( 'form-row-wide', 'ym-hidden' ) ) ),
-			'billing_state'      => array_merge( $fields['billing']['billing_state'], array( 'label' => 'المحافظة', 'placeholder' => 'اختاري المحافظة', 'required' => true, 'class' => array( 'form-row-wide', 'update_totals_on_change' ), 'priority' => 40 ) ),
-			'billing_address_1'  => array_merge( $fields['billing']['billing_address_1'], array( 'label' => 'المنطقة والشارع', 'placeholder' => '', 'class' => array( 'form-row-wide' ), 'priority' => 50 ) ),
-			'billing_address_2'  => array_merge( $fields['billing']['billing_address_2'], array( 'label' => 'العمارة والدور والشقة', 'label_class' => array(), 'placeholder' => '', 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 60 ) ),
-			'ym_landmark'        => array( 'type' => 'text', 'label' => 'أقرب علامة مميزة', 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 70 ),
+			'billing_state'      => array_merge( $fields['billing']['billing_state'], array( 'label' => YM_Country::copy( 'gov_label' ), 'placeholder' => YM_Country::copy( 'gov_ph' ), 'required' => true, 'class' => array( 'form-row-wide', 'update_totals_on_change' ), 'priority' => 40 ) ),
+			'billing_address_1'  => array_merge( $fields['billing']['billing_address_1'], array( 'label' => YM_Country::copy( 'area_label' ), 'placeholder' => '', 'class' => array( 'form-row-wide' ), 'priority' => 50 ) ),
+			'billing_address_2'  => array_merge( $fields['billing']['billing_address_2'], array( 'label' => YM_Country::copy( 'building_label' ), 'label_class' => array(), 'placeholder' => '', 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 60 ) ),
+			'ym_landmark'        => array( 'type' => 'text', 'label' => YM_Country::copy( 'landmark_label' ), 'description' => YM_Country::copy( 'landmark_help' ), 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 70 ),
 		);
 		$fields['billing'] = $billing;
 		$fields['shipping'] = array();
@@ -62,12 +66,12 @@ final class YM_Checkout {
 	 */
 	public static function address_fields( $fields ) {
 		$set = array(
-			'first_name' => array( 'label' => 'الاسم بالكامل', 'required' => true, 'priority' => 10 ),
-			'phone'      => array( 'label' => 'رقم الموبايل', 'required' => true, 'priority' => 20 ),
+			'first_name' => array( 'label' => YM_Country::copy( 'name_label' ), 'required' => true, 'priority' => 10 ),
+			'phone'      => array( 'label' => YM_Country::copy( 'phone_label' ), 'required' => true, 'priority' => 20 ),
 			'country'    => array( 'priority' => 35 ),
-			'state'      => array( 'label' => 'المحافظة', 'placeholder' => 'اختاري المحافظة', 'required' => true, 'priority' => 40 ),
-			'address_1'  => array( 'label' => 'المنطقة والشارع', 'placeholder' => '', 'required' => true, 'priority' => 50 ),
-			'address_2'  => array( 'label' => 'العمارة والدور والشقة', 'label_class' => array(), 'placeholder' => '', 'required' => false, 'priority' => 60 ),
+			'state'      => array( 'label' => YM_Country::copy( 'gov_label' ), 'placeholder' => YM_Country::copy( 'gov_ph' ), 'required' => true, 'priority' => 40 ),
+			'address_1'  => array( 'label' => YM_Country::copy( 'area_label' ), 'placeholder' => '', 'required' => true, 'priority' => 50 ),
+			'address_2'  => array( 'label' => YM_Country::copy( 'building_label' ), 'label_class' => array(), 'placeholder' => '', 'required' => false, 'priority' => 60 ),
 		);
 		foreach ( $set as $key => $values ) {
 			$fields[ $key ] = array_merge( $fields[ $key ] ?? array(), $values );
@@ -83,7 +87,7 @@ final class YM_Checkout {
 		foreach ( array_keys( YM_Country::RULES ) as $cc ) {
 			$locale[ $cc ]['postcode']  = array( 'required' => false, 'hidden' => true );
 			$locale[ $cc ]['city']      = array( 'required' => false, 'hidden' => true );
-			$locale[ $cc ]['state']     = array( 'required' => true, 'label' => 'المحافظة' );
+			$locale[ $cc ]['state']     = array( 'required' => true, 'label' => YM_Country::copy( 'gov_label' ) );
 			$locale[ $cc ]['last_name'] = array( 'required' => false, 'hidden' => true );
 			$locale[ $cc ]['company']   = array( 'required' => false, 'hidden' => true );
 		}
@@ -119,34 +123,176 @@ final class YM_Checkout {
 		}
 		$name = trim( (string) ( $data['billing_first_name'] ?? '' ) );
 		if ( count( preg_split( '/\s+/u', $name, -1, PREG_SPLIT_NO_EMPTY ) ) < 2 ) {
-			$errors->add( 'ym_name', 'اكتبي الاسم الأول والأخير.', array( 'id' => 'billing_first_name' ) );
+			$errors->add( 'ym_name', YM_Country::copy( 'name_err' ), array( 'id' => 'billing_first_name' ) );
 		}
 		if ( ! YM_Country::valid_phone( $data['billing_phone'] ?? '' ) ) {
-			$errors->add( 'ym_phone', YM_Country::rules()['phone_hint'], array( 'id' => 'billing_phone' ) );
+			$errors->add( 'ym_phone', YM_Country::copy( 'phone_err' ), array( 'id' => 'billing_phone' ) );
 		}
 		if ( ! empty( $data['ym_phone2'] ) && ! YM_Country::valid_phone( $data['ym_phone2'] ) ) {
-			$errors->add( 'ym_phone2', YM_Country::copy( 'phone2_err' ) . YM_Country::rules()['phone_hint'], array( 'id' => 'ym_phone2' ) );
+			$errors->add( 'ym_phone2', YM_Country::copy( 'phone2_err' ) . YM_Country::copy( 'phone_err' ), array( 'id' => 'ym_phone2' ) );
 		}
 		if ( null === YM_Country::fee( $data['billing_state'] ?? '' ) ) {
-			$errors->add( 'ym_state', 'اختاري المحافظة.', array( 'id' => 'billing_state' ) );
+			$errors->add( 'ym_state', YM_Country::copy( 'gov_err' ), array( 'id' => 'billing_state' ) );
 		}
 		if ( mb_strlen( trim( (string) ( $data['billing_address_1'] ?? '' ) ) ) < 3 ) {
-			$errors->add( 'ym_address', 'اكتبي المنطقة واسم الشارع.', array( 'id' => 'billing_address_1' ) );
+			$errors->add( 'ym_address', YM_Country::copy( 'area_err' ), array( 'id' => 'billing_address_1' ) );
 		}
 		if ( $errors->has_errors() ) {
 			return;
 		}
-		$token = isset( $_POST['ym_token'] ) ? sanitize_text_field( wp_unslash( $_POST['ym_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- WooCommerce verifies the checkout nonce before this hook.
-		if ( ! wp_is_uuid( $token ) ) {
+		self::claim_token( $errors );
+	}
+
+	/*
+	 * Idempotent submission. Each checkout form carries a one-time token (UUID). The first request claims it with
+	 * an atomic insert; the order ID is attached to the claim as soon as WooCommerce has saved the order.
+	 *   - Same token again after the order exists (double click, retry after a lost response): no new order; the
+	 *     customer is sent to the existing order's confirmation page.
+	 *   - Same token while the first request is still running: "still sending, wait" and no new order.
+	 *   - The first request failed before an order existed: the claim is released at the end of that request, so
+	 *     a retry goes through. A claim left by a crashed request expires after STALE seconds.
+	 */
+	const STALE = 30;
+
+	private static $claimed = '';
+
+	private static function token_from_post() {
+		$t = isset( $_POST['ym_token'] ) ? sanitize_text_field( wp_unslash( $_POST['ym_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- WooCommerce verifies the checkout nonce before this hook.
+		return wp_is_uuid( $t ) ? $t : '';
+	}
+
+	private static function session_hash() {
+		$id = WC()->session ? (string) WC()->session->get_customer_id() : '';
+		return substr( hash( 'sha256', $id . wp_salt( 'nonce' ) ), 0, 16 );
+	}
+
+	private static function read_claim( $name ) {
+		global $wpdb;
+		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return null === $raw ? null : array( 'raw' => $raw, 'v' => (array) json_decode( $raw, true ) );
+	}
+
+	private static function claim_token( WP_Error $errors ) {
+		global $wpdb;
+		$token = self::token_from_post();
+		if ( ! $token ) {
 			$errors->add( 'ym_token', YM_Country::copy( 'refresh' ) );
 			return;
 		}
-		if ( ! add_option( self::TOKEN_PREFIX . md5( $token ), time(), '', false ) ) {
+		$delay = (int) YM_Env::test_header( 'delay' );
+		if ( $delay > 0 ) {
+			usleep( min( $delay, 5000 ) * 1000 );
+		}
+		$name  = self::TOKEN_PREFIX . md5( $token );
+		$mine  = wp_json_encode( array( 't' => time(), 's' => self::session_hash(), 'o' => 0, 'r' => wp_generate_password( 8, false ) ) );
+		if ( add_option( $name, $mine, '', false ) ) {
+			self::$claimed = $name . '|' . $mine;
+			register_shutdown_function( array( __CLASS__, 'release_unlinked' ) );
+			return;
+		}
+		$claim = self::read_claim( $name );
+		$v     = $claim ? $claim['v'] : array();
+		if ( ( $v['s'] ?? '' ) !== self::session_hash() ) {
 			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
+			return;
+		}
+		if ( ! empty( $v['o'] ) ) {
+			$order = wc_get_order( (int) $v['o'] );
+			if ( $order ) {
+				self::send_to_order( $order );
+			}
+			$errors->add( 'ym_duplicate_submit', YM_Country::copy( 'dup' ) );
+			return;
+		}
+		if ( time() - (int) ( $v['t'] ?? 0 ) < self::STALE ) {
+			$errors->add( 'ym_in_flight', YM_Country::copy( 'in_flight' ) );
+			return;
+		}
+		// A crashed request left the claim behind: take it over only if nobody else did first.
+		$took = $wpdb->update( $wpdb->options, array( 'option_value' => $mine ), array( 'option_name' => $name, 'option_value' => $claim['raw'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( 1 !== (int) $took ) {
+			$errors->add( 'ym_in_flight', YM_Country::copy( 'in_flight' ) );
+			return;
+		}
+		self::$claimed = $name . '|' . $mine;
+		register_shutdown_function( array( __CLASS__, 'release_unlinked' ) );
+	}
+
+	/**
+	 * A retry after the order was already created arrives with an empty cart, which WooCommerce rejects before
+	 * validation runs. Catch it first and send the customer to her order.
+	 */
+	public static function early_replay() {
+		$token = self::token_from_post();
+		if ( ! $token ) {
+			return;
+		}
+		$claim = self::read_claim( self::TOKEN_PREFIX . md5( $token ) );
+		$v     = $claim ? $claim['v'] : array();
+		if ( ! empty( $v['o'] ) && ( $v['s'] ?? '' ) === self::session_hash() ) {
+			$order = wc_get_order( (int) $v['o'] );
+			if ( $order ) {
+				self::send_to_order( $order );
+			}
+		}
+	}
+
+	/** Attach the new order to this request's claim (woocommerce_checkout_order_created). */
+	public static function link_order( $order ) {
+		global $wpdb;
+		if ( ! self::$claimed || ! $order instanceof WC_Order ) {
+			return;
+		}
+		list( $name, $mine ) = explode( '|', self::$claimed, 2 );
+		$v      = json_decode( $mine, true );
+		$v['o'] = $order->get_id();
+		$wpdb->update( $wpdb->options, array( 'option_value' => wp_json_encode( $v ) ), array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$order->update_meta_data( '_ym_token', substr( $name, strlen( self::TOKEN_PREFIX ) ) );
+		$order->save_meta_data();
+		self::$claimed = '';
+	}
+
+	/** End of request: a claim that never got an order is released so the customer can try again at once. */
+	public static function release_unlinked() {
+		global $wpdb;
+		if ( ! self::$claimed ) {
+			return;
+		}
+		list( $name, $mine ) = explode( '|', self::$claimed, 2 );
+		$wpdb->delete( $wpdb->options, array( 'option_name' => $name, 'option_value' => $mine ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		self::$claimed = '';
+	}
+
+	private static function send_to_order( WC_Order $order ) {
+		$url = $order->get_checkout_order_received_url();
+		if ( wp_doing_ajax() || ! empty( $_GET['wc-ajax'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			wp_send_json( array( 'result' => 'success', 'redirect' => $url, 'ym_replay' => 1 ) );
+		}
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/** Local test hook: make order creation fail once (X-YM-Test-Fail: create). */
+	public static function test_fail( $order ) {
+		if ( 'create' === YM_Env::test_header( 'fail' ) ) {
+			throw new Exception( 'ym test: order creation failed' );
+		}
+	}
+
+	/** Order details (address, phone) are shown only to the browser session that placed the order. */
+	public static function guard_received() {
+		if ( ! is_wc_endpoint_url( 'order-received' ) || current_user_can( 'edit_shop_orders' ) ) {
+			return;
+		}
+		global $wp;
+		$order = wc_get_order( absint( $wp->query_vars['order-received'] ?? 0 ) );
+		if ( $order && $order->get_meta( '_ym_session' ) !== self::session_hash() ) {
+			remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
 		}
 	}
 
 	public static function save_extra( WC_Order $order, $data ) {
+		$order->update_meta_data( '_ym_session', self::session_hash() );
 		foreach ( array( 'ym_phone2', 'ym_landmark' ) as $k ) {
 			if ( ! empty( $data[ $k ] ) ) {
 				$order->update_meta_data( '_' . $k, sanitize_text_field( $data[ $k ] ) );
@@ -158,7 +304,7 @@ final class YM_Checkout {
 		if ( ! $order instanceof WC_Order ) {
 			return $text;
 		}
-		return sprintf( '%s، رقمه %s. %s', YM_Country::copy( 'thanks' ), $order->get_order_number(), YM_Country::copy( 'confirm_call' ) );
+		return sprintf( YM_Country::copy( 'thanks_line' ), YM_Country::copy( 'thanks' ), $order->get_order_number() ) . ' ' . YM_Country::copy( 'confirm_call' );
 	}
 
 	/** A few WooCommerce strings that read wrong for a delivery-only shop. */
@@ -167,14 +313,20 @@ final class YM_Checkout {
 			return $translation;
 		}
 		$map = array(
-			'Billing address'  => 'عنوان التوصيل',
-			'Order details'    => 'تفاصيل الطلب',
+			'Billing address'  => YM_Country::copy( 'delivery_address' ),
+			'Order details'    => YM_Country::copy( 'order_details' ),
 		);
 		return $map[ $text ] ?? $translation;
 	}
 
 	public static function cleanup_tokens() {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND option_value < %d", $wpdb->esc_like( self::TOKEN_PREFIX ) . '%', time() - 2 * DAY_IN_SECONDS ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( self::TOKEN_PREFIX ) . '%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( $rows as $r ) {
+			$v = json_decode( $r->option_value, true );
+			if ( (int) ( $v['t'] ?? 0 ) < time() - 2 * DAY_IN_SECONDS ) {
+				$wpdb->delete( $wpdb->options, array( 'option_name' => $r->option_name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			}
+		}
 	}
 }

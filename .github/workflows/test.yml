@@ -38,7 +38,7 @@ jobs:
       - name: Playwright
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
       - name: End-to-end order flow
         run: npm test
       - name: Store logs on failure

@@ -48,13 +48,16 @@ install_site() {
     $WP config set WP_ENVIRONMENT_TYPE local --quiet
     $WP config set AUTOMATIC_UPDATER_DISABLED true --raw --quiet
     $WP config set WP_HTTP_BLOCK_EXTERNAL true --raw --quiet
+    $WP config set YM_TEST_HOOKS true --raw --quiet
+    # Scheduled jobs run from a real cron (production) or `wp cron event run --due-now` (local), never from page loads.
+    $WP config set DISABLE_WP_CRON true --raw --quiet
     $WP core install --url="http://localhost:$port" --title="يومياتي" --admin_user=admin \
         --admin_password="$(openssl rand -hex 12)" --admin_email=dev@example.test --skip-email --quiet
     $WP option update WPLANG ar --quiet
     $WP plugin activate woocommerce --quiet
     $WP theme activate yawmiyati --quiet
     $WP plugin activate yawmiyati-commerce --quiet
-    $WP ym setup --country="${cc^^}" --quiet
+    $WP ym setup --country="${cc^^}" --store-urls='{"EG":"http://localhost:8081/","IQ":"http://localhost:8082/"}' --quiet
     $WP ym seed --quiet
   )
   echo "$cc: installed at http://localhost:$port"

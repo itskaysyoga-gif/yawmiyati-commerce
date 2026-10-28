@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yawmiyati Commerce
  * Description: Yawmiyati COD store logic: country rules, offer groups, one-screen COD checkout, delivery fees by governorate, order snapshots, duplicate review and supplier hand-off checks.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Requires at least: 7.0
  * Requires PHP: 8.1
  * Requires Plugins: woocommerce
@@ -13,12 +13,18 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'YM_VERSION', '0.1.0' );
+define( 'YM_VERSION', '0.2.0' );
 define( 'YM_POLICY_VERSION', '2026-10-28' );
 define( 'YM_DIR', __DIR__ );
 define( 'YM_URL', plugin_dir_url( __FILE__ ) );
 
+require_once YM_DIR . '/includes/class-ym-env.php';
 require_once YM_DIR . '/includes/class-ym-country.php';
+require_once YM_DIR . '/includes/class-ym-catalog.php';
+require_once YM_DIR . '/includes/class-ym-ops.php';
+require_once YM_DIR . '/includes/class-ym-pages.php';
+require_once YM_DIR . '/includes/class-ym-tracking.php';
+require_once YM_DIR . '/includes/class-ym-seo.php';
 require_once YM_DIR . '/includes/class-ym-offers.php';
 require_once YM_DIR . '/includes/class-ym-checkout.php';
 require_once YM_DIR . '/includes/class-ym-orders.php';
@@ -39,6 +45,11 @@ add_action( 'plugins_loaded', function () {
 	YM_Checkout::init();
 	YM_Orders::init();
 	YM_Supplier::init();
+	YM_Catalog::init();
+	YM_Ops::init();
+	YM_Pages::init();
+	YM_Tracking::init();
+	YM_SEO::init();
 	add_action( 'woocommerce_shipping_init', function () {
 		require_once YM_DIR . '/includes/class-ym-shipping.php';
 	} );
