@@ -15,8 +15,9 @@
  * {"text": "..."} to that URL. The same alert key is sent at most once an hour. Logs: WooCommerce > Status > Logs,
  * source "yawmiyati".
  *
- * Supplier-dependent stages (confirmed, shipped, delivered, refused) depend on Taager syncing statuses back to
- * WooCommerce. That is NOT verified yet; until it is, the funnel reports them as pending.
+ * Supplier-dependent stages (confirmed, shipped, delivered, refused) come from YM_Lifecycle: from Taager's status sync
+ * once it is verified and mapped, or from a person recording the outcome with evidence (wp ym outcome). Until then
+ * status-only evidence is reported as unverified.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -145,75 +146,26 @@ final class YM_Ops {
 	}
 
 	public static function run_weekly_report() {
-		$report = self::funnel( 7 );
+		// Last full week of orders, plus the mature cohort of the four weeks before it (delivery takes days).
+		$report = array(
+			'last_7_days'      => YM_Report::build( time() - 7 * DAY_IN_SECONDS, time() + 1 ),
+			'mature_cohort_28' => YM_Report::build( time() - 35 * DAY_IN_SECONDS, time() - 7 * DAY_IN_SECONDS ),
+		);
 		update_option( 'ym_weekly_report', $report, false );
 		wp_mail( get_option( 'admin_email' ), '[Yawmiyati ' . YM_Country::code() . '] weekly product report', wp_json_encode( $report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
-		self::ran( 'weekly_report', array( 'products' => count( $report['products'] ) ) );
+		self::ran( 'weekly_report', array( 'orders' => $report['last_7_days']['counts']['orders'] ) );
 	}
 
-	/* ---------- funnel ---------- */
+	/* ---------- report ---------- */
 
-	/** WooCommerce status for each funnel stage. Confirm against Taager's status sync before trusting stages 2-5. */
+	/** Kept for callers of the old API: the stage map now lives in YM_Lifecycle. */
 	public static function stage_map() {
-		return (array) get_option(
-			'ym_stage_map',
-			array(
-				'confirmed' => array( 'ym-confirmed' ),
-				'shipped'   => array( 'ym-shipped' ),
-				'delivered' => array( 'completed' ),
-				'refused'   => array( 'ym-refused', 'refunded' ),
-				'cancelled' => array( 'cancelled' ),
-			)
-		);
+		return YM_Lifecycle::stage_map();
 	}
 
-	/**
-	 * Submitted → confirmed → shipped → delivered / refused, per product, from order snapshots.
-	 * Contribution per delivered order = sum(line total − Taager cost × qty); refused orders cost the refusal fee.
-	 * Ad spend is not in WooCommerce and is not subtracted here.
-	 */
+	/** Report for the last $days days (YM_Report). Unique orders, stage history, mature cohorts, unknowns kept unknown. */
 	public static function funnel( $days ) {
-		$ids  = wc_get_orders( array( 'limit' => -1, 'return' => 'ids', 'date_created' => '>' . ( time() - $days * DAY_IN_SECONDS ) ) );
-		$map  = self::stage_map();
-		$fee  = (float) YM_Country::rules()['refusal_fee'];
-		$out  = array( 'country' => YM_Country::code(), 'days' => $days, 'status_sync_verified' => (bool) get_option( 'ym_status_sync_verified', false ), 'totals' => array(), 'products' => array() );
-		$zero = array( 'submitted' => 0, 'confirmed' => 0, 'shipped' => 0, 'delivered' => 0, 'refused' => 0, 'cancelled' => 0, 'submitted_value' => 0.0, 'delivered_value' => 0.0, 'contribution' => 0.0 );
-		$out['totals'] = $zero;
-		foreach ( $ids as $id ) {
-			$o    = wc_get_order( $id );
-			$snap = json_decode( (string) $o->get_meta( '_ym_snapshot' ), true );
-			if ( ! $snap ) {
-				continue;
-			}
-			$stage = 'submitted';
-			foreach ( $map as $name => $statuses ) {
-				if ( in_array( $o->get_status(), (array) $statuses, true ) ) {
-					$stage = $name;
-				}
-			}
-			foreach ( $snap['items'] as $it ) {
-				$sku = $it['sku'] ? $it['sku'] : (string) $it['product_id'];
-				$row = $out['products'][ $sku ] ?? array_merge( $zero, array( 'name' => $it['name'] ) );
-				++$row['submitted'];
-				$row['submitted_value'] += $it['line_total'];
-				if ( 'submitted' !== $stage ) {
-					++$row[ $stage ];
-				}
-				if ( 'delivered' === $stage ) {
-					$row['delivered_value'] += $it['line_total'];
-					$row['contribution']    += $it['line_total'] - (float) $it['taager_cost'] * (int) $it['qty'];
-				} elseif ( 'refused' === $stage ) {
-					$row['contribution'] -= $fee;
-				}
-				$out['products'][ $sku ] = $row;
-			}
-		}
-		foreach ( $out['products'] as $row ) {
-			foreach ( $zero as $k => $v ) {
-				$out['totals'][ $k ] += $row[ $k ];
-			}
-		}
-		return $out;
+		return YM_Report::build( time() - (int) $days * DAY_IN_SECONDS, time() + 1 );
 	}
 
 	/* ---------- health ---------- */

@@ -290,7 +290,9 @@ final class YM_Offers {
 					<?php else : ?>
 						<input type="hidden" name="ym_offer" value="<?php echo esc_attr( $page->get_id() ); ?>">
 					<?php endif; ?>
-					<?php if ( $page->is_in_stock() ) : ?>
+					<?php if ( ! YM_Markets::accepts_orders() ) : ?>
+						<p class="ym-out" data-ym-closed><?php echo esc_html( YM_Country::copy( 'market_closed' ) ); ?></p>
+					<?php elseif ( $page->is_in_stock() ) : ?>
 						<button type="submit" name="ym_intent" value="buy" class="ym-btn ym-btn--primary"><?php echo esc_html( YM_Country::copy( 'buy' ) ); ?></button>
 						<button type="submit" name="ym_intent" value="cart" class="ym-btn ym-btn--secondary"><?php echo esc_html( YM_Country::copy( 'add' ) ); ?></button>
 					<?php else : ?>
@@ -344,10 +346,12 @@ final class YM_Offers {
 				<p><?php echo esc_html( trim( YM_Country::copy( 'payment' ) . ' ' . YM_Country::copy( 'returns' ) ) ); ?></p>
 			</section>
 
+			<?php if ( YM_Markets::accepts_orders() && $page->is_in_stock() ) : ?>
 			<div class="ym-sticky" data-ym-sticky>
 				<span class="ym-sticky__price" data-ym-price><?php echo esc_html( YM_Country::money( $default->get_price() ) ); ?></span>
 				<button type="button" class="ym-btn ym-btn--primary" data-ym-sticky-buy><?php echo esc_html( YM_Country::copy( 'buy_short' ) ); ?></button>
 			</div>
+			<?php endif; ?>
 		</article>
 		<?php
 	}

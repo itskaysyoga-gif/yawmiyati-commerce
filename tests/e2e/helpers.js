@@ -28,7 +28,9 @@ function order(cc, id) {
     "phone2" => $o->get_meta("_ym_phone2"), "landmark" => $o->get_meta("_ym_landmark"),
     "consent" => $o->get_meta("_ym_consent"), "attr" => json_decode($o->get_meta("_ym_attr"), true),
     "capi_meta" => json_decode($o->get_meta("_ym_capi_meta_purchase"), true), "capi_snap" => json_decode($o->get_meta("_ym_capi_snap_purchase"), true),
-    "key" => $o->get_order_key(), "token" => $o->get_meta("_ym_token")
+    "key" => $o->get_order_key(), "token" => $o->get_meta("_ym_token"),
+    "capi_meta_delivered" => json_decode($o->get_meta("_ym_capi_meta_delivered"), true), "dl_purchase" => $o->get_meta("_ym_dl_purchase"),
+    "consent_subject" => $o->get_meta("_ym_consent_subject"), "events" => json_decode($o->get_meta("_ym_events"), true)
   ));`));
 }
 

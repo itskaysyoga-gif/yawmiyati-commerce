@@ -13,7 +13,7 @@ class YM_CLI {
 	 * ## OPTIONS
 	 *
 	 * --country=<country>
-	 * : EG or IQ.
+	 * : EG, IQ, SA, AE or OM.
 	 *
 	 * [--store-urls=<json>]
 	 * : Home URL of every country store (country switcher, hreflang), e.g. {"EG":"https://yawmiyati.shop/eg/","IQ":"https://yawmiyati.shop/iq/"}
@@ -22,10 +22,10 @@ class YM_CLI {
 	 */
 	public function setup( $args, $assoc ) {
 		$cc = strtoupper( $assoc['country'] ?? '' );
-		if ( ! isset( YM_Country::RULES[ $cc ] ) ) {
-			WP_CLI::error( 'Unknown country. Use EG or IQ.' );
+		if ( ! in_array( $cc, YM_Country::codes(), true ) ) {
+			WP_CLI::error( 'Unknown country. Use one of: ' . implode( ', ', YM_Country::codes() ) );
 		}
-		$r = YM_Country::RULES[ $cc ];
+		$r = YM_Country::rules( $cc );
 		update_option( 'ym_country', $cc );
 		$opts = array(
 			'woocommerce_currency'                    => $r['currency'],
@@ -306,14 +306,24 @@ class YM_CLI {
 	}
 
 	/**
-	 * Submitted-to-delivered funnel per product.
+	 * Report: unique orders, lines and units; stage history; outcomes; money kept apart; unknowns listed.
 	 *
 	 * [--days=<days>]
+	 * : Orders created in the last N days. Default 7.
+	 *
+	 * [--from=<date>]
+	 * : Start date (YYYY-MM-DD), instead of --days.
+	 *
+	 * [--to=<date>]
+	 * : End date (YYYY-MM-DD, exclusive). Default now.
 	 *
 	 * @subcommand funnel
+	 * @alias report
 	 */
 	public function funnel( $args, $assoc ) {
-		WP_CLI::log( wp_json_encode( YM_Ops::funnel( (int) ( $assoc['days'] ?? 7 ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
+		$to   = isset( $assoc['to'] ) ? strtotime( $assoc['to'] . ' 00:00:00 UTC' ) : time() + 1;
+		$from = isset( $assoc['from'] ) ? strtotime( $assoc['from'] . ' 00:00:00 UTC' ) : $to - (int) ( $assoc['days'] ?? 7 ) * DAY_IN_SECONDS;
+		WP_CLI::log( wp_json_encode( YM_Report::build( $from, $to ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
 	}
 
 	/**
@@ -370,5 +380,147 @@ class YM_CLI {
 		}
 		YM_Ops::$fn();
 		WP_CLI::success( wp_json_encode( get_option( 'ym_ops_runs' )[ $args[0] ] ?? array() ) );
+	}
+
+	/**
+	 * Record what happened to an order (staff, with evidence). Verified by default: a person saw the evidence.
+	 *
+	 * <order>
+	 * : Order ID.
+	 *
+	 * <stage>
+	 * : confirmed | shipped | delivered | refused | cancelled | returned
+	 *
+	 * [--reason=<reason>]
+	 * : For refused/cancelled/returned: changed_mind, not_reachable, not_at_address, price_dispute, ordered_elsewhere,
+	 *   fake_order, wrong_item, damaged, late_delivery, supplier_delay, not_as_described, address_unsupported,
+	 *   duplicate_order, before_handoff, after_shipment, other.
+	 *
+	 * [--at=<datetime>]
+	 * : When it happened (e.g. "2026-11-03 14:20"), store time zone. Default now.
+	 *
+	 * [--units=<units>]
+	 * : For returned: how many units came back. Default all.
+	 *
+	 * --evidence=<evidence>
+	 * : Where you saw it (e.g. "Taager order 123 status Delivered, 3 Nov").
+	 */
+	public function outcome( $args, $assoc ) {
+		$order = wc_get_order( (int) $args[0] );
+		if ( ! $order ) {
+			WP_CLI::error( 'No such order.' );
+		}
+		$stage = (string) $args[1];
+		if ( ! in_array( $stage, array( 'confirmed', 'shipped', 'delivered', 'refused', 'cancelled', 'returned' ), true ) ) {
+			WP_CLI::error( 'Stage must be confirmed, shipped, delivered, refused, cancelled or returned. Refunds are recorded from the refund itself.' );
+		}
+		if ( empty( $assoc['evidence'] ) ) {
+			WP_CLI::error( '--evidence is required: where did you see this?' );
+		}
+		if ( in_array( $stage, array( 'refused', 'returned' ), true ) && empty( $assoc['reason'] ) ) {
+			WP_CLI::error( '--reason is required for ' . $stage . ' (it decides whether it counts against the customer or the operation).' );
+		}
+		$at = isset( $assoc['at'] ) ? ( new DateTime( $assoc['at'], wp_timezone() ) )->getTimestamp() : time();
+		$e  = YM_Lifecycle::record( $order, $stage, array( 'at' => $at, 'src' => 'staff', 'verified' => true, 'reason' => $assoc['reason'] ?? '', 'units' => isset( $assoc['units'] ) ? (int) $assoc['units'] : null, 'by' => 'cli', 'evidence' => $assoc['evidence'] ) );
+		if ( is_wp_error( $e ) ) {
+			WP_CLI::error( $e->get_error_message() );
+		}
+		WP_CLI::success( wp_json_encode( $e, JSON_UNESCAPED_UNICODE ) . ' outcome=' . YM_Lifecycle::outcome( wc_get_order( $order->get_id() ) ) );
+	}
+
+	/**
+	 * Record an actual order-level charge from Taager's wallet or invoice (replaces a policy estimate of that type).
+	 *
+	 * <order>
+	 * : Order ID.
+	 *
+	 * <type>
+	 * : refusal_fee | return_fee | shipping_subsidy | payout_fee | other
+	 *
+	 * <amount>
+	 * : Amount in the store currency.
+	 *
+	 * --source=<source>
+	 * : Where it comes from.
+	 *
+	 * [--replace]
+	 * : Replace an actual charge of this type already recorded.
+	 */
+	public function charge( $args, $assoc ) {
+		$order = wc_get_order( (int) $args[0] );
+		if ( ! $order || empty( $assoc['source'] ) ) {
+			WP_CLI::error( 'Order and --source required.' );
+		}
+		$r = YM_Lifecycle::add_charge( $order, (string) $args[1], (float) $args[2], 'actual', (string) $assoc['source'], ! empty( $assoc['replace'] ) );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		WP_CLI::success( wp_json_encode( $r, JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Record money outside WooCommerce: wallet credits, payouts received, payout fees, ad spend.
+	 *
+	 * <kind>
+	 * : wallet | payout | payout_fee | spend
+	 *
+	 * <amount>
+	 * : Amount in the store currency.
+	 *
+	 * <date>
+	 * : YYYY-MM-DD the money moved (spend: the day it was spent).
+	 *
+	 * --source=<source>
+	 * : e.g. "Taager wallet statement", "Meta Ads Manager export 2026-11-03".
+	 *
+	 * [--sku=<sku>]
+	 * : Product the spend was for, if any.
+	 *
+	 * [--note=<note>]
+	 * : Free text.
+	 */
+	public function money( $args, $assoc ) {
+		$r = YM_Report::add_entry( (string) $args[0], (float) $args[1], (string) $args[2], (string) ( $assoc['source'] ?? '' ), (string) ( $assoc['note'] ?? '' ), (string) ( $assoc['sku'] ?? '' ) );
+		if ( is_wp_error( $r ) ) {
+			WP_CLI::error( $r->get_error_message() );
+		}
+		if ( 'spend' === $args[0] && ! YM_Markets::is_on( YM_Country::code(), 'ads' ) ) {
+			WP_CLI::warning( 'Advertising is not enabled for ' . YM_Country::code() . ' in config/markets.json, yet spend was recorded.' );
+		}
+		WP_CLI::success( wp_json_encode( $r, JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Market gates: show the five-country matrix, or switch a gate OFF for this store (emergency). Switching ON is
+	 * done only in config/markets.json, through a commit.
+	 *
+	 * [<action>]
+	 * : status (default) | off | clear
+	 *
+	 * [<gate>]
+	 * : prepared | catalog | checkout | ads
+	 */
+	public function market( $args, $assoc ) {
+		$action = $args[0] ?? 'status';
+		if ( 'off' === $action ) {
+			$gate = (string) ( $args[1] ?? '' );
+			if ( ! in_array( $gate, YM_Markets::GATES, true ) ) {
+				WP_CLI::error( 'Gate must be one of ' . implode( ', ', YM_Markets::GATES ) );
+			}
+			$off = array_unique( array_merge( (array) get_option( 'ym_market_off', array() ), array( $gate ) ) );
+			update_option( 'ym_market_off', array_values( $off ) );
+			YM_Ops::log( 'market_gate_off', array( 'gate' => $gate ) );
+			WP_CLI::success( YM_Country::code() . ' ' . $gate . ' switched OFF on this store.' );
+		} elseif ( 'clear' === $action ) {
+			delete_option( 'ym_market_off' );
+			YM_Ops::log( 'market_gate_clear', array() );
+			WP_CLI::success( 'Local switches cleared; config/markets.json applies.' );
+		}
+		$rows = array();
+		foreach ( YM_Markets::matrix() as $cc => $row ) {
+			$rows[] = array_merge( array( 'country' => $cc ), array_map( fn( $v ) => is_bool( $v ) ? ( $v ? 'on' : 'off' ) : $v, $row ) );
+		}
+		WP_CLI\Utils\format_items( 'table', $rows, array( 'country', 'prepared', 'catalog', 'checkout', 'ads', 'note' ) );
+		WP_CLI::log( 'This store: ' . YM_Country::code() . ' · enforced here: ' . ( YM_Env::enforced() ? 'yes' : 'no (' . YM_Env::type() . ')' ) . ' · local off: ' . implode( ', ', (array) get_option( 'ym_market_off', array() ) ) );
 	}
 }

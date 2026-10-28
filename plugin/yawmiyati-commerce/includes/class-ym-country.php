@@ -9,90 +9,28 @@ defined( 'ABSPATH' ) || exit;
 
 final class YM_Country {
 
-	const RULES = array(
-		'EG' => array(
-			'currency'     => 'EGP',
-			'decimals'     => 0,
-			'symbol'       => 'ج.م',
-			'phone_regex'  => '/^01[0125][0-9]{8}$/',
-			'phone_example'=> '01xxxxxxxxx',
-			'refusal_fee'  => 5,
-			'zones'        => array(
-				array( 95, 'القاهرة والجيزة والإسكندرية', 'يومين شغل' ),
-				array( 100, 'الدلتا والقناة', 'لحد 3 أيام' ),
-				array( 105, 'الصعيد وسيناء والبحر الأحمر ومطروح', 'من 2 لـ 5 أيام' ),
-			),
-			// Governorate code => [Arabic name, delivery fee charged to the customer, delivery window].
-			'governorates' => array(
-				'EGC'   => array( 'القاهرة', 95, 'يومين شغل' ),
-				'EGGZ'  => array( 'الجيزة', 95, 'يومين شغل' ),
-				'EGALX' => array( 'الإسكندرية', 95, 'يومين شغل' ),
-				'EGBH'  => array( 'البحيرة', 100, 'لحد 3 أيام' ),
-				'EGDK'  => array( 'الدقهلية', 100, 'لحد 3 أيام' ),
-				'EGSHR' => array( 'الشرقية', 100, 'لحد 3 أيام' ),
-				'EGGH'  => array( 'الغربية', 100, 'لحد 3 أيام' ),
-				'EGKB'  => array( 'القليوبية', 100, 'لحد 3 أيام' ),
-				'EGMNF' => array( 'المنوفية', 100, 'لحد 3 أيام' ),
-				'EGIS'  => array( 'الإسماعيلية', 100, 'لحد 3 أيام' ),
-				'EGSUZ' => array( 'السويس', 100, 'لحد 3 أيام' ),
-				'EGPTS' => array( 'بورسعيد', 100, 'لحد 3 أيام' ),
-				'EGKFS' => array( 'كفر الشيخ', 100, 'لحد 3 أيام' ),
-				'EGDT'  => array( 'دمياط', 100, 'لحد 3 أيام' ),
-				'EGBNS' => array( 'بني سويف', 100, 'لحد 3 أيام' ),
-				'EGFYM' => array( 'الفيوم', 105, 'من 2 لـ 5 أيام' ),
-				'EGMN'  => array( 'المنيا', 105, 'من 2 لـ 5 أيام' ),
-				'EGAST' => array( 'أسيوط', 105, 'من 2 لـ 5 أيام' ),
-				'EGSHG' => array( 'سوهاج', 105, 'من 2 لـ 5 أيام' ),
-				'EGKN'  => array( 'قنا', 105, 'من 2 لـ 5 أيام' ),
-				'EGLX'  => array( 'الأقصر', 105, 'من 2 لـ 5 أيام' ),
-				'EGASN' => array( 'أسوان', 105, 'من 2 لـ 5 أيام' ),
-				'EGWAD' => array( 'الوادي الجديد', 105, 'من 2 لـ 5 أيام' ),
-				'EGMT'  => array( 'مطروح', 105, 'من 2 لـ 5 أيام' ),
-				'EGBA'  => array( 'البحر الأحمر', 105, 'من 2 لـ 5 أيام' ),
-				'EGSIN' => array( 'شمال سيناء', 105, 'من 2 لـ 5 أيام' ),
-				'EGJS'  => array( 'جنوب سيناء', 105, 'من 2 لـ 5 أيام' ),
-			),
-		),
-		'IQ' => array(
-			'currency'     => 'IQD',
-			'decimals'     => 0,
-			'symbol'       => 'د.ع',
-			'phone_regex'  => '/^07[0-9]{9}$/',
-			'phone_example'=> '07xxxxxxxxx',
-			'refusal_fee'  => 0,
-			'zones'        => array(
-				array( 7000, 'كل المحافظات', '' ),
-			),
-			'governorates' => array(
-				'BG' => array( 'بغداد', 7000, '' ),
-				'BA' => array( 'البصرة', 7000, '' ),
-				'NI' => array( 'نينوى', 7000, '' ),
-				'AR' => array( 'أربيل', 7000, '' ),
-				'SU' => array( 'السليمانية', 7000, '' ),
-				'DA' => array( 'دهوك', 7000, '' ),
-				'KI' => array( 'كركوك', 7000, '' ),
-				'AN' => array( 'الأنبار', 7000, '' ),
-				'BB' => array( 'بابل', 7000, '' ),
-				'KA' => array( 'كربلاء', 7000, '' ),
-				'NA' => array( 'النجف', 7000, '' ),
-				'WA' => array( 'واسط', 7000, '' ),
-				'MA' => array( 'ميسان', 7000, '' ),
-				'DQ' => array( 'ذي قار', 7000, '' ),
-				'MU' => array( 'المثنى', 7000, '' ),
-				'QA' => array( 'الديوانية', 7000, '' ),
-				'SD' => array( 'صلاح الدين', 7000, '' ),
-				'DI' => array( 'ديالى', 7000, '' ),
-			),
-		),
-	);
+	/** All five countries, from config/countries.php (shared by every store). */
+	public static function all() {
+		static $all = null;
+		if ( null === $all ) {
+			$all = require YM_DIR . '/config/countries.php';
+		}
+		return $all;
+	}
+
+	public static function codes() {
+		return array_keys( self::all() );
+	}
 
 	public static function init() {
 		add_filter( 'woocommerce_states', array( __CLASS__, 'states' ) );
 		add_filter( 'woocommerce_currency_symbol', array( __CLASS__, 'symbol' ), 10, 2 );
+		// 3.000 OMR shows as 3 and 28.00 SAR as 28; 2.500 OMR keeps its decimals.
+		add_filter( 'woocommerce_price_trim_zeros', '__return_true' );
 	}
 
 	public static function symbol( $symbol, $currency ) {
-		foreach ( self::RULES as $r ) {
+		foreach ( self::all() as $r ) {
 			if ( $r['currency'] === $currency ) {
 				return $r['symbol'];
 			}
@@ -102,11 +40,12 @@ final class YM_Country {
 
 	public static function code() {
 		$c = strtoupper( (string) get_option( 'ym_country', 'EG' ) );
-		return isset( self::RULES[ $c ] ) ? $c : 'EG';
+		return isset( self::all()[ $c ] ) ? $c : 'EG';
 	}
 
 	public static function rules( $country = null ) {
-		return self::RULES[ $country ? $country : self::code() ];
+		$all = self::all();
+		return $all[ $country ? strtoupper( $country ) : self::code() ];
 	}
 
 	/**
@@ -122,7 +61,14 @@ final class YM_Country {
 		static $cache = array();
 		$cc = $country ? $country : self::code();
 		if ( ! isset( $cache[ $cc ] ) ) {
-			$cache[ $cc ] = (array) json_decode( (string) file_get_contents( YM_DIR . '/copy/' . strtolower( $cc ) . '.json' ), true );
+			// Saudi, UAE and Oman share copy/gulf.json; copy/<cc>.json overrides what differs by country.
+			$voice = strtolower( (string) ( self::rules( $cc )['voice'] ?? strtolower( $cc ) ) );
+			$base  = array();
+			if ( strtolower( $cc ) !== $voice && is_readable( YM_DIR . '/copy/' . $voice . '.json' ) ) {
+				$base = (array) json_decode( (string) file_get_contents( YM_DIR . '/copy/' . $voice . '.json' ), true );
+			}
+			$own = is_readable( YM_DIR . '/copy/' . strtolower( $cc ) . '.json' ) ? (array) json_decode( (string) file_get_contents( YM_DIR . '/copy/' . strtolower( $cc ) . '.json' ), true ) : array();
+			$cache[ $cc ] = array_merge( $base, $own );
 			unset( $cache[ $cc ]['_status'] );
 		}
 		return $cache[ $cc ];
@@ -130,7 +76,7 @@ final class YM_Country {
 
 	/** Arabic governorate names as WooCommerce states for this country. */
 	public static function states( $states ) {
-		foreach ( self::RULES as $cc => $rules ) {
+		foreach ( self::all() as $cc => $rules ) {
 			$states[ $cc ] = array();
 			foreach ( $rules['governorates'] as $code => $g ) {
 				$states[ $cc ][ $code ] = $g[0];
@@ -145,15 +91,23 @@ final class YM_Country {
 		return $g ? (float) $g[1] : null;
 	}
 
-	/** Normalise a phone number: strip spaces, dashes, Arabic-Indic digits, +20 / +964 prefixes. */
+	/**
+	 * Normalise a phone number to national format for the given country, before validation and duplicate checks:
+	 * Arabic-Indic (٠-٩) and Persian (۰-۹) digits become 0-9; spaces, dashes, dots and brackets go; +CC / 00CC / CC
+	 * prefixes become the national trunk prefix; a mobile number typed without its trunk 0 gets it back.
+	 */
 	public static function normalise_phone( $raw, $country = null ) {
-		$p = strtr( (string) $raw, array( '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9' ) );
+		$r = self::rules( $country );
+		$p = strtr( (string) $raw, array( '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9', '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9' ) );
 		$p = preg_replace( '/[^0-9+]/', '', $p );
-		$cc = $country ? $country : self::code();
-		if ( 'EG' === $cc ) {
-			$p = preg_replace( '/^(\+|00)20/', '0', $p );
-		} else {
-			$p = preg_replace( '/^(\+|00)964/', '0', $p );
+		$dial = $r['dial'];
+		if ( preg_match( '/^(?:\+|00)' . $dial . '(\d+)$/', $p, $m ) ) {
+			$p = $r['trunk'] . ltrim( $m[1], '0' );
+		} elseif ( 0 === strpos( $p, $dial ) && ! preg_match( $r['phone_regex'], $p ) && preg_match( $r['phone_regex'], $r['trunk'] . substr( $p, strlen( $dial ) ) ) ) {
+			$p = $r['trunk'] . substr( $p, strlen( $dial ) ); // international digits typed without + (e.g. 9647701234567)
+		}
+		if ( '' !== $r['trunk'] && ! preg_match( $r['phone_regex'], $p ) && preg_match( $r['phone_regex'], $r['trunk'] . $p ) ) {
+			$p = $r['trunk'] . $p; // trunk 0 left off (e.g. 1012345678)
 		}
 		return $p;
 	}
@@ -162,23 +116,54 @@ final class YM_Country {
 		return (bool) preg_match( self::rules( $country )['phone_regex'], self::normalise_phone( $raw, $country ) );
 	}
 
-	/** Same digits and separators as WooCommerce's own prices (cart, checkout, emails). */
-	public static function number( $amount ) {
+	/** International digits for ad-platform matching: 01012345678 → 201012345678; 91234567 (OM) → 96891234567. */
+	public static function intl_phone( $raw, $country = null ) {
+		$r = self::rules( $country );
+		$p = self::normalise_phone( $raw, $country );
+		if ( '' !== $r['trunk'] && 0 === strpos( $p, $r['trunk'] ) ) {
+			$p = substr( $p, strlen( $r['trunk'] ) );
+		}
+		return $r['dial'] . $p;
+	}
+
+	/** Minor units of this country's currency (0 EGP/IQD, 2 SAR/AED, 3 OMR). */
+	public static function decimals( $country = null ) {
+		return (int) self::rules( $country )['decimals'];
+	}
+
+	/** Round a money amount the way this country's currency is held. */
+	public static function round_money( $amount, $country = null ) {
+		return round( (float) $amount, self::decimals( $country ) );
+	}
+
+	/** Round a selling price to the country's price step (e.g. 0.100 OMR, 250 IQD), never below the amount. */
+	public static function price_step( $amount, $country = null ) {
+		$step = (float) self::rules( $country )['price_step'];
+		return self::round_money( ceil( round( (float) $amount / $step, 6 ) ) * $step, $country );
+	}
+
+	/** Same digits and separators as WooCommerce's own prices; trailing zeros trimmed (3.000 → 3, 2.500 stays). */
+	public static function number( $amount, $country = null ) {
 		$sep = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : ',';
-		return number_format( (float) $amount, 0, '.', $sep );
+		$d   = self::decimals( $country );
+		$out = number_format( self::round_money( $amount, $country ), $d, '.', $sep );
+		if ( $d > 0 && preg_match( '/\.0+$/', $out ) ) {
+			$out = preg_replace( '/\.0+$/', '', $out );
+		}
+		return $out;
 	}
 
 	/** Home URL of each country store, from option ym_store_urls (set by `wp ym setup --store-urls=...`). */
 	public static function store_urls() {
 		$urls = (array) get_option( 'ym_store_urls', array() );
 		$out  = array();
-		foreach ( array_keys( self::RULES ) as $cc ) {
+		foreach ( self::codes() as $cc ) {
 			$out[ $cc ] = $urls[ $cc ] ?? ( self::code() === $cc ? home_url( '/' ) : '' );
 		}
 		return array_filter( $out );
 	}
 
-	public static function money( $amount ) {
-		return self::number( $amount ) . ' ' . self::rules()['symbol'];
+	public static function money( $amount, $country = null ) {
+		return self::number( $amount, $country ) . ' ' . self::rules( $country )['symbol'];
 	}
 }

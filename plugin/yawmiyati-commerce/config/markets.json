@@ -1,0 +1,14 @@
+{
+  "_doc": "Readiness gates per market. Versioned: every change is a commit (who, when, why). A store may switch a gate OFF locally in an emergency (wp ym market off <gate>); it can never switch one ON beyond this file. Gates are enforced on staging and production. See docs/MARKETS.md.",
+  "_gates": {
+    "prepared": "Store configured: currency, phones, regions and fees, copy and policy pages, tracking config. Its homepage existing is not enough.",
+    "catalog": "At least one offer passes the catalog gate and Rashid approved the assortment. Off = store not indexable, no sitemap, nothing purchasable.",
+    "checkout": "Orders accepted. Needs a verified supplier link and a test order in THIS country. Off = buy buttons hidden, checkout refuses orders, country hidden from the switcher and the root chooser.",
+    "ads": "Paid advertising allowed. Needs live measurement checks for this country. Off = ad spend is reported as 0; any recorded spend is flagged."
+  },
+  "EG": { "prepared": true,  "catalog": false, "checkout": false, "ads": false, "note": "Local build complete; no staging store, no Taager link, no verified product.", "changed": "2026-10-28" },
+  "IQ": { "prepared": true,  "catalog": false, "checkout": false, "ads": false, "note": "Local build complete; no staging store, no Taager link, no verified product.", "changed": "2026-10-28" },
+  "SA": { "prepared": true,  "catalog": false, "checkout": false, "ads": false, "note": "Configuration and draft Gulf copy; no products seeded beyond local test data; copy not native-reviewed.", "changed": "2026-10-28" },
+  "AE": { "prepared": true,  "catalog": false, "checkout": false, "ads": false, "note": "Configuration and draft Gulf copy; no products seeded beyond local test data; copy not native-reviewed.", "changed": "2026-10-28" },
+  "OM": { "prepared": true,  "catalog": false, "checkout": false, "ads": false, "note": "Configuration and draft Gulf copy; three-decimal currency; copy not native-reviewed.", "changed": "2026-10-28" }
+}

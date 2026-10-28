@@ -1,0 +1,7 @@
+{
+ "_status": "Saudi overrides on copy/gulf.json. Draft, not native-reviewed.",
+ "phone_err": "اكتبي رقم جوال سعودي من 10 أرقام يبدأ بـ 05.",
+ "wrong_country": "نوصّل داخل المملكة فقط.",
+ "country_name": "السعودية",
+ "fee_flat": "التوصيل %s لكل مناطق المملكة"
+}

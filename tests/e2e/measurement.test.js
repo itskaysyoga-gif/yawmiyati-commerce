@@ -78,9 +78,17 @@ test('Funnel events: view_item, add_to_cart, begin_checkout and purchase with a 
   // No personal data anywhere in the dataLayer.
   const text = JSON.stringify(dl);
   for (const pii of [phone, h.CUSTOMER.eg.name, h.CUSTOMER.eg.area, h.CUSTOMER.eg.building]) assert.ok(!text.includes(pii), `dataLayer leaks ${pii}`);
-  // Reloading the order page does not count the purchase twice.
+  // The order key never stays in the address bar where tags could read it.
+  assert.doesNotMatch(page.url(), /key=/);
+  assert.ok(dl.every((e) => !e || !e.ym_page_location || !/[?#]/.test(e.ym_page_location)));
+  assert.equal(await page.locator('meta[name="referrer"]').getAttribute('content'), 'origin');
+  // The purchase is marked as handed to GTM only by the browser's acknowledgement, after GTM loaded.
+  for (let i = 0; i < 30 && !h.order('eg', id).dl_purchase; i++) await page.waitForTimeout(100);
+  assert.ok(h.order('eg', id).dl_purchase, 'acknowledged after GTM loaded');
+  // Reloading the order page does not count the purchase twice, and still shows her order (key kept in session).
   await page.reload({ waitUntil: 'networkidle' });
   assert.ok(!events(await dataLayer(page)).includes('purchase'));
+  assert.match(await page.locator('body').innerText(), new RegExp(String(id)));
   await ctx.close();
 });
 
@@ -140,4 +148,107 @@ test('Attribution: campaign tags are kept on the order; ad click IDs only with c
   assert.equal(denied.first.fbclid, undefined);
   const granted = await run('granted');
   assert.equal(granted.last.fbclid, 'FBCLID123');
+});
+
+test('Purchase marker: rendering the confirmation page is not evidence; the marker waits for GTM to load', async () => {
+  // She has not chosen yet: GTM does not load, so the purchase stays unacknowledged and is pushed again later.
+  const { ctx, page } = await h.context(browser, { consent: null });
+  const gtm = await watchGTM(ctx);
+  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
+  await page.waitForLoadState('networkidle');
+  assert.equal(gtm.length, 0);
+  assert.ok(events(await dataLayer(page)).includes('purchase'));
+  await page.waitForTimeout(400);
+  assert.equal(h.order('eg', id).dl_purchase, '', 'not marked on render');
+  // She accepts on the confirmation page: GTM loads, processes the earlier push, and only then the marker is set.
+  await page.locator('[data-ym-consent-yes]').click();
+  for (let i = 0; i < 30 && !h.order('eg', id).dl_purchase; i++) await page.waitForTimeout(100);
+  assert.equal(gtm.length, 1);
+  assert.ok(h.order('eg', id).dl_purchase, 'marked after GTM loaded');
+  // A forged acknowledgement is refused.
+  const res = await page.request.post(`${h.BASE.eg}/wp-json/ym/v1/dl-ack`, { data: { tx: `EG-${id}`, ack: 'x'.repeat(32) } });
+  assert.equal(res.status(), 403);
+  await ctx.close();
+});
+
+test('Consent withdrawal: loaded tags stop (reload, cookies deleted), and queued server events for her orders are cancelled', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  const gtm = await watchGTM(ctx);
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-yes]').click();
+  await page.waitForTimeout(300);
+  assert.equal(gtm.length, 1);
+  // Measurement cookies a loaded tag would have set.
+  await ctx.addCookies([{ name: '_ga', value: 'GA1.1.1.1', url: h.BASE.iq }, { name: '_fbp', value: 'fb.1.1.1', url: h.BASE.iq }]);
+  const id = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  const o = h.order('iq', id);
+  assert.equal(o.consent, 'granted');
+  assert.match(o.consent_subject, /^[0-9a-f]{32}$/);
+  // Server events are queued but not sent yet. She now withdraws.
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  const before = gtm.length;
+  await page.locator('[data-ym-consent-open]').first().click();
+  await Promise.all([page.waitForEvent('load'), page.locator('[data-ym-consent-no]').click()]);
+  await page.waitForLoadState('networkidle');
+  assert.equal(gtm.length, before, 'GTM not loaded again after withdrawal');
+  const names = (await ctx.cookies(h.BASE.iq)).map((c) => c.name);
+  assert.ok(!names.includes('_ga') && !names.includes('_fbp'), `measurement cookies deleted: ${names}`);
+  const dl = await dataLayer(page);
+  assert.ok(!dl.some((e) => e && e[0] === 'consent' && e[1] === 'update' && e[2].ad_storage === 'granted'), 'fresh page: no granted consent');
+  assert.equal(h.order('iq', id).consent, 'withdrawn');
+  runQueue('iq');
+  const after = h.order('iq', id);
+  assert.ok(!after.capi_meta || after.capi_meta.status === 'skipped', JSON.stringify(after.capi_meta));
+  assert.ok(!after.capi_snap || after.capi_snap.status === 'skipped');
+  // Even if a send had already been queued elsewhere, sending re-checks consent.
+  h.wpEval('iq', `YM_Tracking::send(${id}, "meta", "purchase");`);
+  assert.equal(h.order('iq', id).capi_meta.status, 'skipped');
+  assert.equal(h.order('iq', id).capi_meta.reason, 'no_consent');
+  await ctx.close();
+});
+
+test('Late consent: click IDs from the landing visit are kept if she accepts later in that visit, dropped if she declines', async () => {
+  const run = async (choice) => {
+    const { ctx, page } = await h.context(browser, { consent: null });
+    await watchGTM(ctx);
+    await page.goto(`${h.BASE.eg}/?utm_source=facebook&fbclid=LATE123`, { waitUntil: 'networkidle' });
+    const cookieBefore = (await ctx.cookies(h.BASE.eg)).find((c) => c.name === 'ym_attr');
+    assert.ok(!cookieBefore || !decodeURIComponent(cookieBefore.value).includes('LATE123'), 'click ID not stored in a cookie before consent');
+    await page.goto(`${h.BASE.eg}/product/absorbent-mats/`, { waitUntil: 'networkidle' });
+    await page.locator(choice === 'yes' ? '[data-ym-consent-yes]' : '[data-ym-consent-no]').click();
+    const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
+    await ctx.close();
+    return h.order('eg', id).attr;
+  };
+  const yes = await run('yes');
+  assert.equal(yes.first.fbclid, 'LATE123');
+  assert.equal(yes.first.utm_source, 'facebook');
+  const no = await run('no');
+  assert.equal(no.first.fbclid, undefined);
+  assert.equal(no.first.utm_source, 'facebook');
+});
+
+test('Delivered: a "completed" status alone sends nothing; a verified delivery sends OrderDelivered with its own time, stable on retry', async () => {
+  const { ctx, page } = await h.context(browser, { consent: 'granted' });
+  await watchGTM(ctx);
+  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
+  await ctx.close();
+  h.wp('eg', 'wc', 'shop_order', 'update', String(id), '--status=completed', '--user=1');
+  runQueue('eg');
+  assert.equal(h.order('eg', id).capi_meta_delivered, null, 'no OrderDelivered from an unmapped status');
+  const at = '2026-10-27 15:30';
+  h.wp('eg', 'ym', 'outcome', String(id), 'delivered', `--at=${at}`, '--evidence=test: courier delivered');
+  runQueue('eg');
+  const first = h.order('eg', id).capi_meta_delivered;
+  assert.ok(first, 'OrderDelivered recorded');
+  const ev = first.payload.data[0];
+  assert.equal(ev.event_name, 'OrderDelivered');
+  assert.equal(ev.event_id, `EG-${id}-delivered`);
+  const recorded = h.order('eg', id).events.find((e) => e.e === 'delivered');
+  assert.equal(ev.event_time, recorded.at, 'event time = when it was delivered, not when it was sent');
+  // Retry later: same ID and same time.
+  h.wpEval('eg', `YM_Tracking::send(${id}, "meta", "delivered");`);
+  const again = h.order('eg', id).capi_meta_delivered.payload.data[0];
+  assert.equal(again.event_id, ev.event_id);
+  assert.equal(again.event_time, ev.event_time);
 });

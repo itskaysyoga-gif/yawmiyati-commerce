@@ -29,13 +29,14 @@ final class YM_SEO {
 		add_filter( 'wp_sitemaps_add_provider', array( __CLASS__, 'providers' ), 10, 2 );
 		add_filter( 'wp_sitemaps_post_types', array( __CLASS__, 'post_types' ) );
 		add_filter( 'wp_sitemaps_posts_query_args', array( __CLASS__, 'sitemap_query' ), 10, 2 );
-		add_filter( 'wp_sitemaps_enabled', '__return_true' );
+		// Sitemaps on (also while noindex outside production, for checking), except a live store whose market is not approved.
+		add_filter( 'wp_sitemaps_enabled', fn() => ! ( YM_Env::is_production() && ! YM_Markets::indexable() ), 20 );
 		remove_action( 'wp_head', 'rel_canonical' );
 		add_filter( 'woocommerce_structured_data_product', '__return_false' );
 	}
 
 	public static function indexable() {
-		return YM_Env::is_production() && '1' === (string) get_option( 'blog_public', '1' );
+		return YM_Env::is_production() && '1' === (string) get_option( 'blog_public', '1' ) && YM_Markets::indexable();
 	}
 
 	public static function robots( $robots ) {

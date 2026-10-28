@@ -4,8 +4,11 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const h = require('./helpers');
 
-async function get(url, env, follow = false) {
-  const res = await fetch(url, { headers: env ? { 'x-ym-test-env': env } : {}, redirect: follow ? 'follow' : 'manual' });
+// Market gates (config/markets.json) are off until Rashid approves a market; APPROVED renders as if approved.
+const APPROVED = 'prepared,catalog,checkout';
+async function get(url, env, follow = false, markets = APPROVED) {
+  const headers = env ? { 'x-ym-test-env': env, ...(markets ? { 'x-ym-test-markets': markets } : {}) } : {};
+  const res = await fetch(url, { headers, redirect: follow ? 'follow' : 'manual' });
   return { status: res.status, location: res.headers.get('location'), html: await res.text() };
 }
 const meta = (html, attr, name) => (html.match(new RegExp(`<meta ${attr}="${name}" content="([^"]*)"`)) || [])[1];
@@ -30,6 +33,14 @@ test('Indexing: as production, shop pages are indexable and cart, checkout and o
     assert.match(robots((await get(h.BASE.eg + path, 'production', true)).html), /noindex/, path);
   }
   assert.doesNotMatch((await get(h.BASE.eg + '/robots.txt', 'production')).html, /Disallow: \/\n/);
+});
+
+test('Indexing: a live store whose market is not approved stays noindex, disallows crawling and has no sitemap', async () => {
+  for (const path of ['/', '/product/absorbent-mats/']) {
+    assert.match(robots((await get(h.BASE.iq + path, 'production', false, '')).html), /noindex/, path);
+  }
+  assert.match((await get(h.BASE.iq + '/robots.txt', 'production', false, '')).html, /Disallow: \//);
+  assert.equal((await get(h.BASE.iq + '/wp-sitemap.xml', 'production', false, '')).status, 404);
 });
 
 test('Product page: canonical, description, social preview and Product structured data', async () => {

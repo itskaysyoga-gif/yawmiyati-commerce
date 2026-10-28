@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Yawmiyati Commerce
  * Description: Yawmiyati COD store logic: country rules, offer groups, one-screen COD checkout, delivery fees by governorate, order snapshots, duplicate review and supplier hand-off checks.
- * Version: 0.2.0
+ * Version: 0.3.0
  * Requires at least: 7.0
  * Requires PHP: 8.1
  * Requires Plugins: woocommerce
@@ -13,13 +13,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'YM_VERSION', '0.2.0' );
+define( 'YM_VERSION', '0.3.0' );
 define( 'YM_POLICY_VERSION', '2026-10-28' );
 define( 'YM_DIR', __DIR__ );
 define( 'YM_URL', plugin_dir_url( __FILE__ ) );
 
 require_once YM_DIR . '/includes/class-ym-env.php';
 require_once YM_DIR . '/includes/class-ym-country.php';
+require_once YM_DIR . '/includes/class-ym-markets.php';
+require_once YM_DIR . '/includes/class-ym-lifecycle.php';
+require_once YM_DIR . '/includes/class-ym-report.php';
 require_once YM_DIR . '/includes/class-ym-catalog.php';
 require_once YM_DIR . '/includes/class-ym-ops.php';
 require_once YM_DIR . '/includes/class-ym-pages.php';
@@ -41,6 +44,8 @@ add_action( 'plugins_loaded', function () {
 		return;
 	}
 	YM_Country::init();
+	YM_Markets::init();
+	YM_Lifecycle::init();
 	YM_Offers::init();
 	YM_Checkout::init();
 	YM_Orders::init();
