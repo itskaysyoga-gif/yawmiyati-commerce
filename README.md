@@ -6,16 +6,16 @@ theme and plugin in this repo. Start with `docs/PROJECT-STATE.md`; the launch br
 
 | Folder | What lives there | Status |
 | --- | --- | --- |
-| `theme/yawmiyati` | Block theme: header, product page, checkout and order-received styling (design direction A) | implemented |
-| `plugin/yawmiyati-commerce` | Country rules, delivery fees, offer groups, COD checkout rules, duplicate guard, supplier watchdog, WP-CLI setup and seed | implemented, tested locally |
-| `tests/` | Playwright order-flow tests (`e2e/`) and in-store checks (`integration/`) | passing locally |
+| `theme/yawmiyati` | Block theme: header with country switcher, home, product page, checkout, order received, policy pages, consent banner (warm Yawmiyati look) | implemented |
+| `plugin/yawmiyati-commerce` | Country rules, delivery fees, offer groups, COD checkout, idempotent submission, duplicate review, supplier tracking and reconciliation, catalog gate, measurement, SEO, scheduled jobs, WP-CLI | implemented, tested locally |
+| `plugin/.../copy`, `content` | Customer text per country (Egyptian / Iraqi Arabic) and policy pages | draft, not native-reviewed |
+| `tests/` | Playwright end-to-end tests (`e2e/`) and in-store checks (`integration/`) | passing locally and in CI |
 | `dev/` | Local stores: pinned WordPress, WooCommerce, WP-CLI (checksummed), MariaDB 10.11 | working |
-| `tools/` | `export-preview.js`: static snapshot of the local stores | working |
-| `research/` | Catalog export, competitor benchmarks, launch assortment v2, economics | priced, not supplier-verified |
-| `design/` | Copies of the design canvas prototypes | reference |
-| `media/interim/` | Text-free crops of Taager product images used until final photos exist | interim |
-| `brand/` | Logo files | final |
-| `docs/` | Project state, decisions, rules and checklists | current |
+| `tools/` | `export-preview.js` (static snapshot), `copy/` (Anthropic draft pipeline) | working |
+| `deploy/root/` | Country chooser and robots.txt for the domain root | ready for launch |
+| `research/` | Catalog export, benchmarks, launch assortment v2, media checklist | not supplier-verified |
+| `media/interim/` | Low-resolution crops of Taager images; blocked as final media | interim |
+| `docs/` | State, decisions, launch checklist, measurement, SEO, operations, voice guides, language review | current |
 
 ## Run the stores locally
 
@@ -34,14 +34,18 @@ The local admin password is random and never printed; use WP-CLI instead of the 
 
 ```bash
 npm install                 # Playwright 1.63.0
-npm test                    # 13 end-to-end tests against the running stores
-npm run test:integration    # phone rules, fees, currency, COD only, SKU/cost/Taager ID per product, dialect copy
+npm test                    # 42 end-to-end tests against the running stores (WebKit test skipped if not installed)
+npm run test:integration    # phone rules, fees, currency, COD only, SKU/cost/Taager ID, catalog gate, language lint
 ```
 
-What the tests cover: Egypt and Iraq orders end to end with server-side prices and delivery fees, offer tampering,
-injected price fields, out-of-country governorate, concurrent duplicate submission, double click, duplicate review
-(on-hold), supplier hand-off failure and manual fallback, phone formats, and the checkout form itself.
-They run against local stores only. Nothing here talks to Taager.
+What the tests cover: orders end to end in both countries with server-side prices and delivery fees; tampering;
+truly parallel duplicate submissions (8 PHP workers, server-side delay hook); retries after a failed or lost
+request; four customers at once; buy now keeping the cart; out-of-stock bundles; order-page privacy; supplier
+timeout, reconciliation and conflict; consent, dataLayer, server-event payloads and attribution; SEO output on rendered
+pages; Android (Chromium) and iPhone (WebKit, CI) flows. They run against local stores only. Nothing here talks to
+Taager, so supplier-side duplicate prevention is not proven.
+
+Before launch: `dev/wp.sh eg ym launch-check` lists everything still open for that store.
 
 CI: `.github/workflows/test.yml` builds both stores from the pinned versions and runs both test suites on every push. First green run: 28 Oct 2026.
 

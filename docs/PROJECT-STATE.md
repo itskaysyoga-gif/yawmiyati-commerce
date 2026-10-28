@@ -1,59 +1,68 @@
 # Project state
 
-_Last updated: 2026-10-28 (end of session)_
+_Last updated: 2026-10-28 (evening session)_
 
 Status words used everywhere in this repo:
-- **Designed**: exists in the design canvas only (Claude artifact "Yawmiyati Store Design").
+- **Designed**: exists only on the design canvas.
 - **Implemented**: code in this repo runs on the local stores.
-- **Tested**: covered by an automated check that passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions. No Taager involved.
-- **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog or a written answer we can point to). A broad support reply is recorded as "Taager said", not as verified.
+- **Tested**: an automated check passes (`npm test`, `tests/integration/run.php`) locally and in GitHub Actions. No Taager involved.
+- **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog, or a written answer). A support chat answer is recorded as "Taager said", not verified.
 
-Nothing is supplier-verified yet. There is no live store, no Taager link and no real order.
+Nothing is supplier-verified. There is no live store, no Taager link and no real order.
+Repository: GitHub reports it as **public**; Rashid to switch it to private (launch checklist #1).
 
 ## Where things stand
-
 | Area | Designed | Implemented | Tested | Supplier-verified |
 | --- | --- | --- | --- | --- |
-| Visual direction A (indigo diary): PDP, home, checkout | yes (v2 canvas) | yes (`theme/yawmiyati`) | screenshots only | — |
-| Visual direction B (burgundy boutique) | yes, not recommended | no | — | — |
-| Product page with offer groups (1 set / 2 sets; rack / rack + mats) | yes | yes | yes | — |
-| Iraq default = rack alone 50,000 total; bundle optional 65,000 | yes | yes | yes | — |
-| Delivery fee by governorate (EG 95/100/105, IQ 7,000) | yes | yes | yes | Taager published policy + support answer, not a test order |
-| COD-only classic checkout, phone rules, address, landmark, second phone | yes | yes | yes | Taager plugin hook behaviour unknown |
-| Server-side price (offer must belong to the page, injected prices ignored) | — | yes | yes | — |
-| Double submission / double click = one order | — | yes | yes | Taager side unknown |
-| Duplicate review (same phone + product in 24 h held on-hold) | — | yes | yes | Taager handling of on-hold unknown |
-| Order snapshot (prices, fee, policy version) | — | yes | yes | — |
-| Supplier hand-off watchdog (pending → sent / failed → manual) | — | yes | yes (simulated reference) | real meta key Taager writes unknown |
-| Cart (add to cart, one delivery fee per order) | yes | WooCommerce standard cart | partly (fee once per order) | Taager said one fee per order |
-| Order bump, cart suggestions, quantity breaks beyond offer groups | brief only | no | — | — |
-| Product data: exact SKUs, Taager IDs, costs, prices (`plugin/.../seed/*.json`) | — | yes | yes (SKU, ID, price > cost) | catalog export, not live; stock not checked |
-| Specs, sizes, materials | — | unknown rows show `[من تاجر]` locally and are left out in production | — | not yet |
-| Product media | — | text-free crops of Taager images (`media/interim/`) | — | Taager said supplier images may be used |
-| Portable preview | — | `tools/export-preview.js` | rendered and link-checked | — |
-| CI on GitHub | — | `.github/workflows/test.yml` | green on GitHub, 28 Oct | — |
-| Content studio, ads, Manychat | brief only | no | — | — |
+| Warm Yawmiyati look (ivory, white, berry; blush/sage accents; 4:5 full-product frames) | via the build | yes | screenshots | — |
+| Home, product page, checkout, order received, cart | — | yes | yes | — |
+| Country switcher (header) and support/policy pages (delivery, returns, FAQ, contact, privacy) | — | yes | rendered | policy facts partly pending |
+| Offer groups, Iraq rack default 50,000 / bundle 65,000 | — | yes | yes | — |
+| Delivery fee by governorate | — | yes | yes | Taager said |
+| COD checkout, dialect labels and errors | — | yes | yes | plugin hook unknown |
+| Buy now keeps the rest of the cart | — | yes | yes | — |
+| One order per submission: overlapping requests, retries replay to the same order, failed creation releases the token | — | yes | yes (real parallel requests) | Taager duplicate handling unknown |
+| Order page privacy (details only to the ordering browser) | — | yes | yes | — |
+| Catalog gate (identity, specs, media, price, stock) on staging/production | — | yes | yes | no product passes yet |
+| Seed command refuses production | — | yes | yes | — |
+| Supplier states: pending → sent / unconfirmed → not_found → manual; conflict detection | — | yes | yes (simulated reference) | real meta key unknown |
+| Measurement: consent, dataLayer, attribution, Meta/Snap CAPI (dry run) | spec | yes | yes (local) | live checks L1-L9 open |
+| SEO: noindex outside production, canonicals, hreflang (home), Product JSON-LD, OG, sitemaps | — | yes | yes (rendered pages) | Search Console at launch |
+| Scheduled jobs, alerts, health endpoint, funnel, launch-check | — | yes | partly (sweep, health) | status sync unknown |
+| Copy: per-country files, voice guides, language lint | — | yes | lint only | native review not done |
+| Anthropic copy drafts (GitHub Actions) | — | yes | Iraq drafts produced and checked; Egypt re-running | not reviewed |
+| Media | standards + per-SKU checklist | interim crops only | gate blocks them | originals requested |
+| Content studio, ads, Manychat | brief | no | — | — |
 
-Latest preview: Claude artifact "Yawmiyati Store Preview" (static snapshot of the real build, also as a zip from `npm run preview`).
+Previews: Claude artifact "Yawmiyati Store Preview" (static snapshot of the real build) and the zip from
+`npm run preview`.
 
-## Verification tasks (open; each needs a real store, a test order or a written answer)
-1. Taager WooCommerce plugin: which hook it uses, the order meta key it writes (set it in `ym_supplier_ref_keys`), and what it does with on-hold orders.
-2. Governorate mapping: our codes (WooCommerce EG codes; custom IQ codes) against Taager's province names.
-3. Stock: per-offer check before each offer goes live (Taager has no stock sync).
-4. Payout: whether a third-party (brother's UAE) bank beneficiary is accepted. "Any bank account or Payoneer" is not an answer to that.
-5. Iraq return window: 3 days (policy) vs 14 days (tips).
-6. Status sync back to WooCommerce: confirm with a test order.
-7. SiteGround GrowBig MySQL/MariaDB version (local dev runs MariaDB 10.11).
-8. Delivery fee for a 2-item order on a real Taager order.
+## Verification tasks (open)
+Each needs the staging store, a test order **per country**, or a written answer. One test order cannot verify all
+countries, payouts, returns and stock.
+1. Taager plugin: order hook, the reference meta key it writes, and its handling of on-hold orders (EG and IQ).
+2. Governorate codes ↔ Taager province names (EG and IQ).
+3. Stock per offer, re-confirmed every 48 h (no stock sync).
+4. Payout to a third-party bank beneficiary (the brother's UAE account).
+5. Iraq return window (3 or 14 days); refund method and who collects returns, both countries.
+6. Status sync back to WooCommerce (EG and IQ) and its status names (for the funnel map).
+7. Delivery fee on a real 2-item order.
+8. Caller identity on the confirmation call, parcel and invoice branding, return communications: whether customers
+   see Yawmiyati or Taager.
+9. Iraq delivery times per governorate.
+10. SiteGround GrowBig database version (local: MariaDB 10.11).
+11. Media originals and rights in writing.
 
 ## Waiting on Rashid
-- A yes on design direction A (recommended) before polishing further.
-- Buying yawmiyati.shop and SiteGround GrowBig (approved, not bought). Both block the Taager link and test orders.
+- Make the repo private.
+- A yes on the warm design direction.
+- Buy yawmiyati.shop and SiteGround GrowBig (approved, not bought).
+- Send Taager the round-3 questions (docs/requests/taager-round-3.md).
+- Find one native reviewer each for Egyptian and Iraqi copy.
 
 ## Next
-1. After Rashid's yes on direction A: staging site on SiteGround, Taager plugin linked to the Egypt store, one real test order through the full flow, then close verification tasks 1, 2, 6 and 8.
-2. Fill specs from Taager product pages; replace interim photos.
-3. Only then: more products, cart extras (order bump, suggestions), content studio and ads.
+Launch checklist P0 in order (docs/LAUNCH-CHECKLIST.md): staging, Egypt Taager link and test order, Iraq test order,
+verified product records, policy facts, native review. Ads only after P1.
 
 ## How to run locally
 See README.md.

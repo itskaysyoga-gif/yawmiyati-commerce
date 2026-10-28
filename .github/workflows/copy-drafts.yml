@@ -31,13 +31,14 @@ jobs:
         run: node tools/copy/draft.mjs "${{ inputs.country }}" ${{ inputs.skus }}
       - name: Check drafts
         run: node tools/copy/validate.mjs "${{ inputs.country }}" || echo "CHECK_FAILED=1" >> "$GITHUB_ENV"
+        continue-on-error: true
       - name: Push drafts to a review branch
         run: |
           branch="copy-drafts/${{ inputs.country }}-${{ github.run_id }}"
           git config user.name "copy-drafts bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout -b "$branch"
-          git add tools/copy/facts tools/copy/drafts
+          git add tools/copy/facts tools/copy/drafts || true
           git commit -m "Copy drafts ${{ inputs.country }} (run ${{ github.run_id }}): draft, not reviewed"
           git push origin "$branch"
           echo "Drafts on branch $branch" >> "$GITHUB_STEP_SUMMARY"

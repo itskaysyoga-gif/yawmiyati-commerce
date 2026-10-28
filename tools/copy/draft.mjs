@@ -57,8 +57,16 @@ async function draftOnce(product) {
 
 const outDir = path.join(root, `tools/copy/drafts/${cc}`);
 fs.mkdirSync(outDir, { recursive: true });
+const errors = [];
 for (const p of facts.products.filter((p) => !only.length || only.includes(p.sku))) {
-  const d = await draft(p);
-  fs.writeFileSync(path.join(outDir, `${p.sku}.json`), JSON.stringify(d, null, 2) + '\n');
-  console.log(`${p.sku}: ${d.name} (${d._usage.input_tokens}+${d._usage.output_tokens} tokens)`);
+  try {
+    const d = await draft(p);
+    fs.writeFileSync(path.join(outDir, `${p.sku}.json`), JSON.stringify(d, null, 2) + '\n');
+    console.log(`${p.sku}: ${d.name} (${d._usage.input_tokens}+${d._usage.output_tokens} tokens)`);
+  } catch (e) {
+    errors.push(`${p.sku}: ${String(e.message).replace(/x-api-key[^,]*/gi, '').slice(0, 500)}`);
+  }
 }
+// Errors go to a file on the review branch (workflow logs are not always readable from here).
+if (errors.length) fs.writeFileSync(path.join(outDir, 'ERRORS.txt'), errors.join('\n') + '\n');
+console.log(`${errors.length} error(s)`);

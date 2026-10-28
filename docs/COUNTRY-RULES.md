@@ -26,3 +26,9 @@ These are what Taager support said. None is supplier-verified until a real store
 - Supplier images may be used.
 - No deduction when a customer refuses (Egypt's published policy still lists 5 EGP; model Egypt at 5, Iraq at 0).
 - Profit can be withdrawn to any bank account or Payoneer. This does not answer whether a third-party beneficiary (the brother's UAE account) is accepted: still open.
+
+## Open questions that change customer-facing text (verification tasks)
+- Who the customer hears on the confirmation call and what name is given; what the parcel and invoice show; who
+  handles returns and how refunds are paid. Customer text currently names no one ("هيوصلك اتصال").
+- Iraq: return window (3 or 14 days) and delivery time per governorate. Iraq pages show these as pending.
+- Governorate mapping to Taager province names (our Egypt codes are WooCommerce/ISO codes; Iraq codes are ours).
