@@ -320,12 +320,14 @@
    "purpose": "language critique eg 04-email-consent",
    "model": "claude-opus-5-5",
    "run": "40857955261",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 28592,
    "max_output_tokens": 8000,
    "reserved_usd": 0.411552,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.222924,
+   "usd_list": 0.148616,
+   "input_tokens": 10504,
+   "output_tokens": 5330
   }
  ]
 }
