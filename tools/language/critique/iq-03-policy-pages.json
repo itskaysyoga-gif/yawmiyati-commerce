@@ -1,0 +1,266 @@
+{
+ "country": "iq",
+ "batch": "03-policy-pages",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:39:12.384Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "d394b26532d6201d",
+ "usage": {
+  "input_tokens": 11374,
+  "output_tokens": 4768,
+  "usd_counted": 0.211284
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "page.delivery.01",
+   "verdict": "question",
+   "note": "The facts given don't say we deliver to every governorate (delivery per governorate is still open), so please confirm \"لكل محافظات العراق\" before it goes live."
+  },
+  {
+   "key": "page.delivery.02",
+   "verdict": "ok",
+   "note": "Clear heading"
+  },
+  {
+   "key": "page.delivery.03",
+   "verdict": "ok",
+   "note": "Shortcode"
+  },
+  {
+   "key": "page.delivery.04",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.delivery.05",
+   "verdict": "ok",
+   "note": "Fine as a section heading"
+  },
+  {
+   "key": "page.delivery.06",
+   "verdict": "ok",
+   "note": "Shortcode"
+  },
+  {
+   "key": "page.delivery.07",
+   "verdict": "ok",
+   "note": "Clear heading"
+  },
+  {
+   "key": "page.delivery.08",
+   "verdict": "ok",
+   "note": "Shortcode"
+  },
+  {
+   "key": "page.delivery.09",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.delivery.10",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.returns.01",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.returns.02",
+   "verdict": "ok",
+   "note": "Natural"
+  },
+  {
+   "key": "page.returns.03",
+   "verdict": "ok",
+   "note": "Clear and actionable"
+  },
+  {
+   "key": "page.returns.04",
+   "verdict": "ok",
+   "note": "Promises no outcome, good"
+  },
+  {
+   "key": "page.privacy.01",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.02",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.03",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.04",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.05",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.06",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.07",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.08",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.09",
+   "verdict": "revise",
+   "note": "\"نفس الاتصال بالإنترنت\" is vague and reads oddly; name the IP address plainly. The claims about encryption and deletion should also be checked against what the system really does.",
+   "suggestion": "نحمي المتجر من الطلبات الوهمية والمكررة: نراجع الطلبات المتكررة من نفس الرقم أو نفس عنوان الإنترنت (IP)، ونحتفظ بسجل للطلبات اللي انرفضت وقت الاستلام لسبب واضح يرجع لصاحبة الطلب. هذا السجل محفوظ بشكل مشفّر، وينمسح بعد مدة محددة، وفريقنا يكدر يراجعه ويشيله. الطلب اللي يحتاج مراجعة ينتظر لحد ما واحد من فريقنا يشوفه، وما ينرفض تلقائيًا."
+  },
+  {
+   "key": "page.privacy.10",
+   "verdict": "question",
+   "note": "\"إذا هالخدمة متوفرة\" leaves her unsure whether she'll get a receipt at all; confirm whether email receipts are sent, then state it plainly or drop the line."
+  },
+  {
+   "key": "page.privacy.11",
+   "verdict": "ok",
+   "note": "Matches the cookie section"
+  },
+  {
+   "key": "page.privacy.12",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.13",
+   "verdict": "ok",
+   "note": "Clear and exact"
+  },
+  {
+   "key": "page.privacy.14",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.15",
+   "verdict": "revise",
+   "note": "The \"القياس بس\" option should be quoted like \"الضروري بس\" so it matches the banner label. Also \"نلغي أي معلومات... اللي بعدها ما اندزت\" is muddled; say we won't send data that hasn't been sent yet.",
+   "suggestion": "إذا وافقتي على كل الكوكيز، نقيس زيارات الموقع ونتائج الإعلانات بأدوات Google وMeta وSnapchat. بهالحالة ممكن ندز لمنصات الإعلانات رقم موبايلج بعد ما يتحوّل لرمز مشفّر (hash) ما ينقرا، حتى نعرف إذا الإعلان جاب طلب. إذا اخترتي \"القياس بس\"، نقيس استخدام الموقع بدون أدوات الإعلانات. إذا اخترتي \"الضروري بس\"، ما نشغّل هالأدوات وما ندز شي. إذا جيتي من إعلان قبل لا تختارين، رقم الإعلان يبقى بهالتبويب بس وما يندز لأي أحد، وينمسح إذا اخترتي \"الضروري بس\" أو سديتي التبويب. تكدرين تغيرين اختيارج بأي وقت من \"إعدادات الكوكيز\" جوّه الصفحة، وساعتها نوقف القياس وما ندز أي معلومات من طلباتج اللي بعدها ما اندزت."
+  },
+  {
+   "key": "page.privacy.16",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.17",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.privacy.18",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.contact.01",
+   "verdict": "ok",
+   "note": "Natural"
+  },
+  {
+   "key": "page.contact.02",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.contact.03",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.faq.01",
+   "verdict": "ok",
+   "note": "Matches local FAQ style"
+  },
+  {
+   "key": "page.faq.02",
+   "verdict": "ok",
+   "note": "Clear"
+  },
+  {
+   "key": "page.faq.03",
+   "verdict": "revise",
+   "note": "\"شكد ياخذ التوصيل؟\" can be read as \"how much does delivery cost?\", but the answer is about time.",
+   "suggestion": "شكد وقت ياخذ التوصيل؟"
+  },
+  {
+   "key": "page.faq.04",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  },
+  {
+   "key": "page.faq.05",
+   "verdict": "ok",
+   "note": "Natural"
+  },
+  {
+   "key": "page.faq.06",
+   "verdict": "ok",
+   "note": "Shortcode"
+  },
+  {
+   "key": "page.faq.07",
+   "verdict": "revise",
+   "note": "Without the shadda, \"بيه\" reads as \"with him/it\"; the dialect word for \"me\" is \"بيّه\".",
+   "suggestion": "راح يتصل بيّه أحد قبل الشحن؟"
+  },
+  {
+   "key": "page.faq.08",
+   "verdict": "ok",
+   "note": "Shortcode"
+  },
+  {
+   "key": "page.faq.09",
+   "verdict": "ok",
+   "note": "Natural"
+  },
+  {
+   "key": "page.faq.10",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.faq.11",
+   "verdict": "revise",
+   "note": "This reads as an unfinished clause rather than a question in her own voice like the other FAQ questions.",
+   "suggestion": "شسوي إذا وصلني المنتج بيه عيب؟"
+  },
+  {
+   "key": "page.faq.12",
+   "verdict": "ok",
+   "note": "Fine"
+  },
+  {
+   "key": "page.faq.13",
+   "verdict": "ok",
+   "note": "Natural"
+  },
+  {
+   "key": "page.faq.14",
+   "verdict": "ok",
+   "note": "Pending placeholder"
+  }
+ ]
+}

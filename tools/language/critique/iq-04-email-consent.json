@@ -1,0 +1,258 @@
+{
+ "country": "iq",
+ "batch": "04-email-consent",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:39:52.670Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "579c678884d0d1d2",
+ "usage": {
+  "input_tokens": 10734,
+  "output_tokens": 4262,
+  "usd_counted": 0.192264
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.consent_text",
+   "verdict": "ok",
+   "note": "Clear and natural."
+  },
+  {
+   "key": "copy.consent_yes",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_no",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_change",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reviews_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_short",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_customize",
+   "verdict": "ok",
+   "note": "Neutral noun, good."
+  },
+  {
+   "key": "copy.consent_essential",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_analytics",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_ads",
+   "verdict": "question",
+   "note": "The new text names Snapchat. Is a Snapchat pixel or tracker actually loaded on the site? If not, naming it is inaccurate consent text, so go back to the previous list."
+  },
+  {
+   "key": "copy.consent_save",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_body",
+   "verdict": "ok",
+   "note": "The weekly cap is backed by the stated fact."
+  },
+  {
+   "key": "copy.news_email",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_agree",
+   "verdict": "revise",
+   "note": "\"موافقة يومياتي تدزلي\" reads as \"Yawmiyati's approval\" and doesn't say she is the one agreeing. A consent line needs a clear \"I agree\".",
+   "suggestion": "أوافق إن يومياتي تدزلي رسائل تسويقية على هذا الإيميل"
+  },
+  {
+   "key": "copy.news_button",
+   "verdict": "ok",
+   "note": "Verbal noun, good."
+  },
+  {
+   "key": "copy.news_pending",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_need_agree",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_confirmed",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_unsubscribed",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_invalid",
+   "verdict": "ok",
+   "note": "Acceptable."
+  },
+  {
+   "key": "copy.mail_footer",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_unsub",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirm_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirm_body",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirm_button",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_welcome_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_welcome_body",
+   "verdict": "ok",
+   "note": "Matches the cap fact."
+  },
+  {
+   "key": "copy.mail_received_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_received_body",
+   "verdict": "ok",
+   "note": "Precise about confirmation and payment."
+  },
+  {
+   "key": "copy.mail_confirmed_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirmed_body",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_shipped_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_shipped_body",
+   "verdict": "ok",
+   "note": "The unverified call promise is gone, good."
+  },
+  {
+   "key": "copy.mail_cancelled_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_cancelled_body",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_refund_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_refund_body",
+   "verdict": "question",
+   "note": "For a cash order, she can't tell from this how or when she gets the money (cash from the courier, transfer, or something else). Add one line once the refund method and timing are confirmed."
+  },
+  {
+   "key": "copy.mail_delivered_subject",
+   "verdict": "ok",
+   "note": "Now matches the email content."
+  },
+  {
+   "key": "copy.mail_delivered_body",
+   "verdict": "ok",
+   "note": "Fine, provided moderation really publishes reviews as written."
+  },
+  {
+   "key": "copy.mail_review_button",
+   "verdict": "revise",
+   "note": "The house rules ask for verbal nouns on buttons, the same reason \"اشتركي\" became \"اشتراك\".",
+   "suggestion": "كتابة رأيج"
+  },
+  {
+   "key": "copy.mail_order_total",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_totals",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.to_checkout",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.fix_these",
+   "verdict": "ok",
+   "note": "Soft and actionable."
+  },
+  {
+   "key": "copy.skip_link",
+   "verdict": "ok",
+   "note": "Neutral, good."
+  },
+  {
+   "key": "copy.news_confirm_q",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_unsub_q",
+   "verdict": "ok",
+   "note": "Fine."
+  }
+ ]
+}
