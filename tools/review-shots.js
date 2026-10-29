@@ -48,7 +48,8 @@ const S = { eg: { buy: 'absorbent-mats', state: 'EGC', phone: '010', name: 'من
           const vp = page.viewportSize();
           const height = full ? await page.evaluate(() => document.documentElement.scrollHeight) : vp.height;
           const step = Math.round(vp.height * 1.5);
-          const parts = Math.min(4, Math.ceil(height / step));
+          const max = vp.width < 600 ? 4 : 2; // phone parts sit four abreast, desktop two, so a figure always fits one page
+          const parts = Math.min(max, Math.ceil(height / step));
           const files = [];
           for (let i = 0; i < parts; i++) {
             const file = `${String(shots.length + 1).padStart(2, '0')}-${cc}-${label}-${name}${parts > 1 ? '-' + (i + 1) : ''}.png`;
@@ -56,7 +57,7 @@ const S = { eg: { buy: 'absorbent-mats', state: 'EGC', phone: '010', name: 'من
             await page.screenshot({ path: path.join(OUT, file), fullPage: true, clip: { x: 0, y, width: vp.width, height: Math.min(step, height - y) } });
             files.push(file);
           }
-          shots.push({ files, part, device: label, title: `${cc === 'eg' ? 'Egypt' : 'Iraq'} · ${label} · ${title}${height > step * 4 ? ' (first part of a long page)' : ''}` });
+          shots.push({ files, part, device: label, title: `${cc === 'eg' ? 'Egypt' : 'Iraq'} · ${label} · ${title}${height > step * max ? ' (first part of a long page)' : ''}` });
         };
         const go = async (u) => { await page.goto(BASE[cc] + u, { waitUntil: 'networkidle' }); await page.evaluate(() => document.querySelectorAll('img[loading=lazy]').forEach((i) => i.removeAttribute('loading'))); await page.waitForLoadState('networkidle'); };
         await go('/'); await snap('home', 'home');
@@ -110,8 +111,7 @@ const S = { eg: { buy: 'absorbent-mats', state: 'EGC', phone: '010', name: 'من
       figcaption { font-weight: 600; margin-bottom: 4px; }
       .parts { display: flex; gap: 4mm; align-items: flex-start; }
       .phone .parts img { height: 168mm; width: auto; border: 1px solid #ddd; }
-      .desktop .parts { flex-direction: column; }
-      .desktop .parts img { max-width: 100%; max-height: 168mm; width: auto; border: 1px solid #ddd; }
+      .desktop .parts img { width: calc((100% - 4mm) / 2); height: auto; max-height: 168mm; object-fit: contain; object-position: top; border: 1px solid #ddd; }
     </style></head><body>
       <section class="cover"><h1>Yawmiyati review screenshots</h1><p>${STAMP}</p>
       <p>Local stores with interim supplier photos and AI-reviewed draft copy (not native-reviewed). Prices are proposals (docs/ASSORTMENT-v1.md). Layout approval and photo approval are separate: the photos are interim supplier images and are not offered for approval.</p>
