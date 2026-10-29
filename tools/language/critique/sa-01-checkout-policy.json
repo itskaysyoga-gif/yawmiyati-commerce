@@ -1,0 +1,356 @@
+{
+ "country": "sa",
+ "batch": "01-checkout-policy",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:40:53.369Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "59dd19de011739b5",
+ "usage": {
+  "input_tokens": 10936,
+  "output_tokens": 6947,
+  "usd_counted": 0.274026
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.confirm_call",
+   "verdict": "ok",
+   "note": "Timing removed; agentless and polite."
+  },
+  {
+   "key": "copy.payment",
+   "verdict": "question",
+   "note": "The claim that the invoice is inside the parcel is not in the cited facts (P0-8 is about opening the parcel after paying), so please confirm every parcel contains an invoice before stating it.",
+   "resolution": "kept: supplier-published (\"Taager said\"); verified with the first test order of that country"
+  },
+  {
+   "key": "copy.one_fee",
+   "verdict": "ok",
+   "note": "Clear, matches stated rule."
+  },
+  {
+   "key": "copy.thanks_line",
+   "verdict": "question",
+   "note": "Only %2$s is used. Please confirm that dropping %1$s is intentional and that the order number really is the second argument.",
+   "resolution": "checked in code: %2$s is the order number"
+  },
+  {
+   "key": "copy.pick_gov",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.fee_range",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.fee_flat",
+   "verdict": "ok",
+   "note": "Fine, if only shown when a flat fee applies."
+  },
+  {
+   "key": "copy.unverified",
+   "verdict": "ok",
+   "note": "Neutral placeholder."
+  },
+  {
+   "key": "copy.expired",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.offer_na",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.added",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.max_qty",
+   "verdict": "ok",
+   "note": "Avoids number agreement."
+  },
+  {
+   "key": "copy.sold_out_tag",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.sold_out",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.name_label",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.name_ph",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.name_err",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.phone_label",
+   "verdict": "ok",
+   "note": "Matches glossary."
+  },
+  {
+   "key": "copy.phone_err",
+   "verdict": "ok",
+   "note": "Clear format rule."
+  },
+  {
+   "key": "copy.phone2",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.phone2_help",
+   "verdict": "ok",
+   "note": "Agentless, no promise."
+  },
+  {
+   "key": "copy.phone2_err",
+   "verdict": "ok",
+   "note": "Prefix fragment; fine."
+  },
+  {
+   "key": "copy.gov_label",
+   "verdict": "ok",
+   "note": "Matches glossary."
+  },
+  {
+   "key": "copy.gov_ph",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.gov_err",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.area_label",
+   "verdict": "question",
+   "note": "The label asks for city, district and street, but the error says district or street name. Which does validation actually require? The two strings should agree.",
+   "resolution": "resolved: the error now uses \"and\" like the label (also AE, OM, IQ)"
+  },
+  {
+   "key": "copy.area_err",
+   "verdict": "question",
+   "note": "The 'or' conflicts with the label's 'and'. If the street is required, use 'اكتبي المدينة والحي واسم الشارع من فضلك.'",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.building_label",
+   "verdict": "revise",
+   "note": "'أو الفيلا والشقة' is ambiguous (a villa has no apartment), so it should say plainly that the apartment number applies only where there is one.",
+   "suggestion": "رقم المبنى أو الفيلا، ورقم الشقة إن وُجد",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.landmark_label",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.landmark_help",
+   "verdict": "ok",
+   "note": "Natural examples."
+  },
+  {
+   "key": "copy.wrong_country",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.refresh",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.dup",
+   "verdict": "revise",
+   "note": "'مسجّل من قبل' reads slightly stiff; a verbal sentence is more natural.",
+   "suggestion": "سُجّل هذا الطلب من قبل. إذا أردتِ الطلب مرة أخرى فحدّثي الصفحة أولًا.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.in_flight",
+   "verdict": "revise",
+   "note": "'ثواني' is ungrammatical here (should be 'ثوانٍ') and reads better with 'بضع'.",
+   "suggestion": "يتم تسجيل طلبك الآن، انتظري بضع ثوانٍ من فضلك.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.cart_saved",
+   "verdict": "revise",
+   "note": "'باقي' is colloquial for this register, and 'بعد الطلب' is vague about when the products come back.",
+   "suggestion": "بقية المنتجات في سلتك محفوظة، وتعود إلى السلة بعد إرسال الطلب.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.consent_text",
+   "verdict": "ok",
+   "note": "Clear and balanced."
+  },
+  {
+   "key": "copy.home_trust",
+   "verdict": "question",
+   "note": "'التوصيل لكل المناطق' (delivery to every region) is a claim based only on the supplier's fee table, not on delivered orders, so please confirm it is verified before launch.",
+   "resolution": "kept: gated by checklist P0-14"
+  },
+  {
+   "key": "copy.privacy_note",
+   "verdict": "ok",
+   "note": "Accurate and clear."
+  },
+  {
+   "key": "copy.market_closed",
+   "verdict": "ok",
+   "note": "No promise; good."
+  },
+  {
+   "key": "copy.try_again",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.rate_limited",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.bot_check",
+   "verdict": "revise",
+   "note": "'نحتاج للتأكد' should be 'نحتاج إلى التأكد' in standard Arabic.",
+   "suggestion": "نحتاج إلى التأكد من أنك لستِ برنامجًا آليًا. أكملي خطوة التحقق فوق زر الطلب وحاولي مرة أخرى.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.plus_delivery",
+   "verdict": "ok",
+   "note": "Fine as a compact label."
+  },
+  {
+   "key": "copy.cart_stays",
+   "verdict": "ok",
+   "note": "Understandable; slightly long but accurate."
+  },
+  {
+   "key": "copy.total_line",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.total_range",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.pay_total",
+   "verdict": "ok",
+   "note": "Clear label."
+  },
+  {
+   "key": "copy.consent_short",
+   "verdict": "revise",
+   "note": "Where 'فقط' sits, the sentence can be read as 'only for measurement and ads'; the meaning should be 'only if you agree'.",
+   "suggestion": "لا نستخدم الكوكيز للقياس والإعلانات إلا إذا وافقتِ.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.thanks_steps",
+   "verdict": "ok",
+   "note": "Precise, no timing promise."
+  },
+  {
+   "key": "copy.email_label",
+   "verdict": "revise",
+   "note": "'لإيصال الطلب' can be read as 'to deliver the order', which wrongly suggests the email is needed for delivery.",
+   "suggestion": "البريد الإلكتروني (اختياري، لإرسال تفاصيل الطلب)",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.email_err",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_body",
+   "verdict": "ok",
+   "note": "Cap is enforced; clear."
+  },
+  {
+   "key": "copy.news_agree",
+   "verdict": "ok",
+   "note": "Clear consent."
+  },
+  {
+   "key": "copy.mail_confirm_body",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_welcome_body",
+   "verdict": "ok",
+   "note": "Accurate."
+  },
+  {
+   "key": "copy.mail_received_body",
+   "verdict": "ok",
+   "note": "Clear, no timing."
+  },
+  {
+   "key": "copy.mail_confirmed_body",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_shipped_body",
+   "verdict": "revise",
+   "note": "'خرج طلبك' can be read as 'out for delivery'; it is clearer to say the order is now with the shipping company.",
+   "suggestion": "طلبك الآن مع شركة الشحن. المبلغ المطلوب عند الاستلام: %s.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.mail_cancelled_body",
+   "verdict": "ok",
+   "note": "Fine, assuming someone reads the replies."
+  },
+  {
+   "key": "copy.mail_refund_body",
+   "verdict": "question",
+   "note": "With cash on delivery, the customer can't tell how or when she gets the money. Please supply the refund method and who does it before adding detail, and don't add timing until it is verified.",
+   "resolution": "open dependency: refund method and timing (P0-14)"
+  },
+  {
+   "key": "copy.mail_delivered_body",
+   "verdict": "revise",
+   "note": "'المنتج' assumes the order has one product and fixes its gender; 'طلبك' works for any order.",
+   "suggestion": "نتمنى أن ينال طلبك إعجابك. إن أردتِ كتابة رأيك فالرابط بالأسفل. يظهر رأيك كما هو بعد المراجعة، إيجابيًا كان أو سلبيًا.",
+   "resolution": "accepted (also EG and IQ: \"طلبك\" instead of a gendered product)"
+  },
+  {
+   "key": "copy.subtotal_label",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.delivery_after_gov",
+   "verdict": "ok",
+   "note": "Clear."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

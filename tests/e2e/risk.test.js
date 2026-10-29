@@ -45,7 +45,7 @@ test('Honeypot: a filled hidden field is refused with a neutral message and crea
 });
 
 test('Rate limit: typing mistakes never count; a burst of complete submissions is refused politely after the limit', async () => {
-  const LIMITED = /انرسلت طلبات هواية/;
+  const LIMITED = /محاولات هواية/;
   // Twelve submissions with a wrong phone from one browser: ordinary mistakes, never rate-limited.
   const typo = await captured('iq', { phone: '0123' });
   for (let i = 0; i < 12; i++) assert.doesNotMatch((await typo.send()).messages, LIMITED);
@@ -209,7 +209,7 @@ test('Turnstile: checked once per checkout on the server; a spent token on a ret
 });
 
 test('Concurrent submissions: simultaneous requests are counted exactly (no lost counts), per session and per connection', async () => {
-  const LIMITED = /انرسلت طلبات هواية/;
+  const LIMITED = /محاولات هواية/;
   // Ten simultaneous complete submissions from one browser session (creation made to fail, so nothing is created):
   // with a limit of 6 per session exactly 4 must be refused, whatever order they arrive in.
   const a = await captured('iq');
@@ -242,7 +242,7 @@ test('Client IP: a forged CF-Connecting-IP or X-Forwarded-For from a direct conn
       out.push(await b.send({ 'X-YM-Test-Ip': '', 'CF-Connecting-IP': fakeIp(), 'X-Forwarded-For': fakeIp(), 'X-YM-Test-Fail': 'create' }));
       await b.ctx.close();
     }
-    assert.ok(out.slice(3).every((r) => /انرسلت طلبات هواية/.test(r.messages || '')), JSON.stringify(out.map((r) => r.result)));
+    assert.ok(out.slice(3).every((r) => /محاولات هواية/.test(r.messages || '')), JSON.stringify(out.map((r) => r.result)));
   } finally {
     h.wpEval('iq', 'delete_option("ym_risk_settings");');
   }

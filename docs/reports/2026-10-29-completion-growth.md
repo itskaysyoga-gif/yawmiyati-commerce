@@ -61,7 +61,7 @@ console shows the real, lower figure). Cap: 40 USD.
    receipt is sent would be a false promise, so it appears only when the transactional flow is on.
 8. **AVIF not produced here.** The build container's GD has no AVIF; WebP + JPEG now, AVIF when the host's image
    library supports it.
-9. **"One approved post published to a connected test destination" cannot be done yet:** no Meta account or token
+9. **"One approved post published to a connected test destination" cannot be done yet:** (corrected 29 Oct: Rashid owns the Facebook and Instagram accounts; what is missing is a connected Meta app, token, permissions and provider verification) no Meta app or token
    exists. The publisher is tested against a fake Graph API; the real test is owner action O12 / checklist P3-35.
 10. **Licensed home photograph:** none exists and a generated "home scene" would not be authentic, so the slot is
     built and the featured product is the focal image until Rashid supplies one (O19).

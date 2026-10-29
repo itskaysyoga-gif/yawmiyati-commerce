@@ -21,9 +21,10 @@ final class YM_Social {
 	public static function links( $context = 'footer' ) {
 		$out = '<ul class="ym-social ym-social--' . esc_attr( $context ) . '">';
 		foreach ( self::ACCOUNTS as $key => $a ) {
-			$out .= '<li><a href="' . esc_url( $a[0] ) . '" rel="noopener me" target="_blank" aria-label="' . esc_attr( $a[1] ) . '" data-ym-social="' . esc_attr( $key ) . '">'
+			$label = 'EG' === YM_Country::code() ? str_replace( 'إنستغرام', 'إنستجرام', $a[1] ) : $a[1]; // Egyptian spelling (docs/voice/EG.md)
+			$out  .= '<li><a href="' . esc_url( $a[0] ) . '" rel="noopener me" target="_blank" aria-label="' . esc_attr( $label ) . '" data-ym-social="' . esc_attr( $key ) . '">'
 				. '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . $a[2] . '</svg>'
-				. ( 'page' === $context ? '<span>' . esc_html( $a[1] ) . '</span>' : '' ) . '</a></li>';
+				. ( 'page' === $context ? '<span>' . esc_html( $label ) . '</span>' : '' ) . '</a></li>';
 		}
 		return $out . '</ul>';
 	}

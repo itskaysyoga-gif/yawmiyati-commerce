@@ -1,6 +1,6 @@
 # Project state
 
-_Last updated: 2026-10-29 (completion and growth round, see docs/reports/2026-10-29-completion-growth.md)_
+_Last updated: 2026-10-29 (language and storefront round, see docs/reports/2026-10-29-language-storefront.md)_
 
 Status words used everywhere in this repo (also in docs/LAUNCH-CHECKLIST.md):
 - **Implemented**: code in this repo runs on the local stores.
@@ -13,11 +13,14 @@ Nothing is supplier-verified. There is no live store, no Taager link and no real
 Repository: still **public** (launch checklist #1).
 
 ## Readiness (definitions and per-country status: docs/LAUNCH-CHECKLIST.md)
-- **Development complete: yes** for everything the 29 Oct brief makes buildable without accounts, all five countries.
-  Final commit of the round: the commit that carries this line; its CI run is recorded in the Project handoff
-  (`claude/session-handoff-2026-10-28.md`). Tests on that tree, run locally: **106 end-to-end** (105 run in the
-  container, the WebKit/iPhone test only in CI), **772 in-store checks** (EG 163, IQ 164, SA 150, AE 144, OM 151) and
-  **10 Content Studio checks**. Up from 90 / 667 / 0 at the start of the round (c3cdab3).
+- **Development complete: yes** for everything buildable without accounts, all five countries, including this
+  round's review (API budget, workflows, language foundations, checkout, email and consent reliability, hero).
+  Final commit and CI run: recorded in the Project handoff (`claude/session-handoff-2026-10-28.md`). Tests on that tree,
+  run locally: **@E2E@ end-to-end** (the WebKit/iPhone test only in CI), **@INT@ in-store checks** (@INTD@) and
+  **@STUDIO@ studio and API-ledger checks**. Up from 106 / 772 / 10 at the start of the round (e10abdf).
+- **Language: AI-reviewed, not native-reviewed.** Every owned string is in the copy ledger (docs/language/); 11 AI
+  critique batches, all items resolved; native review packages ready (O8).
+- **Video: scheduled last.** The 29 Oct samples are technical, not approved for ads (docs/CONTENT-STUDIO.md).
 - **Staging verified: no.** Waits for hosting and the domain (O4), then the Taager plugin on staging.
 - **Commercially ready: no.** Also needs the approved assortment, verified product records and media, policy facts,
   native review and a payout test.
@@ -50,7 +53,10 @@ Repository: still **public** (launch checklist #1).
 | Email permissions, double opt-in, cross-store suppression, caps, Brevo adapter + webhook; flows off | yes | yes (captured locally) | Brevo not connected |
 | Kill-gates on contribution with an 80 % band | yes | yes | needs mature orders |
 | Content Studio: facts export, API briefs (CI, capped), Remotion renders, QA, batch approval, Meta publisher | yes | yes (fake Graph API) | no Meta account connected; first batch blocked for production |
-| Copy: Egyptian, Iraqi, shared Gulf (SA/AE/OM) | drafts | lint only | native review not done |
+| Copy: Egyptian, Iraqi, neutral Gulf base + SA/AE/OM glossaries; copy ledger; rendered-page inventory | revised 29 Oct | AI-critiqued, resolved | native review not done |
+| Anthropic API budget: one ledger, reservations, CAS on branch ledger/anthropic | yes | yes (concurrency) | used by CI critique runs |
+| Email reliability: send states, weekly cap under lock, single-use POST confirmations | yes | yes | Brevo not connected |
+| Consent: explicit stores; server events off by default | yes | yes | needs host |
 | Product selection: shortlists EG 40, IQ 40, SA 40, AE 15, OM 22; pricing on delivered contribution | research | scripts run | nothing approved |
 | First assortment recommended: Egypt 4 products / 5 offers, Iraq 4 / 5 (docs/ASSORTMENT-v1.md) | research | script run | awaiting Rashid's yes |
 | Performance (lab, local, throttled phone): LCP 0.9-2.0 s on shop pages, CLS 0, INP ≤ 96 ms | — | lab only | real host and field not measured |
@@ -69,7 +75,7 @@ Repository: still **public** (launch checklist #1).
 11. Media originals and rights in writing.
 
 ## Waiting on Rashid
-The one table is in docs/LAUNCH-CHECKLIST.md ("Owner actions", O1-O19). First four: make the repo private; yes on the
+The one table is in docs/LAUNCH-CHECKLIST.md ("Owner actions", O1-O21). First four: make the repo private; yes on the
 design (review PDF of 29 Oct) and on docs/ASSORTMENT-v1.md; buy the domain and hosting; ask Taager for sizes and
 original media with written rights.
 

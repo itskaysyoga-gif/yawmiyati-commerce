@@ -205,6 +205,7 @@ class YM_CLI {
 		$existing = get_posts( array( 'post_type' => 'attachment', 'meta_key' => '_ym_source_file', 'meta_value' => basename( $path ), 'fields' => 'ids', 'numberposts' => 1 ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		if ( $existing ) {
 			update_post_meta( $existing[0], '_ym_media', $media );
+			update_post_meta( $existing[0], '_wp_attachment_image_alt', $alt ); // the seed's alt text is the source
 			return $existing[0];
 		}
 		$tmp = wp_tempnam( basename( $path ) );

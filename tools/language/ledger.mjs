@@ -108,7 +108,9 @@ for (const cc of Object.keys(COUNTRIES)) {
     const n = now[key]?.text ?? '';
     const k = key.replace(/^copy\./, '');
     const note = { ...(notes['*']?.[k] || {}), ...(notes[cc]?.[k] || {}), ...(notes['*']?.[key] || {}), ...(notes[cc]?.[key] || {}) };
-    const cr = critiques.flatMap((c) => (c.country === cc || (c.countries || []).includes(cc) ? (c.items || []).filter((i) => i.key === key || i.key === k).map((i) => ({ ...i, model: c.model, at: c.at })) : [])).pop();
+    // A critique of the shared Gulf base (run on SA) also covers AE and OM rows that come from copy/gulf.json.
+    const shared = (c) => c.country === 'sa' && ['ae', 'om'].includes(cc) && (now[key] || before[key]).source === 'copy/gulf.json';
+    const cr = critiques.flatMap((c) => (c.country === cc || shared(c) || (c.countries || []).includes(cc) ? (c.items || []).filter((i) => i.key === key || i.key === k).map((i) => ({ ...i, model: c.model, at: c.at })) : [])).pop();
     const isChanged = b !== n;
     if (isChanged) changed++;
     if (cr) { critiqued++; if (cr.resolution === undefined && cr.verdict !== 'ok') open++; }
