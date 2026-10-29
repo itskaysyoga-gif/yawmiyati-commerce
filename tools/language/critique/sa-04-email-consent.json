@@ -1,0 +1,176 @@
+{
+ "country": "sa",
+ "batch": "04-email-consent",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T11:18:43.516Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "cf83d083388a1051",
+ "usage": {
+  "input_tokens": 6428,
+  "output_tokens": 2394,
+  "usd_counted": 0.110388
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.consent_yes",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_no",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_change",
+   "verdict": "ok",
+   "note": "Familiar wording."
+  },
+  {
+   "key": "copy.consent_customize",
+   "verdict": "ok",
+   "note": "Clearer than before."
+  },
+  {
+   "key": "copy.consent_essential",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_analytics",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_ads",
+   "verdict": "ok",
+   "note": "Full platform name is good."
+  },
+  {
+   "key": "copy.consent_save",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_title",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.news_email",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_button",
+   "verdict": "ok",
+   "note": "Standard button label."
+  },
+  {
+   "key": "copy.news_pending",
+   "verdict": "revise",
+   "note": "Standard Arabic says \"اضغطي على الرابط\"; without \"على\" it sounds clipped and a little colloquial.",
+   "suggestion": "أرسلنا لك رسالة تأكيد. افتحيها واضغطي على الرابط ليبدأ الاشتراك."
+  },
+  {
+   "key": "copy.news_need_agree",
+   "verdict": "revise",
+   "note": "\"ضعي علامة على الموافقة\" is awkward; the customer ticks a box, so name the box.",
+   "suggestion": "ضعي علامة في خانة الموافقة أولًا."
+  },
+  {
+   "key": "copy.news_confirmed",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_unsubscribed",
+   "verdict": "ok",
+   "note": "Clear and accurate."
+  },
+  {
+   "key": "copy.news_invalid",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_footer",
+   "verdict": "revise",
+   "note": "\"اكتبي على البريد نفسه\" is unclear: it could mean writing to the same address or writing on the email itself. \"Reply to this message\" is clearer.",
+   "suggestion": "هذه الرسالة من يومياتي. للتواصل معنا، ردّي على هذه الرسالة."
+  },
+  {
+   "key": "copy.mail_unsub",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.mail_confirm_subject",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.mail_confirm_button",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_welcome_subject",
+   "verdict": "ok",
+   "note": "Warm and natural."
+  },
+  {
+   "key": "copy.mail_received_subject",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_confirmed_subject",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_shipped_subject",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_cancelled_subject",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_refund_subject",
+   "verdict": "question",
+   "note": "\"استرداد لطلبك\" reads awkwardly and doesn't say whether the refund has been sent, approved, or only requested. With cash on delivery that difference matters. Please confirm which one this email reports.",
+   "suggestion": "بخصوص استرداد مبلغ طلبك %s"
+  },
+  {
+   "key": "copy.mail_delivered_subject",
+   "verdict": "ok",
+   "note": "Now matches the email content."
+  },
+  {
+   "key": "copy.mail_review_button",
+   "verdict": "revise",
+   "note": "A verbal noun followed by \"رأيك\" sounds unnatural on a button. \"كتابة تقييم\" is the familiar neutral label.",
+   "suggestion": "كتابة تقييم"
+  },
+  {
+   "key": "copy.mail_order_total",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_confirm_q",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_unsub_q",
+   "verdict": "ok",
+   "note": "Clear and polite."
+  }
+ ]
+}
