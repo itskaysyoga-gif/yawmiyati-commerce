@@ -29,7 +29,7 @@ function system(f) {
     '- Never mention a spec whose value is null (unknown). Never invent performance, materials, sizes, durability, warranty, origin, brands, reviews, customers, discounts, free delivery, scarcity or deadlines.',
     '- No superlatives ("best", "number one"), no medical or cleaning-germ claims, no "trend".',
     `- The call to action names the country (${f.country_name}) and points to the website order; the website is the only way to order.`,
-    'Return ONLY JSON: {"angles":[{"id":"problem"|"fit"|"offer","title":"...","hooks":["...","..."],"beats":[{"line":"...","source":"..."}],"cta":"...","caption":"...","thumbnail":"..."}],"carousel":["slide 1","slide 2","slide 3","slide 4"]}',
+    'Answer by calling the write_brief tool once.',
     `Angles: "problem" = the everyday problem, the product in use, the result; "fit" = how to check it fits her space before ordering (from the fit fact; tell her to compare with the measurements on the product page, never state a measurement); "offer" = which offer to choose (labels only, no prices).`,
     'Lengths: hook <= 46 characters, beat <= 52, cta <= 34, thumbnail <= 30, carousel slide <= 60, caption <= 600 (caption may say the price and delivery are on the page; no numbers).',
     '',
@@ -48,7 +48,7 @@ async function call(f, extra) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: system(f), messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
+    body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: system(f), tools: [TOOL], tool_choice: { type: 'tool', name: 'write_brief' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
   });
   const body = await res.json();
   if (!res.ok) throw new Error(`API ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
@@ -56,13 +56,28 @@ async function call(f, extra) {
   runSpent += usd;
   ledger.calls.push({ at: new Date().toISOString(), model: MODEL, purpose: `brief ${f.country} ${f.sku}`, input_tokens: body.usage.input_tokens, output_tokens: body.usage.output_tokens, usd: Number(usd.toFixed(4)) });
   fs.writeFileSync(ledgerFile, JSON.stringify(ledger, null, 1));
-  const text = body.content.map((c) => c.text || '').join('');
-  return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
+  if (process.env.GITHUB_ACTIONS) console.log(`::notice title=studio spend::${f.country} ${f.sku}: ${body.usage.input_tokens} in / ${body.usage.output_tokens} out tokens, counted as ${usd.toFixed(4)} USD; ledger total ${spent().toFixed(4)} USD`);
+  const use = (body.content || []).find((c) => c.type === 'tool_use');
+  if (!use) throw new Error('no tool call in the answer');
+  return use.input;
 }
 
-const note = (m) => console.log(process.env.GITHUB_ACTIONS ? `::error title=studio brief::${String(m).replace(/\n/g, ' ').slice(0, 900)}` : m);
-if (!process.env.ANTHROPIC_API_KEY) { note('ANTHROPIC_API_KEY is empty in this run'); process.exit(1); }
-let failed = 0;
+const line = { type: 'string' };
+const TOOL = {
+  name: 'write_brief',
+  description: 'Return the creative brief: three angles (problem, fit, offer), each with two hooks, 2-3 beats with the fact key they restate, a call to action, a caption and a thumbnail line; and a 3-4 slide carousel.',
+  input_schema: {
+    type: 'object', required: ['angles', 'carousel'],
+    properties: {
+      angles: { type: 'array', minItems: 3, maxItems: 3, items: { type: 'object', required: ['id', 'title', 'hooks', 'beats', 'cta', 'caption', 'thumbnail'], properties: {
+        id: { type: 'string', enum: ANGLES }, title: line, hooks: { type: 'array', minItems: 2, maxItems: 2, items: line },
+        beats: { type: 'array', minItems: 2, maxItems: 3, items: { type: 'object', required: ['line', 'source'], properties: { line, source: line } } },
+        cta: line, caption: line, thumbnail: line } } },
+      carousel: { type: 'array', minItems: 3, maxItems: 4, items: line },
+    },
+  },
+};
+
 for (const file of process.argv.slice(2)) {
   const f = JSON.parse(fs.readFileSync(file, 'utf8'));
   let brief, errors;

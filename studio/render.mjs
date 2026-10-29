@@ -33,8 +33,21 @@ for (const m of facts.media) {
   images.push(`media/${cc}/${m.file}`);
 }
 const draft = !facts.media.length || !facts.media.every((m) => m.organic);
-const chrome = process.env.YM_CHROME || (() => { const d = '/opt/pw-browsers'; const s = fs.existsSync(d) && fs.readdirSync(d).find((x) => x.startsWith('chromium_headless_shell')); return s ? path.join(d, s, 'chrome-linux', 'headless_shell') : undefined; })();
-const browserExecutable = chrome && fs.existsSync(chrome) ? chrome : (fs.existsSync('/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell') ? '/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell/chrome-headless-shell' : undefined);
+// Chrome: YM_CHROME, else the headless shell Playwright installed (container and CI), else Remotion downloads its own.
+function findChrome() {
+  if (process.env.YM_CHROME) return process.env.YM_CHROME;
+  for (const base of ['/opt/pw-browsers', path.join(process.env.HOME || '', '.cache/ms-playwright')]) {
+    if (!fs.existsSync(base)) continue;
+    for (const d of fs.readdirSync(base).filter((x) => x.startsWith('chromium_headless_shell'))) {
+      for (const sub of fs.readdirSync(path.join(base, d))) {
+        const f = path.join(base, d, sub, 'chrome-headless-shell');
+        if (fs.existsSync(f)) return f;
+      }
+    }
+  }
+  return undefined;
+}
+const browserExecutable = findChrome();
 
 const serveUrl = await bundle({ entryPoint: path.join(ROOT, 'video', 'index.jsx'), publicDir: path.join(ROOT, 'video', 'public') });
 const outDir = path.join(ROOT, 'renders', cc);
@@ -81,7 +94,7 @@ for (const angle of brief.angles) {
     rec.caption = `${angle.caption}\n\n${rec.tagged_url}`;
     const master = path.join(outDir, `${id}-9x16.mp4`);
     const comp = await selectComposition({ serveUrl, id: 'Reel', inputProps: props, browserExecutable });
-    await renderMedia({ composition: comp, serveUrl, codec: 'h264', crf: 20, x264Preset: 'veryfast', outputLocation: master, inputProps: props, browserExecutable, concurrency: 4, muted: true });
+    await renderMedia({ composition: comp, serveUrl, codec: 'h264', crf: 20, x264Preset: 'veryfast', outputLocation: master, inputProps: props, browserExecutable, concurrency: Math.max(1, (await import('node:os')).cpus().length), muted: true });
     rec.files.push({ role: 'master_9x16', path: rel(master), width: 1080, height: 1920, seconds: comp.durationInFrames / comp.fps, sha256: sha(master) });
     const thumb = path.join(outDir, `${id}-thumb.jpg`);
     await renderStill({ composition: comp, serveUrl, output: thumb, frame: 45, inputProps: props, imageFormat: 'jpeg', jpegQuality: 88, browserExecutable });
@@ -89,7 +102,7 @@ for (const angle of brief.angles) {
     if (hi === 0) { // one deliberate feed derivative per angle (re-composed, not cropped)
       const d = path.join(outDir, `${id}-4x5.mp4`);
       const c45 = await selectComposition({ serveUrl, id: 'Reel45', inputProps: props, browserExecutable });
-      await renderMedia({ composition: c45, serveUrl, codec: 'h264', crf: 20, x264Preset: 'veryfast', outputLocation: d, inputProps: props, browserExecutable, concurrency: 4, muted: true });
+      await renderMedia({ composition: c45, serveUrl, codec: 'h264', crf: 20, x264Preset: 'veryfast', outputLocation: d, inputProps: props, browserExecutable, concurrency: Math.max(1, (await import('node:os')).cpus().length), muted: true });
       rec.files.push({ role: 'feed_4x5', path: rel(d), width: 1080, height: 1350, seconds: c45.durationInFrames / c45.fps, sha256: sha(d) });
     }
     fs.writeFileSync(path.join(recDir, `${id}.json`), JSON.stringify(rec, null, 1));

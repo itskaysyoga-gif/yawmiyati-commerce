@@ -40,7 +40,7 @@ const Photo = ({ src, from = 0, dur, box }) => {
   const o = interpolate(f, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
   return (
     <div style={{ position: 'absolute', ...box, background: C.paper, borderRadius: 36, border: `2px solid ${C.rule}`, overflow: 'hidden', boxShadow: '0 24px 60px rgba(123,45,88,.10)', opacity: o }}>
-      <Img src={src} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: `scale(${s}) translateX(${x}px)` }} />
+      <Img src={staticFile(src)} style={{ width: '100%', height: '100%', objectFit: 'contain', transform: `scale(${s}) translateX(${x}px)` }} />
     </div>
   );
 };
@@ -55,7 +55,8 @@ const Rise = ({ children, delay = 0, style }) => {
 const Offer = ({ p, compact }) => {
   const fx = p.facts;
   return (
-    <AbsoluteFill style={{ padding: compact ? '90px 70px' : '300px 70px 420px', justifyContent: 'center' }}>
+    <AbsoluteFill style={{ padding: compact ? '90px 70px' : '880px 70px 400px', justifyContent: compact ? 'center' : 'flex-start' }}>
+      {!compact && p.images && p.images.length ? <Photo src={p.images[0]} dur={OFFER} box={{ top: 250, right: 250, width: 580, height: 600 }} /> : null}
       <Rise style={{ background: C.paper, borderRadius: 40, border: `2px solid ${C.rule}`, padding: compact ? 44 : 56, display: 'grid', gap: compact ? 18 : 26 }}>
         <div style={{ fontSize: compact ? 44 : 54, fontWeight: 700, lineHeight: 1.35 }}>{fx.name}</div>
         <div style={{ display: 'grid', gap: 12 }}>
