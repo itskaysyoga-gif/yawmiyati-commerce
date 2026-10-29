@@ -384,12 +384,14 @@
    "purpose": "language critique iq 04-email-consent",
    "model": "claude-opus-5-5",
    "run": "40859144963",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 29296,
    "max_output_tokens": 8000,
    "reserved_usd": 0.415776,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.192264,
+   "usd_list": 0.128176,
+   "input_tokens": 10734,
+   "output_tokens": 4262
   }
  ]
 }
