@@ -240,12 +240,14 @@
    "purpose": "language critique eg 01-checkout-policy",
    "model": "claude-opus-5-5",
    "run": "40857516207",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 30985,
    "max_output_tokens": 8000,
    "reserved_usd": 0.42591,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.203898,
+   "usd_list": 0.135932,
+   "input_tokens": 11348,
+   "output_tokens": 4527
   }
  ]
 }
