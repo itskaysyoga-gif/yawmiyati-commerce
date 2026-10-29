@@ -288,12 +288,14 @@
    "purpose": "language critique eg 02-nav-home-product-2",
    "model": "claude-opus-5-5",
    "run": "40857955261",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 24279,
    "max_output_tokens": 8000,
    "reserved_usd": 0.385674,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.17109,
+   "usd_list": 0.11406,
+   "input_tokens": 8900,
+   "output_tokens": 3923
   }
  ]
 }
