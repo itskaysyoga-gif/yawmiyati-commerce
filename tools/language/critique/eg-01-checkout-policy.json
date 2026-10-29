@@ -1,0 +1,296 @@
+{
+ "country": "eg",
+ "batch": "01-checkout-policy",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:26:49.847Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "6735a0105a61768f",
+ "usage": {
+  "input_tokens": 11348,
+  "output_tokens": 4527,
+  "usd_counted": 0.203898
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.confirm_call",
+   "verdict": "ok",
+   "note": "Clear, no timing promise."
+  },
+  {
+   "key": "copy.payment",
+   "verdict": "question",
+   "note": "No fact backs the claim that the invoice is inside the parcel, and opening after payment is still unverified (P0-8); keep the invoice clause only if it is confirmed.",
+   "resolution": "kept: opening after payment and the invoice inside come from the supplier's published policy (\"Taager said\"); verified at the first Egypt test order (P0-8)"
+  },
+  {
+   "key": "copy.returns",
+   "verdict": "question",
+   "note": "The facts only say '14 days for a defect'; check that the supplier offers both exchange and refund, that the 14 days count from receipt, and say how and when a refund is paid.",
+   "resolution": "kept as published by the supplier; flagged to Rashid: Egypt's consumer law (Law 181/2018, art. 17) may give a 14-day return without a defect, wider than this line; adviser question added to O17"
+  },
+  {
+   "key": "copy.one_fee",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.thanks_line",
+   "verdict": "question",
+   "note": "Only %2$s is used; check that the code passes the order number as the second argument, or the customer sees the wrong value.",
+   "resolution": "checked in code: YM_Checkout::thanks() passes (thanks, order number), so %2$s is the order number"
+  },
+  {
+   "key": "copy.pick_gov",
+   "verdict": "revise",
+   "note": "Use the house term رسوم التوصيل, as in the other fee lines, instead of سعر التوصيل.",
+   "suggestion": "اختاري المحافظة وهتظهر رسوم التوصيل.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.fee_range",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.fee_flat",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.unverified",
+   "verdict": "ok",
+   "note": "Neutral, staging only."
+  },
+  {
+   "key": "copy.expired",
+   "verdict": "ok",
+   "note": "Clear and polite."
+  },
+  {
+   "key": "copy.offer_na",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.added",
+   "verdict": "revise",
+   "note": "The masculine pronoun in ضفناه doesn't fit feminine or plural products like بطانية or a set; a verbal noun avoids gender.",
+   "suggestion": "تمت الإضافة إلى السلة.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.max_qty",
+   "verdict": "ok",
+   "note": "Avoids number agreement."
+  },
+  {
+   "key": "copy.sold_out_tag",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.sold_out",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_ph",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_err",
+   "verdict": "ok",
+   "note": "Matches guide."
+  },
+  {
+   "key": "copy.phone_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.phone_err",
+   "verdict": "revise",
+   "note": "The house rule says errors start with من فضلك; the prefixes and digit count are correct.",
+   "suggestion": "من فضلك اكتبي رقم موبايل مصري من 11 رقم، بيبدأ بـ 010 أو 011 أو 012 أو 015.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.phone2",
+   "verdict": "question",
+   "note": "If the second number is optional, the label should say (اختياري), as the email label does.",
+   "resolution": "accepted: (اختياري) added"
+  },
+  {
+   "key": "copy.phone2_help",
+   "verdict": "revise",
+   "note": "نوصلك can also be read as 'deliver to you', and 'we' names a caller that isn't verified yet; an agentless line matches the confirmation copy.",
+   "suggestion": "لو رقمك الأول مقفول، ممكن المكالمة تيجي على الرقم ده.",
+   "resolution": "accepted (agentless)"
+  },
+  {
+   "key": "copy.phone2_err",
+   "verdict": "ok",
+   "note": "Prefix; keep the trailing space."
+  },
+  {
+   "key": "copy.gov_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.gov_ph",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.gov_err",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.area_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.area_err",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.building_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.landmark_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.landmark_help",
+   "verdict": "ok",
+   "note": "Natural examples."
+  },
+  {
+   "key": "copy.wrong_country",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.refresh",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.dup",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.in_flight",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_saved",
+   "verdict": "ok",
+   "note": "Understandable."
+  },
+  {
+   "key": "copy.home_trust",
+   "verdict": "question",
+   "note": "'Delivery to every governorate' rests only on the supplier's fee table; keep it only if delivery to every governorate is confirmed.",
+   "resolution": "kept: gated by checklist P0-14 (delivery to every governorate confirmed before a country opens)"
+  },
+  {
+   "key": "copy.privacy_note",
+   "verdict": "ok",
+   "note": "Accurate and clear."
+  },
+  {
+   "key": "copy.market_closed",
+   "verdict": "ok",
+   "note": "Soft, no firm date."
+  },
+  {
+   "key": "copy.try_again",
+   "verdict": "revise",
+   "note": "Add من فضلك, per the house rule for errors.",
+   "suggestion": "حصلت مشكلة في إرسال الطلب. حدّثي الصفحة وجرّبي تاني من فضلك.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.rate_limited",
+   "verdict": "revise",
+   "note": "Add من فضلك to soften the instruction, per the house rule for errors.",
+   "suggestion": "اتبعت طلبات كتير في وقت قصير. استني دقايق وجرّبي تاني من فضلك.",
+   "resolution": "accepted, with محاولات (attempts) instead of طلبات"
+  },
+  {
+   "key": "copy.bot_check",
+   "verdict": "ok",
+   "note": "Clear, if the check sits above the button."
+  },
+  {
+   "key": "copy.plus_delivery",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_stays",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.total_line",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.total_range",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.pay_total",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks_steps",
+   "verdict": "ok",
+   "note": "Precise about the order of steps."
+  },
+  {
+   "key": "copy.email_label",
+   "verdict": "ok",
+   "note": "Fine, if email receipts are sent."
+  },
+  {
+   "key": "copy.email_err",
+   "verdict": "revise",
+   "note": "Add من فضلك, per the house rule for errors.",
+   "suggestion": "من فضلك اكتبي إيميل صحيح أو سيبي الخانة فاضية.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.subtotal_label",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.delivery_after_gov",
+   "verdict": "ok",
+   "note": "Clear."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

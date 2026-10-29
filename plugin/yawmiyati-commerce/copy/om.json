@@ -2,7 +2,7 @@
  "_status": "Oman overrides on copy/gulf.json. Draft, not native-reviewed.",
  "phone_err": "اكتبي رقم هاتف عُماني من 8 أرقام يبدأ بـ 9 أو 7.",
  "phone_label": "رقم الهاتف",
- "phone2": "رقم هاتف آخر",
+ "phone2": "رقم هاتف آخر (اختياري)",
  "wrong_country": "نوصّل داخل سلطنة عُمان فقط.",
  "country_name": "عُمان",
  "pick_gov": "اختاري المحافظة لتظهر رسوم التوصيل.",
