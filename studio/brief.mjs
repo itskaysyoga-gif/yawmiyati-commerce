@@ -78,6 +78,9 @@ const TOOL = {
   },
 };
 
+const note = (m) => console.log(process.env.GITHUB_ACTIONS ? `::error title=studio brief::${String(m).replace(/\n/g, ' ').slice(0, 900)}` : m);
+if (!process.env.ANTHROPIC_API_KEY) { note('ANTHROPIC_API_KEY is empty in this run'); process.exit(1); }
+let failed = 0;
 for (const file of process.argv.slice(2)) {
   const f = JSON.parse(fs.readFileSync(file, 'utf8'));
   let brief, errors;
