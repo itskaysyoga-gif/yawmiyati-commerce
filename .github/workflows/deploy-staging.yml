@@ -1,76 +1,83 @@
-# Deploy one CI-green release to the STAGING stores (docs/STAGING.md). Never production.
-# Trigger: push a tag named staging-YYYYMMDD-N on a commit whose "tests" run succeeded (the build container cannot
-# dispatch workflows). Copies only the plugin and the theme (no dev helpers, no seed run, no secrets), then prints
-# `wp ym launch-check` for each store. Credentials are repository secrets in the "staging" environment; the job does
-# nothing until they exist.
+# Staging releases and order-test windows (docs/STAGING.md §3-§4). Never production: deploy/ci-staging.sh refuses any
+# destination that is not a password-protected staging store at STAGING_BASE_URL/<cc>/ with WP_ENVIRONMENT_TYPE staging
+# or development, and refuses any commit that is not on main with a green "tests" run on main.
+#
+# Triggers (the build container cannot dispatch workflows, so both are tags on a main commit):
+#   staging-YYYYMMDD-N                       release this commit's plugin and theme to every store in STAGING_STORES
+#   staging-mode-<cc>-<development|staging>-YYYYMMDD-N
+#                                            open (development) or close (staging) one store's order-test window
+# Each store: checks → backup → swap under maintenance → WordPress loads → protection, home, health, launch-check over
+# HTTP → keep, or roll back. Open launch-check items are reported as expected; SSH, PHP, WordPress and health errors
+# fail the run. Credentials live in the GitHub "staging" environment; the job does nothing until they exist.
 name: deploy-staging
 on:
   push:
-    tags: ['staging-*']
+    tags: ['staging-[0-9]*', 'staging-mode-*']
 permissions: {}
 concurrency:
-  group: deploy-staging
+  group: deploy-staging        # one deployment or mode switch at a time
   cancel-in-progress: false
 jobs:
   deploy:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment: staging
     permissions:
       contents: read
-      actions: read   # read the tests result of this commit
+      actions: read            # read the tests result of this commit
     env:
       HOST: ${{ secrets.STAGING_SSH_HOST }}
       PORT: ${{ secrets.STAGING_SSH_PORT }}
       USER_: ${{ secrets.STAGING_SSH_USER }}
-      ROOT: ${{ secrets.STAGING_ROOT }}          # e.g. www/staging.yawmiyati.shop/public_html (stores in eg/ and iq/)
+      ROOT: ${{ secrets.STAGING_ROOT }}              # e.g. www/staging.yawmiyati.shop/public_html (stores in eg/ and iq/)
+      HTTP_AUTH: ${{ secrets.STAGING_HTTP_AUTH }}    # user:password of Site Tools > Security > Protected URLs
+      BASE_URL: ${{ vars.STAGING_BASE_URL }}         # https://staging.yawmiyati.shop
       STORES: ${{ vars.STAGING_STORES || 'eg iq' }}
+      SHA: ${{ github.sha }}
     steps:
       - name: Credentials present?
         id: creds
         run: |
-          if [ -z "$HOST" ] || [ -z "$USER_" ] || [ -z "$ROOT" ]; then
-            echo "::notice::staging secrets not set yet (docs/STAGING.md step 3): nothing deployed"; echo "ok=no" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          n=0; for v in "$HOST" "$USER_" "$ROOT" "$HTTP_AUTH" "$BASE_URL"; do [ -n "$v" ] && n=$((n+1)); done
+          if [ "$n" -eq 0 ]; then
+            echo "::notice::staging settings not added yet (docs/STAGING.md §3): nothing deployed"; echo "ok=no" >> "$GITHUB_OUTPUT"
+          elif [ "$n" -lt 5 ]; then
+            echo "::error::staging settings incomplete: STAGING_SSH_HOST, STAGING_SSH_USER, STAGING_ROOT, STAGING_HTTP_AUTH (secrets) and STAGING_BASE_URL (variable) are all required"; exit 1
           else echo "ok=yes" >> "$GITHUB_OUTPUT"; fi
-      - name: Only a commit whose tests passed
-        if: steps.creds.outputs.ok == 'yes'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          c=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${GITHUB_SHA}&status=success&per_page=1" --jq '.total_count')
-          [ "$c" -ge 1 ] || { echo "::error::no successful tests run for ${GITHUB_SHA}: push to main and wait for green CI first"; exit 1; }
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         if: steps.creds.outputs.ok == 'yes'
         with:
           persist-credentials: false
-      - name: SSH key
+          fetch-depth: 0       # the main-ancestry check needs history
+      - name: Only a main commit with green tests on main
+        if: steps.creds.outputs.ok == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: deploy/ci-staging.sh check-commit
+      - name: SSH key (host key pinned)
         if: steps.creds.outputs.ok == 'yes'
         env:
           KEY: ${{ secrets.STAGING_SSH_KEY }}
           KNOWN: ${{ secrets.STAGING_KNOWN_HOSTS }}
         run: |
+          set -euo pipefail
+          [ -n "$KEY" ] && [ -n "$KNOWN" ] || { echo "::error::STAGING_SSH_KEY and STAGING_KNOWN_HOSTS are required"; exit 1; }
           install -d -m 700 ~/.ssh
           printf '%s\n' "$KEY" > ~/.ssh/id_staging && chmod 600 ~/.ssh/id_staging
-          printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts   # pinned host key: never trust on first use
-      - name: Copy plugin and theme to each store
+          printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts   # never trust on first use
+      - name: Release or order-test window
         if: steps.creds.outputs.ok == 'yes'
         run: |
-          SSH="ssh -i ~/.ssh/id_staging -p ${PORT:-18765} -o StrictHostKeyChecking=yes"
-          for cc in $STORES; do
-            [[ "$cc" =~ ^(eg|iq|sa|ae|om)$ ]] || { echo "::error::bad store $cc"; exit 1; }
-            dest="$USER_@$HOST:$ROOT/$cc/wp-content"
-            rsync -az --delete -e "$SSH" plugin/yawmiyati-commerce/ "$dest/plugins/yawmiyati-commerce/"
-            rsync -az --delete -e "$SSH" theme/yawmiyati/ "$dest/themes/yawmiyati/"
-            echo "$cc: release ${GITHUB_REF_NAME} (${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
-          done
-      - name: Launch check per store (report only)
-        if: steps.creds.outputs.ok == 'yes'
-        run: |
-          SSH="ssh -i ~/.ssh/id_staging -p ${PORT:-18765} -o StrictHostKeyChecking=yes $USER_@$HOST"
-          for cc in $STORES; do
-            echo "### $cc" >> "$GITHUB_STEP_SUMMARY"
-            $SSH "cd $ROOT/$cc && wp cache flush --quiet; wp option update ym_release '${GITHUB_REF_NAME}' --quiet; wp ym launch-check" >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
-          done
+          set -euo pipefail
+          case "$GITHUB_REF_NAME" in
+            staging-mode-*)
+              IFS=- read -r _ _ cc target _ <<< "$GITHUB_REF_NAME"
+              deploy/ci-staging.sh mode "$cc" "$target" ;;
+            staging-[0-9]*)
+              deploy/ci-staging.sh release ;;
+            *) echo "::error::unknown tag $GITHUB_REF_NAME"; exit 1 ;;
+          esac
       - name: Remove the key
         if: always()
         run: rm -f ~/.ssh/id_staging

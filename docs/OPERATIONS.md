@@ -99,10 +99,11 @@ the same drill monthly on staging.
   Manager (Claude may pause and lower, never raise).
 
 ## Releases and rollback
-One repository, one release for every country store. A release is a git tag (`release-YYYYMMDD-N`) that passed CI.
-Deploy: pull the tag on staging, run `wp ym launch-check` and a test order per open country, then pull the same tag
-on production stores. Rollback: put the store in maintenance, check out the previous tag, `wp cache flush`, check
-`wp ym ops` and the health endpoint. The plugin keeps data in options and order meta only (no table migrations), so
+One repository, one release for every country store. A release is a commit on `main` whose `tests` run on `main`
+passed. Staging: tag it `staging-YYYYMMDD-N`; the deploy-staging workflow checks the destination, backs up, swaps the
+plugin and theme under maintenance, verifies over HTTP and rolls back automatically on failure (docs/STAGING.md §3).
+Going back later = tag the older main commit. Production gets the same commit once staging passed (P0-17; its
+deployment path is written then, not before). The plugin keeps data in options and order meta only (no table migrations), so
 an older release reads newer data safely. Tables added on 29 Oct (`{prefix}ym_consent_pending`; in the shared
 database `ym_consent_ledger`, `ym_consent_cert`, `ym_contacts`, `ym_mail_log`, `ym_mail_events`) are created with
 CREATE TABLE IF NOT EXISTS and ignored by older releases. If data itself is bad, restore the last backup (export newer orders first).

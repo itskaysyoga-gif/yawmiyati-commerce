@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Fake gh for deploy/test: the number of green "tests" runs on main for the asked commit.
+echo "${FAKE_GREEN_RUNS:-0}"

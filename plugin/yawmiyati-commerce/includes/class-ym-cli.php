@@ -345,9 +345,14 @@ class YM_CLI {
 	/**
 	 * Everything that must be true before this store takes real orders. Exits non-zero while anything is open.
 	 *
+	 * [--format=<format>]
+	 * : table (default) or json. With json the command always exits 0 once the checks ran, printing
+	 *   {"open":N,"rows":[...]}: open items are expected while a store is being prepared, and the deploy workflow must
+	 *   tell them apart from a store that cannot run the checks at all (a PHP or WordPress error exits non-zero).
+	 *
 	 * @subcommand launch-check
 	 */
-	public function launch_check() {
+	public function launch_check( $args = array(), $assoc = array() ) {
 		$rows = array();
 		$add  = function ( $area, $ok, $detail ) use ( &$rows ) {
 			$rows[] = array( 'area' => $area, 'ok' => $ok ? 'yes' : 'NO', 'detail' => $detail );
@@ -378,8 +383,12 @@ class YM_CLI {
 		$add( 'search indexing', '1' === (string) get_option( 'blog_public' ), 'Settings > Reading: allow search engines (production only)' );
 		$runs = (array) get_option( 'ym_ops_runs', array() );
 		$add( 'scheduled jobs', count( $runs ) >= 3, count( $runs ) . ' job(s) have run' );
-		WP_CLI\Utils\format_items( 'table', $rows, array( 'area', 'ok', 'detail' ) );
 		$open = count( array_filter( $rows, fn( $r ) => 'NO' === $r['ok'] ) );
+		if ( 'json' === ( $assoc['format'] ?? 'table' ) ) {
+			echo wp_json_encode( array( 'country' => YM_Country::code(), 'environment' => YM_Env::type(), 'open' => $open, 'rows' => $rows ), JSON_UNESCAPED_UNICODE ) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput
+			return;
+		}
+		WP_CLI\Utils\format_items( 'table', $rows, array( 'area', 'ok', 'detail' ) );
 		if ( $open ) {
 			WP_CLI::error( "$open item(s) open.", false );
 			exit( 1 );

@@ -64,4 +64,4 @@ Interim images today: Egypt blanket and mats detail, Iraq rack, window cleaner, 
 
 ## Status today (28 Oct 2026)
 All 12 launch offers fail the media gate: the only images are 168-600 px crops of Taager listing thumbnails, and most
-show part of the product. Originals have been requested (docs/requests/taager-round-3.md).
+show part of the product. Originals are asked for in the Taager request (docs/requests/taager-request.md, question 14; not sent yet).

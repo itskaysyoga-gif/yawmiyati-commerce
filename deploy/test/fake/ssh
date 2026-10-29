@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Fake ssh for deploy/test: runs the remote command locally in the fake host's home, with the fake wp on PATH.
+cd "$FAKE_HOME" && HOME="$FAKE_HOME" PATH="$FAKE_BIN:$PATH" WP=wp bash -c "$1"

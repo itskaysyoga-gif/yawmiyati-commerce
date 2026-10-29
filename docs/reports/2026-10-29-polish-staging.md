@@ -38,6 +38,7 @@ no new features), then staging preparation. Email stays dormant, video deferred,
 ## Counts
 Local run on the final tree: **116 end-to-end** (115 pass, the WebKit/iPhone test runs only in CI), **777 in-store
 checks** (EG 164, IQ 165, SA 151, AE 145, OM 152), **17 studio and API-ledger checks**. One earlier local run had the
-four-customer concurrency test time out once under full load; it passed three times alone and in the full rerun, so it
-is recorded as load timing, not a defect (CI decides). API ledger unchanged: 4.42 of 40 USD held, nothing spent this
+four-customer concurrency test time out once; it passed three times alone and in the full rerun. _Corrected the same
+night: the cause was not established, so this is an intermittent timeout, open, not "load timing, not a defect"
+(docs/reports/2026-10-29-staging-tightening.md, "Known intermittent")._ API ledger unchanged: 4.42 of 40 USD held, nothing spent this
 round. Final commit and CI run: in the Project handoff.

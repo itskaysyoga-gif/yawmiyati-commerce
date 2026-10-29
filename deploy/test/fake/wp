@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Fake WP-CLI for deploy/test: a store is a directory with wp-config.php and a .fake/ folder describing its state.
+# Run from the store directory (as staging-host.sh does).
+set -u
+F=.fake
+all="$*"
+env_of() { cat "$F/env" 2>/dev/null || echo staging; }
+case "$1" in
+  eval)
+    code="${*: -1}"
+    if [[ "$code" == *home_url* ]]; then
+      active=false; [ -f "$F/active" ] && active=true
+      printf '{"home":"%s","site":"%s","env":"%s","plugin_active":%s}\n' "$(cat "$F/home")" "$(cat "$F/site" 2>/dev/null || cat "$F/home")" "$(env_of)" "$active"
+    elif [[ "$code" == *ym-loaded* ]]; then
+      if [ -f "$F/break" ] && [ "$(cat wp-content/plugins/yawmiyati-commerce/.ym-release 2>/dev/null)" = "$(cat "$F/break")" ]; then
+        echo "PHP Fatal error:  Uncaught Error in yawmiyati-commerce.php" >&2; exit 255
+      fi
+      echo ym-loaded
+    elif [[ "$code" == *ym_ops_runs* ]]; then cat "$F/cron_age" 2>/dev/null || echo -1
+    elif [[ "$code" == *YM_Catalog* ]]; then
+      if [ "$(env_of)" = staging ]; then cat "$F/gate_staging"; else echo '{"env":"development","enforced":false,"accepts_orders":true,"leaks":["X"],"open_test_orders":[]}'; fi
+    else echo "fake wp: unknown eval" >&2; exit 1; fi ;;
+  cache) exit 0 ;;
+  db) [[ "$all" == *export* ]] && echo "-- fake dump" ;;
+  plugin) [[ "$all" == *is-active* ]] && { [ -f "$F/active" ]; exit $?; } ;;
+  ym)
+    case "$2" in
+      consent) echo '{"ledger":[]}' > "$4" ;;
+      launch-check) if [ -f "$F/launch_broken" ]; then echo "PHP Warning: something" ; exit 255; fi; cat "$F/launch.json" ;;
+    esac ;;
+  config)
+    [ "$2" = set ] && [ "$3" = WP_ENVIRONMENT_TYPE ] || exit 1
+    [ -f "$F/env_locked" ] || echo "$4" > "$F/env" ;;
+  *) echo "fake wp: unhandled: $all" >&2; exit 1 ;;
+esac

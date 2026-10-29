@@ -438,6 +438,11 @@ final class YM_Checkout {
 
 	public static function save_extra( WC_Order $order, $data ) {
 		$order->update_meta_data( '_ym_session', self::session_hash() );
+		// A staging store runs as "development" only for its password-protected test orders (docs/STAGING.md §4), so
+		// every order placed then is a test order: reports and kill-gates leave it out.
+		if ( 'development' === YM_Env::type() ) {
+			$order->update_meta_data( '_ym_test', '1' );
+		}
 		if ( self::claimed_token() ) {
 			$order->update_meta_data( '_ym_token', self::claimed_token() );
 		}

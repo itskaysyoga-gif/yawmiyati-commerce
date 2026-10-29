@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Fake curl for deploy/test. Answers like the staging host: 401 without the password (unless the store's .fake says
+# otherwise), the home page and the health endpoint with it. Store state comes from $FAKE_ROOT/<cc>/.fake.
+out=/dev/null; auth=""; url=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -o) out="$2"; shift ;; -w|--max-time) shift ;; -u) auth="$2"; shift ;; -*) ;; *) url="$1" ;;
+  esac; shift
+done
+cc="$(echo "$url" | sed -E 's#^https://[^/]+/([a-z]{2})/.*#\1#')"
+F="$FAKE_ROOT/$cc/.fake"
+env="$(cat "$F/env" 2>/dev/null || echo staging)"
+if [ -z "$auth" ]; then
+  if [ -f "$F/unprotected" ] || { [ -f "$F/unprotected_in_dev" ] && [ "$env" = development ]; }; then echo ok > "$out"; printf 200; else echo denied > "$out"; printf 401; fi
+  exit 0
+fi
+[ "$auth" = "$FAKE_AUTH" ] || { printf 401; exit 0; }
+if [[ "$url" == *rest_route* ]]; then
+  cat "$F/health.json" > "$out"; printf '%s' "$(cat "$F/health_code" 2>/dev/null || echo 503)"
+else
+  if [ -f "$F/no_noindex" ]; then echo '<html><head></head></html>' > "$out"; else echo "<meta name='robots' content='noindex, nofollow' />" > "$out"; fi
+  printf 200
+fi

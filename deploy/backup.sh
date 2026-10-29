@@ -8,10 +8,16 @@ STORE="$1"; OUT="$2"; WP="${WP:-wp}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"; NAME="$(basename "$STORE")-$STAMP"
 mkdir -p "$OUT"
 ( cd "$STORE" && $WP db export - --single-transaction --quiet ) | gzip > "$OUT/$NAME.sql.gz"
+mkdir -p "$STORE/wp-content/uploads"   # a fresh install has none yet
 tar -czf "$OUT/$NAME.uploads.tgz" -C "$STORE/wp-content" uploads
+FILES=("$NAME.sql.gz" "$NAME.uploads.tgz")
 # Shared consent ledger (one database for all stores): exported with every store's backup. A restore merges it and can
-# never remove or shorten a withdrawal, so restoring any store's backup is safe for the others.
-( cd "$STORE" && $WP ym consent export "$OUT/$NAME.consent.json" --quiet )
-( cd "$OUT" && sha256sum "$NAME.sql.gz" "$NAME.uploads.tgz" "$NAME.consent.json" > "$NAME.sha256" )
+# never remove or shorten a withdrawal, so restoring any store's backup is safe for the others. Before the plugin is
+# active (first staging release) there is no ledger to export.
+if ( cd "$STORE" && $WP plugin is-active yawmiyati-commerce --skip-plugins --skip-themes ); then
+  ( cd "$STORE" && $WP ym consent export "$OUT/$NAME.consent.json" --quiet )
+  FILES+=("$NAME.consent.json")
+fi
+( cd "$OUT" && sha256sum "${FILES[@]}" > "$NAME.sha256" )
 ls -1t "$OUT"/"$(basename "$STORE")"-*.sql.gz 2>/dev/null | tail -n +15 | while read -r f; do rm -f "$f" "${f%.sql.gz}.uploads.tgz" "${f%.sql.gz}.consent.json" "${f%.sql.gz}.sha256"; done
 echo "$OUT/$NAME"

@@ -167,6 +167,21 @@ $r = YM_Supplier::mark_not_found( $o );
 ym_check( 'not-found refused when supplier ref exists', is_wp_error( $r ) );
 $o->delete( true );
 
+// Staging order tests: an order placed while the store runs as "development" is marked as a test order; never otherwise.
+foreach ( array( 'development' => '1', 'staging' => '', 'production' => '', 'local' => '' ) as $env => $want ) {
+	add_filter( 'ym_environment_type', fn() => $env );
+	$o = new WC_Order();
+	YM_Checkout::save_extra( $o, array() );
+	ym_check( "test-order mark in $env", $want === (string) $o->get_meta( '_ym_test' ) );
+	remove_all_filters( 'ym_environment_type' );
+}
+
+// launch-check --format=json: open items are data, not a failure (the deploy workflow reads it).
+ob_start();
+( new YM_CLI() )->launch_check( array(), array( 'format' => 'json' ) );
+$lc = json_decode( trim( (string) ob_get_clean() ), true );
+ym_check( 'launch-check json parses', is_array( $lc ) && isset( $lc['open'], $lc['rows'] ) && $lc['open'] > 0 && strtoupper( $cc ) === $lc['country'] );
+
 require __DIR__ . '/reporting.php';
 require __DIR__ . '/accounting.php';
 

@@ -1,7 +1,7 @@
 # Project state
 
-_Last updated: 2026-10-29 evening (visual polish pass and staging preparation, see docs/reports/2026-10-29-polish-staging.md;
-before that the language and storefront round, docs/reports/2026-10-29-language-storefront.md)_
+_Last updated: 2026-10-29 night (staging tightening and development freeze, docs/reports/2026-10-29-staging-tightening.md;
+before that the polish pass and staging preparation, docs/reports/2026-10-29-polish-staging.md)_
 
 Status words used everywhere in this repo (also in docs/LAUNCH-CHECKLIST.md):
 - **Implemented**: code in this repo runs on the local stores.
@@ -11,18 +11,23 @@ Status words used everywhere in this repo (also in docs/LAUNCH-CHECKLIST.md):
 - **Commercially approved**: Rashid's yes on facts, prices, media rights and spend.
 
 Nothing is supplier-verified. There is no live store, no Taager link and no real order.
-Repository: still **public** (launch checklist #1).
+Repository: still **public** (launch checklist #1). **Development is frozen**: only staging work, defects found on
+staging, and changes a verified launch blocker needs.
 
 ## Readiness (definitions and per-country status: docs/LAUNCH-CHECKLIST.md)
 - **Development complete: yes** for everything buildable without accounts, all five countries, including this
   round's review (API budget, workflows, language foundations, checkout, email and consent reliability, hero).
   Final commit and CI run: recorded in the Project handoff (`claude/session-handoff-2026-10-28.md`). Tests on that tree,
-  run locally: **116 end-to-end** (the WebKit/iPhone test only in CI), **777 in-store checks** (EG 164, IQ 165, SA 151, AE 145, OM 152) and
-  **17 studio and API-ledger checks**. Up from 106 / 772 / 10 on 29 Oct morning (e10abdf).
+  run locally: **116 end-to-end** (the WebKit/iPhone test only in CI), **802 in-store checks** (EG 169, IQ 170, SA 156, AE 150, OM 157) and
+  **31 studio, API-ledger and staging-deploy checks**. Up from 116 / 777 / 17 on `047ec68` (29 Oct evening).
 - **Design: approved** (Rashid, 29 Oct evening: warm berry/ivory/blush/sage). One bounded polish pass done; what still
   needs assets is in docs/PHOTOGRAPHY.md (home photo per country, all twelve product photos).
-- **Next phase: staging** (docs/STAGING.md): hosting, the Taager plugin on Egypt then Iraq staging, real test orders
-  E1-E9 / I1-I9. Deployment by `staging-*` tag (deploy-staging workflow, idle until the secrets exist).
+- **Next phase: staging** (docs/STAGING.md): hosting, the Taager plugin on Egypt then Iraq staging, test orders
+  E1-E10 / I1-I10 in two classes (C cancelled before shipping; D delivered, each with Rashid's yes). Releases by tag
+  `staging-YYYYMMDD-N` on a main commit with green tests on main; destination checks, backup, automatic rollback;
+  order-test window by `staging-mode-*` tags (deploy-staging workflow, idle until the staging settings exist).
+- **Staging blocked only by external items**: O4 hosting → GitHub staging settings → O1, O3, O5 (one Taager request),
+  O7 plugin link, O22 test-order phone and delivered-order recipient (docs/LAUNCH-CHECKLIST.md "What blocks staging now").
 - **Email: dormant at launch** (Rashid, 29 Oct): phone-only stores; the hardened email code stays off.
 - **Language: AI-reviewed, not native-reviewed.** Every owned string is in the copy ledger (docs/language/); 15 AI
   critique batches, all items resolved; native review packages ready (O8).
@@ -36,6 +41,7 @@ Repository: still **public** (launch checklist #1).
 ## Where things stand
 | Area | Implemented | Tested | Supplier-verified |
 | --- | --- | --- | --- |
+| Staging release workflow: commit, destination, protection and environment checks; backup; swap; HTTP verification; rollback; interrupted-run recovery; order-test window | yes | yes (fake host in CI; real-WordPress rehearsal locally) | no host yet |
 | Five local stores from one plugin/theme: EG :8081, IQ :8082, SA :8083, AE :8084, OM :8085 | yes | yes (orders in all five; OMR 3 decimals) | — |
 | Market gates (prepared, catalog, checkout, ads) — all "prepared", none open | yes | yes | — |
 | One order per submission (conditional insert + DB lock; slow, crashed, parallel, lost-response cases) | yes | yes | Taager duplicate handling unknown |
@@ -81,9 +87,10 @@ Repository: still **public** (launch checklist #1).
 11. Media originals and rights in writing.
 
 ## Waiting on Rashid
-The one table is in docs/LAUNCH-CHECKLIST.md ("Owner actions", O1-O21). First four: make the repo private; yes on the
-design (review PDF of 29 Oct) and on docs/ASSORTMENT-v1.md; buy the domain and hosting; ask Taager for sizes and
-original media with written rights.
+The one table is in docs/LAUNCH-CHECKLIST.md ("Owner actions", O1-O22). In order: buy the domain and hosting (O4) and add
+the GitHub staging settings; make the repo private (O1); yes on docs/ASSORTMENT-v1.md (O3); send the one Taager request
+(O5, docs/requests/taager-request.md); find a test-order phone and one delivered-order recipient per country (O22).
+The design is approved (O2, 29 Oct).
 
 ## Next
 Launch checklist P0 in order (docs/LAUNCH-CHECKLIST.md): staging, Egypt Taager link + ordinary and held test orders,
