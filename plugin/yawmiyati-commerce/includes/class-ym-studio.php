@@ -53,6 +53,7 @@ final class YM_Studio {
 				'label'    => (string) $o->get_meta( '_ym_offer_label' ),
 				'note'     => (string) $o->get_meta( '_ym_offer_note' ),
 				'price'    => (float) $o->get_price(),
+				'price_text' => YM_Country::money( $o->get_price() ),
 				'in_stock' => $o->is_in_stock(),
 				'default'  => 'yes' === $o->get_meta( '_ym_offer_primary' ) || $o->get_id() === $page->get_id(),
 			);
@@ -95,6 +96,7 @@ final class YM_Studio {
 			'price'          => (float) $page->get_price(),
 			'price_text'     => YM_Country::money( $page->get_price() ),
 			'offers'         => $offers,
+			'cod'            => explode( '|', YM_Country::copy( 'home_trust' ) )[0],
 			'delivery'       => array( 'min' => min( $fees ), 'max' => max( $fees ), 'text' => count( $fees ) > 1 ? sprintf( YM_Country::copy( 'fee_range' ), YM_Country::number( min( $fees ) ), YM_Country::money( max( $fees ) ) ) : sprintf( YM_Country::copy( 'fee_flat' ), YM_Country::money( $fees[0] ) ), 'one_fee' => YM_Country::copy( 'one_fee' ), 'payment' => YM_Country::copy( 'payment' ) ),
 			'benefit'        => (string) $page->get_meta( '_ym_benefit' ),
 			'benefits'       => array_map( fn( $b ) => array( 'title' => (string) $b[0], 'text' => (string) ( $b[1] ?? '' ) ), $json( '_ym_benefits' ) ),

@@ -60,13 +60,21 @@ async function call(f, extra) {
   return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
 }
 
+const note = (m) => console.log(process.env.GITHUB_ACTIONS ? `::error title=studio brief::${String(m).replace(/\n/g, ' ').slice(0, 900)}` : m);
+if (!process.env.ANTHROPIC_API_KEY) { note('ANTHROPIC_API_KEY is empty in this run'); process.exit(1); }
+let failed = 0;
 for (const file of process.argv.slice(2)) {
   const f = JSON.parse(fs.readFileSync(file, 'utf8'));
-  let brief = await call(f);
-  let errors = check(brief, f);
-  if (errors.length) { brief = await call(f, errors); errors = check(brief, f); }
+  let brief, errors;
+  try {
+    brief = await call(f);
+    errors = check(brief, f);
+    if (errors.length) { brief = await call(f, errors); errors = check(brief, f); }
+  } catch (e) { note(`${f.country} ${f.sku}: ${e.message}`); failed++; continue; }
+  if (errors.length) note(`${f.country} ${f.sku}: ${errors.length} rule errors: ${errors.slice(0, 5).join(' | ')}`);
   const out = path.join(ROOT, 'briefs', f.country.toLowerCase(), `${f.sku}.json`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, JSON.stringify({ status: errors.length ? 'rejected_by_rules' : 'draft: rules passed, dialect review pending', errors, model: MODEL, facts_offer_version: f.offer_version, generated_at: new Date().toISOString(), angles_required: ANGLES, ...brief }, null, 1));
   console.log(`${f.country} ${f.sku}: ${errors.length ? errors.length + ' rule errors' : 'ok'}; spent so far ${spent().toFixed(3)} USD`);
 }
+if (failed) process.exit(1);

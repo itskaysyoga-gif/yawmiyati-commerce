@@ -21,7 +21,7 @@ jobs:
       - name: Draft briefs
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node studio/brief.mjs $(cat studio/requests/current.txt)
+        run: node studio/brief.mjs $(cat studio/requests/current.txt) || echo "BRIEF_FAILED=1" >> "$GITHUB_ENV"
       - name: Commit drafts to this branch
         run: |
           git config user.name "studio bot"
@@ -29,4 +29,5 @@ jobs:
           git add studio/briefs studio/spend.json
           git commit -m "Studio briefs (run ${{ github.run_id }}): drafts, dialect review pending" || echo "nothing new"
           git push origin HEAD:${{ github.ref_name }}
-          cat studio/spend.json | tail -20 >> "$GITHUB_STEP_SUMMARY"
+          cat studio/spend.json | tail -20 >> "$GITHUB_STEP_SUMMARY" || true
+          if [ -n "$BRIEF_FAILED" ]; then echo "::error::brief drafting failed (see the annotations above)"; exit 1; fi

@@ -15,6 +15,7 @@
             "label": "طقم واحد",
             "note": "قطعتين: طويلة + صغيرة",
             "price": 399,
+            "price_text": "399 ج.م",
             "in_stock": true,
             "default": true
         },
@@ -23,10 +24,12 @@
             "label": "طقمين",
             "note": "4 قطع، للمطبخ والحمام",
             "price": 749,
+            "price_text": "749 ج.م",
             "in_stock": true,
             "default": false
         }
     ],
+    "cod": "الدفع عند الاستلام",
     "delivery": {
         "min": 95,
         "max": 105,
@@ -135,6 +138,6 @@
     },
     "landing_url": "http://localhost:8081/product/absorbent-mats/",
     "environment": "local",
-    "exported_at": "2026-10-29T06:58:44+00:00",
-    "offer_version": "f356eab73227"
+    "exported_at": "2026-10-29T07:01:15+00:00",
+    "offer_version": "10564b4c557c"
 }

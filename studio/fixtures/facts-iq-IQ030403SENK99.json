@@ -15,6 +15,7 @@
             "label": "الرف لوحده",
             "note": "المجموع مع التوصيل 50,000 د.ع",
             "price": 43000,
+            "price_text": "43,000 د.ع",
             "in_stock": true,
             "default": true
         },
@@ -23,10 +24,12 @@
             "label": "الرف + طقم موكيت قطعتين",
             "note": "المجموع مع التوصيل 65,000 د.ع",
             "price": 58000,
+            "price_text": "58,000 د.ع",
             "in_stock": true,
             "default": false
         }
     ],
+    "cod": "الدفع عند الاستلام",
     "delivery": {
         "min": 7000,
         "max": 7000,
@@ -122,6 +125,6 @@
     },
     "landing_url": "http://localhost:8082/product/sink-rack/",
     "environment": "local",
-    "exported_at": "2026-10-29T06:58:45+00:00",
-    "offer_version": "c2497d24a12e"
+    "exported_at": "2026-10-29T07:01:16+00:00",
+    "offer_version": "48abab8ed6f7"
 }
