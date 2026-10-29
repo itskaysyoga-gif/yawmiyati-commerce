@@ -105,6 +105,9 @@ final class YM_Reco {
 		if ( YM_Env::enforced() && YM_Catalog::blockers( $p ) ) {
 			return null;
 		}
+		if ( '' !== (string) $p->get_meta( '_ym_conditional' ) ) {
+			return null; // never suggested while its open questions stand, in previews too
+		}
 		if ( array_intersect( self::parts( $sku, $cfg['bundles'] ), $taken ) || in_array( $sku, $taken, true ) ) {
 			return null;
 		}
@@ -170,7 +173,8 @@ final class YM_Reco {
 				. '<button type="submit" class="ym-btn ym-btn--secondary" data-ym-reco-add="' . (int) $i . '">' . esc_html( YM_Country::copy( 'reco_add' ) ) . '</button></form>'
 				. '</div></li>';
 		}
-		$out .= '</ul><p class="ym-reco__note">' . esc_html( YM_Country::copy( 'one_fee' ) ) . '</p></section>';
+		// On the cart the delivery line in the summary already states the one-fee rule; say it once.
+		$out .= '</ul>' . ( 'reco_cart' === $list ? '' : '<p class="ym-reco__note">' . esc_html( YM_Country::copy( 'one_fee' ) ) . '</p>' ) . '</section>';
 		$out .= '<script>(function(){var s=document.currentScript.previousElementSibling,items=JSON.parse(s.getAttribute("data-ym-reco-items")),l=s.getAttribute("data-ym-reco"),seen=false;function push(e,x){window.dataLayer=window.dataLayer||[];dataLayer.push({ecommerce:null});dataLayer.push({event:e,ecommerce:{item_list_id:l,items:x}});}if("IntersectionObserver" in window){new IntersectionObserver(function(en,o){if(en[0].isIntersecting&&!seen){seen=true;push("view_item_list",items);o.disconnect();}}).observe(s);}s.querySelectorAll("[data-ym-reco-click],[data-ym-reco-add]").forEach(function(a){a.addEventListener("click",function(){var i=+(a.getAttribute("data-ym-reco-click")||a.getAttribute("data-ym-reco-add"));push("select_item",[items[i]]);});});})();</script>';
 		return $out;
 	}

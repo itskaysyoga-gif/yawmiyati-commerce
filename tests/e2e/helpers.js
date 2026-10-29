@@ -59,7 +59,11 @@ async function fillCheckout(page, c) {
   await page.waitForSelector('#billing_first_name');
   await page.fill('#billing_first_name', c.name);
   await page.fill('#billing_phone', c.phone);
-  if (c.phone2) await page.fill('#ym_phone2', c.phone2);
+  if (c.phone2) {
+    // The second phone opens on request (a button), as a customer would do it.
+    if (!(await page.locator('#ym_phone2').isVisible())) await page.locator('[data-ym-phone2-add]').click();
+    await page.fill('#ym_phone2', c.phone2);
+  }
   await page.evaluate((s) => { jQuery('#billing_state').val(s).trigger('change'); }, c.state);
   await page.fill('#billing_address_1', c.area);
   if (c.building) await page.fill('#billing_address_2', c.building);

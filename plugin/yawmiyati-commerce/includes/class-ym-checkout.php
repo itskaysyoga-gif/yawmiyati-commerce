@@ -27,6 +27,7 @@ final class YM_Checkout {
 		add_filter( 'woocommerce_process_checkout_field_billing_phone', array( __CLASS__, 'normalise_phone' ) );
 		add_filter( 'woocommerce_process_checkout_field_ym_phone2', array( __CLASS__, 'normalise_phone' ) );
 		add_action( 'woocommerce_review_order_before_submit', array( __CLASS__, 'token_field' ) );
+		add_action( 'woocommerce_review_order_before_submit', array( __CLASS__, 'call_note' ), 20 );
 		add_action( 'woocommerce_after_checkout_validation', array( __CLASS__, 'validate' ), 20, 2 );
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'save_extra' ), 10, 2 );
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'test_fail' ), 99 );
@@ -37,6 +38,11 @@ final class YM_Checkout {
 		// Before a governorate is chosen there is no delivery fee yet: show the products' subtotal and say delivery
 		// comes next, never an amount labelled as what she pays on delivery (review of 29 Oct).
 		add_filter( 'woocommerce_cart_totals_order_total_html', array( __CLASS__, 'order_total_html' ), 20 );
+		// One delivery method: the row is "التوصيل | 95 ج.م", not "الشحنة | التوصيل: 95 ج.م".
+		add_filter( 'woocommerce_shipping_package_name', fn() => YM_Country::copy( 'delivery_word' ) );
+		add_filter( 'woocommerce_cart_shipping_method_full_label', array( __CLASS__, 'shipping_label' ), 20, 2 );
+		add_filter( 'woocommerce_form_field_tel', array( __CLASS__, 'phone2_toggle' ), 20, 4 );
+		add_filter( 'option_date_format', fn( $f ) => 'F j, Y' === $f ? 'j F Y' : $f ); // "29 أكتوبر 2026", not "أكتوبر 29, 2026"
 		add_filter( 'woocommerce_order_shipping_to_display_shipped_via', '__return_empty_string' );
 		add_filter( 'woocommerce_get_privacy_policy_text', fn( $text, $type ) => 'checkout' === $type ? YM_Country::copy( 'privacy_note' ) : $text, 10, 2 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
@@ -94,7 +100,27 @@ final class YM_Checkout {
 	}
 
 	public static function shipping_prompt() {
-		return esc_html( YM_Country::copy( 'pick_gov' ) );
+		// Marked so the checkout can hide the delivery row while the total row already says "delivery after choosing".
+		return '<span data-ym-ship-pending>' . esc_html( YM_Country::copy( 'pick_gov' ) ) . '</span>';
+	}
+
+	public static function shipping_label( $label, $method ) {
+		return 'ym_governorate' === $method->get_method_id() ? wc_price( (float) $method->get_cost() + (float) $method->get_shipping_tax() ) : $label;
+	}
+
+	/**
+	 * The second phone is offered on request: a button reveals the field (it stays open when it has a value or an
+	 * error). Same field name and validation, so the order data and the supplier hand-off do not change.
+	 */
+	public static function phone2_toggle( $field, $key, $args, $value ) {
+		if ( 'ym_phone2' !== $key ) {
+			return $field;
+		}
+		$open = '' !== (string) $value || ! empty( $_POST['ym_phone2'] ); // phpcs:ignore WordPress.Security.NonceVerification
+		$btn  = '<p class="form-row form-row-wide ym-phone2-add"' . ( $open ? ' hidden' : '' ) . '><button type="button" class="ym-linkbtn" aria-controls="ym_phone2_field" aria-expanded="false" data-ym-phone2-add>' . esc_html( YM_Country::copy( 'phone2_add' ) ) . '</button></p>';
+		$field = preg_replace( '/^<p class="form-row/', '<p ' . ( $open ? '' : 'hidden ' ) . 'class="form-row', $field, 1 );
+		$js    = '<script>(function(){var b=document.querySelector("[data-ym-phone2-add]");if(!b)return;b.addEventListener("click",function(){var f=document.getElementById("ym_phone2_field");f.hidden=false;b.parentNode.hidden=true;b.setAttribute("aria-expanded","true");var i=document.getElementById("ym_phone2");if(i)i.focus();});})();</script>';
+		return $btn . $field . $js;
 	}
 
 	public static function locale( $locale ) {
@@ -114,6 +140,14 @@ final class YM_Checkout {
 
 	public static function normalise_phone( $value ) {
 		return YM_Country::normalise_phone( $value );
+	}
+
+	/** Right above "إرسال الطلب": the order is confirmed by phone afterwards (the first "what happens next" step). */
+	public static function call_note() {
+		$first = explode( '|', YM_Country::copy( 'thanks_steps' ) )[0] ?? '';
+		if ( '' !== $first ) {
+			echo '<p class="ym-call-note" data-ym-call-note>' . esc_html( $first ) . '</p>';
+		}
 	}
 
 	public static function token_field() {
@@ -484,14 +518,21 @@ final class YM_Checkout {
 			'Proceed to checkout'                => YM_Country::copy( 'to_checkout' ),
 			'The following problems were found:' => YM_Country::copy( 'fix_these' ),
 			'Select an option&hellip;'           => YM_Country::copy( 'gov_ph' ),
+			'Your cart is currently empty.'      => YM_Country::copy( 'cart_empty' ),
+			'Return to shop'                     => YM_Country::copy( 'see_all' ),
 			'Billing address'  => YM_Country::copy( 'delivery_address' ),
 			'Shipping'         => YM_Country::copy( 'delivery_word' ),
 			'Shipping:'        => YM_Country::copy( 'delivery_word' ) . ':',
 			'Order details'    => YM_Country::copy( 'order_details' ),
 			'Total'            => YM_Country::copy( 'pay_total' ),
 		);
-		if ( 'Total' === $text && self::delivery_unresolved() ) {
-			return YM_Country::copy( 'subtotal_label' );
+		if ( 'Total' === $text ) {
+			// Only the checkout's final row is "what she pays on delivery"; elsewhere (order details, column headers)
+			// "Total" keeps WooCommerce's own Arabic word.
+			if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+				return $translation;
+			}
+			return self::delivery_unresolved() ? YM_Country::copy( 'subtotal_label' ) : YM_Country::copy( 'pay_total' );
 		}
 		return $map[ $text ] ?? $translation;
 	}

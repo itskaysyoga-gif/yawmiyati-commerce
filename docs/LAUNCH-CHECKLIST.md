@@ -43,10 +43,10 @@ twice for the same approval.
 | # | Item | Exact action | Evidence needed | Capability blocked until done |
 | --- | --- | --- | --- | --- |
 | O1 | Repo private | GitHub → Settings → Danger zone → Change visibility → Private | Repo page shows "Private" | Nothing technical; exposure of business data |
-| O2 | Design yes | Look at the review screenshots (PDF from this round) and say yes or list changes | Your written yes | Staging content freeze |
+| O2 | Design yes | **Done 29 Oct**: warm berry/ivory/blush/sage direction approved; one polish pass made (docs/reports/2026-10-29-polish-staging.md) | Your written yes (29 Oct) | — |
 | O3 | Assortment yes | Approve docs/ASSORTMENT-v1.md rows (Egypt rack 689 is a proposal) | Rows marked approved with date | Publishing any product; content production for real |
 | O4 | Domain + hosting | Buy yawmiyati.shop and SiteGround GrowBig | Purchase receipt | Staging (P0 4+), Search Console, email domain |
-| O5 | Taager questions | Send rounds 3 and 4 (docs/requests/); ask the Iraq refusal charge **in writing** | Written answers | Iraq ads; Gulf economics |
+| O5 | Taager questions | Send rounds 3, 4 and 5 (docs/requests/; round 5 is about test orders, the second phone and landmark, and the caller's name); ask the Iraq refusal charge **in writing** | Written answers | Iraq ads; Gulf economics |
 | O6 | Specs + original media | Ask Taager for sizes, materials, box contents and original photos with written permission for the approved SKUs (mats sizes and rack width are the first two); better originals for the weak wide card photos (Egypt blanket and mats detail; Iraq rack, window cleaner, organizer, heater, mats): a card is never fixed by stretching or cropping | Files + written permission | Catalog gate; fit pages; any content publication |
 | O7 | Taager link | Link Taager to Egypt staging, then Iraq; place test orders with Claude (P0 6-9) | Orders visible in Taager | Supplier verification |
 | O8 | Native reviewers | One Egyptian and one Iraqi reviewer: give each docs/language/REVIEW-PACKAGE-EG.md or -IQ.md and the review PDF | Reviewer sign-off | Opening a country; publishing scripts |
@@ -59,22 +59,26 @@ twice for the same approval.
 | O15 | Music | Choose a track licensed for paid social use, or decide silent | Licence text | Paid video ads with music |
 | O16 | Meta spending limit | Ads Manager → account spending limit | Limit visible | Any ad spend |
 | O17 | Egypt privacy, marketing and returns rules | Confirm with a local adviser: (a) what the operator must register or record before marketing to Egyptian customers; (b) whether Consumer Protection Law 181/2018 art. 17 gives online buyers a 14-day return without a defect (our returns line follows the supplier: defects only, 14 days) and who honours it | Written note | Email marketing and advertising tags in Egypt; the Egypt returns text |
-| O19 | Home photograph | Choose one licensed lifestyle photo of a believable home (a photo library with a commercial licence, or your own); never a generated scene. Claude records it with `wp ym media --channels=site --approved` and sets `ym_hero_image` | Licence text + file | The home shows the featured product as its focal image until then |
+| O19 | Home photograph, one per country | The exact brief is in docs/PHOTOGRAPHY.md §1 (Egypt: the actual mat set in a lived-in Egyptian home; Iraq: the actual rack over a sink in an Iraqi kitchen; or a licensed home photo with no product in it). Never a generated scene. Claude records it and sets `ym_hero_image` | Licence text + file | The home shows the lead product's interim photo until then; staging does not wait |
 | O18 | Operator accounts + alerts | Personal operator logins (no shared password), alert webhook, uptime monitor | Test alert received | P0 19 |
 | O20 | Anthropic console check | Compare console usage for 28-29 Oct with `node tools/spend/cli.mjs status`; tell Claude the real figure for the failed runs | Console figure | Lowers the 1 USD "unknown" held in the API reserve (nothing else) |
 | O21 | Server-side ad events | Decide at P1 whether to switch on YM_SERVER_EVENTS after reading docs/MEASUREMENT.md §4 (the stated window) | Your written yes or no | Server events (browser tags under consent work without them) |
+
+## Staging runbook
+The order of work from hosting to verified test orders, with the test list E1-E9 / I1-I9 and the deploy workflow:
+**docs/STAGING.md**. Photography still needed (does not block staging): **docs/PHOTOGRAPHY.md**.
 
 ## P0: before the first real order (per country)
 | # | Item | Owner | Status | How we know it is done |
 | --- | --- | --- | --- | --- |
 | 1 | Make the GitHub repo private | R | open | GitHub shows Private |
-| 2 | Approve the design on the review screenshots of this round | R | open | Rashid's yes |
+| 2 | Approve the design on the review screenshots of this round | R | **done 29 Oct** (direction approved; polish pass made) | Rashid's yes |
 | 3 | Buy yawmiyati.shop and SiteGround GrowBig | R | open | Purchase done |
-| 4 | Staging stores from a CI-green release; server cron every 5 min; env vars (`YM_SHARED_DB` with every store's DB user granted; `YM_CONSENT_STORES` = exactly the installed stores, no default; `YM_SERVER_EVENTS` unset; `YM_MAIL_SECRET`); staging noindex and protected | C | open | `wp ym launch-check` runs; health 200; consent ledger and certificates fresh for every store (auto) |
+| 4 | Staging stores from a CI-green release (tag `staging-*` → deploy-staging workflow, docs/STAGING.md §3); server cron every 5 min; env vars (`YM_SHARED_DB` with every store's DB user granted; `YM_CONSENT_STORES` = exactly the installed stores, no default; `YM_SERVER_EVENTS` unset; `YM_MAIL_SECRET`); staging noindex and protected | C | open | `wp ym launch-check` runs; health 200; consent ledger and certificates fresh for every store (auto) |
 | 4a | Client IP source on the real host (`YM_TRUSTED_PROXIES` only if a proxy sits in front) | C | open | `ym_client_ip_checked` set (auto) |
 | 5 | Taager round 3 and 4 questions | R | open | Answers in COUNTRY-RULES as "Taager said" |
 | 6 | Taager plugin on **Egypt** staging (version recorded); one ordinary test order | R + C | open | Reference meta key found (`ym_supplier_ref_keys_verified`) |
-| 7 | Read the Taager plugin's hook; one **deliberately held** test order | C + R | open | Held order absent from Taager until released |
+| 7 | Read the Taager plugin's hook and **which fields it sends** (second phone, landmark, building); one **deliberately held** test order | C + R | open | Held order absent from Taager until released |
 | 8 | From the Egypt orders: status names, caller identity, parcel and invoice, delivery charge on a 2-item order and on the 2-set mats SKU, delivery days per zone | R + C | open | `ym_stage_map` set; `ym_status_sync_verified` only after statuses arrive; `ym_delivery_days_verified` once days are observed (the fee table then shows them) |
 | 8a | Duplicate handling at Taager: lost-response retry and a second order from the same phone | R + C | open | Exactly one Taager order for the retry; the second held by us |
 | 9 | Repeat 6-8 on **Iraq** | R + C | open | Same evidence for Iraq |

@@ -26,13 +26,14 @@ test('Social: Facebook and Instagram in the footer and on the contact page, with
   await ctx.close();
 });
 
-test('Home: one focal image and one clear action, categories, a curated selection (at most 6), a tip and how ordering works; only the focal image loads eagerly', async () => {
+test('Home: one focal image and one clear action, categories without counts, a curated selection of four, one "view all", a tip and how ordering works; only the focal image loads eagerly', async () => {
   const { ctx, page } = await h.context(browser);
   await page.goto(h.BASE.iq + '/');
   const cards = await page.locator('.ym-shop .ym-card').count();
-  assert.ok(cards > 0 && cards <= 6, `cards ${cards}`);
-  assert.ok(await page.locator('a.ym-more, a.ym-shop__all').count() >= 1);
+  assert.ok(cards > 0 && cards <= 4, `cards ${cards}`);
+  assert.equal(await page.locator('.ym-shop a[href$="/shop/"]').count(), 1, 'one "view all products", not two');
   assert.ok(await page.locator('.ym-cats a').count() >= 2, 'category routes');
+  assert.equal(await page.locator('.ym-cats small').count(), 0, 'no category counts');
   assert.equal(await page.locator('.ym-hero img').count(), 1, 'one focal image, not a row of thumbnails');
   assert.equal(await page.locator('.ym-hero img[fetchpriority="high"]').count(), 1);
   const cta = page.locator('[data-ym-hero-cta]');
@@ -245,4 +246,28 @@ test('Cart on a phone: lines as cards, no sideways scroll, delivery stated, and 
   const img = await page.locator('td.product-thumbnail img').first().boundingBox();
   assert.ok(img.width <= 64.5, `thumbnail ${img.width}px`);
   await ctx.close();
+});
+
+test('Navigation offers only categories with an orderable product; a conditional product is never offered and is blocked by the gate', async () => {
+  const cleaner = h.wpEval('iq', 'echo wc_get_product_id_by_sku("IQ030107MASA99");');
+  const heater = h.wpEval('iq', 'echo wc_get_product_id_by_sku("IQ030301SOBA99");');
+  assert.equal(h.wpEval('iq', 'echo count( wc_get_products( array( "category" => array( "cleaning" ), "status" => "publish", "limit" => 10 ) ) );'), '1', 'the Iraq cleaning shelf holds only the window cleaner');
+  const { ctx, page } = await h.context(browser);
+  try {
+    await page.goto(h.BASE.iq + '/');
+    assert.equal(await page.locator('.ym-cats a[href*="/product-category/comfort/"]').count(), 0, 'the heater (conditional) gives the comfort shelf nothing to offer');
+    assert.equal(await page.locator(`.ym-shop .ym-card a[href*="/product/heater-180/"]`).count(), 0, 'and it is not among the home picks');
+    assert.equal(await page.locator('.ym-cats a[href*="/product-category/cleaning/"]').count(), 1);
+    h.wpEval('iq', `$p = wc_get_product(${cleaner}); $p->set_stock_status("outofstock"); $p->save();`);
+    await page.goto(h.BASE.iq + '/');
+    assert.equal(await page.locator('.ym-cats a[href*="/product-category/cleaning/"]').count(), 0, 'no route to a shelf with nothing to order');
+    await page.goto(h.BASE.iq + '/shop/');
+    assert.equal(await page.locator('.ym-chips a[href*="/product-category/cleaning/"]').count(), 0);
+  } finally {
+    h.wpEval('iq', `$p = wc_get_product(${cleaner}); $p->set_stock_status("instock"); $p->save();`);
+    await ctx.close();
+  }
+  // The gate itself (enforced on staging and production): a recorded conditional is a blocker of its own.
+  assert.match(h.wpEval('iq', `echo implode(",", array_keys( YM_Catalog::blockers( wc_get_product(${heater}) ) ));`), /(^|,)conditional(,|$)/);
+  assert.doesNotMatch(h.wpEval('iq', 'echo implode(",", array_keys( YM_Catalog::blockers( wc_get_product( wc_get_product_id_by_sku("IQ030403SENK99") ) ) ));'), /conditional/);
 });

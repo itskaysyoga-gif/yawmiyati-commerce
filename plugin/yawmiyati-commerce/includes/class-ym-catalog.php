@@ -56,6 +56,33 @@ final class YM_Catalog {
 		return is_wp_error( $made ) ? 0 : (int) $made['term_id'];
 	}
 
+	/**
+	 * Can this product be offered on the home page and in navigation? Published, visible in the catalog, purchasable,
+	 * in stock and not conditional. On
+	 * staging and production the catalog gate is part of purchasable/in-stock, so only approved products qualify.
+	 */
+	public static function orderable( $p ) {
+		// A conditional product is left out of the home and navigation everywhere, local previews included, so the
+		// preview shows what production will (local stores still let tests buy it).
+		return $p instanceof WC_Product && 'publish' === $p->get_status() && 'hidden' !== $p->get_catalog_visibility() && $p->is_purchasable() && $p->is_in_stock() && '' === (string) $p->get_meta( '_ym_conditional' );
+	}
+
+	/** Categories with at least one orderable product (navigation never leads to an empty or blocked shelf). */
+	public static function eligible_categories() {
+		$terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
+		if ( is_wp_error( $terms ) || ! $terms ) {
+			return array();
+		}
+		return array_values( array_filter( $terms, function ( $t ) {
+			foreach ( wc_get_products( array( 'status' => 'publish', 'category' => array( $t->slug ), 'limit' => 20 ) ) as $p ) {
+				if ( self::orderable( $p ) ) {
+					return true;
+				}
+			}
+			return false;
+		} ) );
+	}
+
 	public static function stock_max_age() {
 		return max( 1, (int) get_option( 'ym_stock_max_age_hours', 48 ) ) * HOUR_IN_SECONDS;
 	}
@@ -63,6 +90,15 @@ final class YM_Catalog {
 	/** Reasons this product may not be sold, keyed by code. Empty array = ready. */
 	public static function blockers( WC_Product $p ) {
 		$out = array();
+		// Open safety or specification questions recorded on the product (seed field "conditional", e.g. heaters
+		// until their electrical specification and warranty are in writing): never sellable until cleared.
+		$cond = (string) $p->get_meta( '_ym_conditional' );
+		if ( '' === $cond && $p->get_parent_id() ) {
+			$cond = (string) get_post_meta( $p->get_parent_id(), '_ym_conditional', true );
+		}
+		if ( '' !== $cond ) {
+			$out['conditional'] = 'conditional: ' . $cond;
+		}
 		foreach ( self::CHECKS as $c ) {
 			if ( ! self::check( $p, $c ) ) {
 				$out[ "check_$c" ] = "$c not checked";

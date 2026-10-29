@@ -75,8 +75,8 @@ function ym_card( WC_Product $p, $eager = false, $priority = false ) {
 
 /** Category chips (only categories with products), plus "all". */
 function ym_category_chips( $current = '' ) {
-	$terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
-	if ( is_wp_error( $terms ) || ! $terms ) {
+	$terms = YM_Catalog::eligible_categories();
+	if ( ! $terms ) {
 		return '';
 	}
 	$out = '<nav class="ym-chips" aria-label="' . esc_attr( ym_t( 'categories' ) ) . '"><a href="' . esc_url( ym_shop_url() ) . '"' . ( '' === $current ? ' aria-current="page"' : '' ) . '>' . esc_html( ym_t( 'all_products' ) ) . '</a>';
@@ -198,17 +198,17 @@ add_shortcode( 'ym_home', function () {
 		return '';
 	}
 	// The curated selection shows only what she can order now, with a picture: no filler, no sold-out tiles.
-	$ready = fn( $list ) => array_values( array_filter( $list, fn( $p ) => $p->is_in_stock() && $p->get_image_id() ) );
+	$ready = fn( $list ) => array_values( array_filter( $list, fn( $p ) => YM_Catalog::orderable( $p ) && $p->get_image_id() ) );
 	$pick  = $ready( wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'featured' => true, 'limit' => 12, 'orderby' => 'menu_order', 'order' => 'ASC' ) ) );
 	if ( count( $pick ) < 4 ) {
 		$more = $ready( wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'limit' => 12, 'orderby' => 'menu_order', 'order' => 'ASC', 'exclude' => array_map( fn( $p ) => $p->get_id(), $pick ) ) ) );
 		$pick = array_merge( $pick, $more );
 	}
-	$pick  = array_slice( $pick, 0, 6 );
+	$pick  = array_slice( $pick, 0, 4 ); // one full row on desktop, two on a phone; the catalog has the rest
 	$photo = ym_hero_media();
 	$sku   = (string) get_option( 'ym_hero_sku' );
 	$focus = $photo || '' !== ym_hero_product_problem( $sku ) ? null : YM_Offers::primary( wc_get_product( wc_get_product_id_by_sku( $sku ) ) );
-	$cats  = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
+	$cats  = YM_Catalog::eligible_categories();
 	$steps = array_filter( explode( '|', ym_t( 'home_steps' ) ) );
 	ob_start();
 	?>
@@ -229,16 +229,16 @@ add_shortcode( 'ym_home', function () {
 				</a>
 			<?php endif; ?>
 		</section>
-		<?php if ( ! is_wp_error( $cats ) && $cats ) : ?>
+		<?php if ( $cats ) : ?>
 		<section class="ym-band ym-cats" aria-labelledby="ym-cats-h">
 			<h2 id="ym-cats-h"><?php echo esc_html( ym_t( 'home_cats' ) ); ?></h2>
 			<ul class="ym-cats__list">
-				<?php foreach ( $cats as $t ) : ?><li><a href="<?php echo esc_url( get_term_link( $t ) ); ?>"><span><?php echo esc_html( $t->name ); ?></span> <small><?php echo esc_html( YM_Country::number( $t->count ) ); ?></small></a></li><?php endforeach; ?>
+				<?php foreach ( $cats as $t ) : ?><li><a href="<?php echo esc_url( get_term_link( $t ) ); ?>"><?php echo esc_html( $t->name ); ?></a></li><?php endforeach; ?>
 			</ul>
 		</section>
 		<?php endif; ?>
 		<section class="ym-shop">
-			<div class="ym-shop__head"><h2><?php echo esc_html( ym_t( 'home_pick' ) ); ?></h2><a class="ym-more" href="<?php echo esc_url( ym_shop_url() ); ?>"><?php echo esc_html( ym_t( 'see_all' ) ); ?></a></div>
+			<div class="ym-shop__head"><h2><?php echo esc_html( ym_t( 'home_pick' ) ); ?></h2></div>
 			<ul class="ym-grid">
 				<?php foreach ( $pick as $p ) { echo ym_card( $p ); } // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			</ul>
@@ -307,4 +307,10 @@ add_shortcode( 'ym_catalog', function () {
 	<?php if ( $focus ) : ?><script>document.getElementById('ym-s').focus();</script><?php endif; ?>
 	<?php
 	return preg_replace( '/\s*\n\s*/', ' ', ob_get_clean() );
+} );
+
+/** [ym_notfound]: a page that does not exist still offers a way on: search and the catalog. */
+add_shortcode( 'ym_notfound', function () {
+	return '<div class="ym-empty ym-notfound"><h1>' . esc_html( ym_t( 'notfound_title' ) ) . '</h1><p>' . esc_html( ym_t( 'notfound_help' ) ) . '</p>'
+		. ym_search_form() . '<a class="ym-btn ym-btn--secondary" href="' . esc_url( ym_shop_url() ) . '">' . esc_html( ym_t( 'see_all' ) ) . '</a></div>';
 } );

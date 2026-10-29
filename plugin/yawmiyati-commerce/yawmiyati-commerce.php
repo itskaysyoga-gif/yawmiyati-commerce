@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'YM_VERSION', '0.5.0' );
+define( 'YM_VERSION', '0.5.1' );
 define( 'YM_POLICY_VERSION', '2026-10-28' );
 define( 'YM_DIR', __DIR__ );
 define( 'YM_URL', plugin_dir_url( __FILE__ ) );

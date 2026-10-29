@@ -263,7 +263,7 @@ final class YM_Offers {
 					<?php if ( count( $images ) > 1 ) : ?>
 						<div class="ym-gallery__thumbs">
 							<?php foreach ( $images as $i => $img ) : ?>
-								<button type="button" class="ym-thumb" data-ym-thumb="<?php echo esc_url( wp_get_attachment_image_url( $img, 'large' ) ); ?>" data-ym-srcset="<?php echo esc_attr( (string) wp_get_attachment_image_srcset( $img, 'large' ) ); ?>" aria-pressed="<?php echo 0 === $i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( ( $i + 1 ) . ' / ' . count( $images ) ); ?>">
+								<button type="button" class="ym-thumb" data-ym-thumb="<?php echo esc_url( wp_get_attachment_image_url( $img, 'large' ) ); ?>" data-ym-srcset="<?php echo esc_attr( (string) wp_get_attachment_image_srcset( $img, 'large' ) ); ?>" aria-pressed="<?php echo 0 === $i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( sprintf( YM_Country::copy( 'gallery_n' ), $i + 1, count( $images ) ) ); ?>">
 									<?php echo wp_get_attachment_image( $img, 'thumbnail', false, array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); ?>
 								</button>
 							<?php endforeach; ?>

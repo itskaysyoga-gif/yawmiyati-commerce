@@ -28,7 +28,7 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 18 | `name_err` | checkout form | من فضلك اكتبي الاسم الأول واسم العيلة. | ok | |
 | 19 | `phone_label` | checkout form | رقم الموبايل | ok | |
 | 20 | `phone_err` | checkout form | من فضلك اكتبي رقم موبايل مصري من 11 رقم، بيبدأ بـ 010 أو 011 أو 012 أو 015. | revise | |
-| 21 | `phone2` | checkout form | رقم موبايل تاني (اختياري) | question | |
+| 21 | `phone2` | checkout form | رقم موبايل تاني | question | |
 | 22 | `phone2_help` | checkout form | لو رقمك الأول مقفول، ممكن المكالمة تيجي على الرقم ده. | revise | |
 | 23 | `phone2_err` | checkout form | الرقم التاني:  | ok | |
 | 24 | `gov_label` | checkout form | المحافظة | ok | |
@@ -56,7 +56,7 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 46 | `total_range` | prices and totals | الإجمالي مع التوصيل من %1$s لـ %2$s حسب المحافظة | ok | |
 | 47 | `pay_total` | prices and totals | المطلوب وقت الاستلام | ok | |
 | 48 | `thanks_steps` | policy line | هيوصلك اتصال لتأكيد الطلب والعنوان، ومفيش حاجة بتتشحن قبل التأكيد¦بعد التأكيد بنجهّز الشحنة ونبعتها¦الدفع كاش للمندوب وقت الاستلام، مش قبل كده | ok | |
-| 49 | `email_label` | checkout form | الإيميل (اختياري، لو عايزة إيصال الطلب) | ok | |
+| 49 | `email_label` | checkout form | الإيميل، لو عايزة إيصال الطلب | ok | |
 | 50 | `email_err` | checkout form | من فضلك اكتبي إيميل صحيح أو سيبي الخانة فاضية. | revise | |
 | 51 | `subtotal_label` | prices and totals | مجموع المنتجات | ok | |
 | 52 | `delivery_after_gov` | prices and totals | التوصيل بيتحسب لما تختاري المحافظة | ok | |
@@ -119,10 +119,15 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 53 | `product.EG030401GB99.spec1.label` | product | المقاس | ok | |
 | 54 | `product.EG030401GB99.spec2.label` | product | الخامة | ok | |
 | 55 | `product.EG030401GB99.spec3.label` | product | الغسيل | ok | |
-| 56 | `cart_totals` | other | ملخص السلة | ok | |
-| 57 | `to_checkout` | other | إكمال الطلب | ok | |
-| 58 | `fix_these` | other | راجعي النقاط دي قبل ما تبعتي الطلب: | ok | |
-| 59 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
+| 56 | `phone2_add` | other | + إضافة رقم موبايل تاني | - | |
+| 57 | `cart_totals` | other | ملخص السلة | ok | |
+| 58 | `to_checkout` | other | إكمال الطلب | ok | |
+| 59 | `fix_these` | other | راجعي النقاط دي قبل ما تبعتي الطلب: | ok | |
+| 60 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
+| 61 | `cart_empty` | other | سلتك فاضية دلوقتي. | - | |
+| 62 | `notfound_title` | other | الصفحة دي مش موجودة | - | |
+| 63 | `notfound_help` | other | يمكن الرابط اتغيّر. جرّبي البحث أو شوفي كل المنتجات. | - | |
+| 64 | `gallery_n` | other | صورة %1$d من %2$d | - | |
 
 ## Priority 2b: buttons, navigation, search (one glance)
 `buy_short`: اطلبي دلوقتي · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبك · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦رسوم التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: مصر · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والاسترجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: مفيش نتايج لـ "%s". · `no_products`: مفيش منتجات هنا دلوقتي. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: الكمية · `qty_less`: تقليل الكمية · `qty_more`: زيادة الكمية · `video_play`: تشغيل الفيديو · `review_rating`: تقييمك · `review_text`: رأيك · `review_name`: اسمك الأول (هيظهر مع رأيك) · `review_submit`: إرسال رأيك · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف

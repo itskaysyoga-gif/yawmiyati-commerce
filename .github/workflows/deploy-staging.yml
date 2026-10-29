@@ -1,0 +1,76 @@
+# Deploy one CI-green release to the STAGING stores (docs/STAGING.md). Never production.
+# Trigger: push a tag named staging-YYYYMMDD-N on a commit whose "tests" run succeeded (the build container cannot
+# dispatch workflows). Copies only the plugin and the theme (no dev helpers, no seed run, no secrets), then prints
+# `wp ym launch-check` for each store. Credentials are repository secrets in the "staging" environment; the job does
+# nothing until they exist.
+name: deploy-staging
+on:
+  push:
+    tags: ['staging-*']
+permissions: {}
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: staging
+    permissions:
+      contents: read
+      actions: read   # read the tests result of this commit
+    env:
+      HOST: ${{ secrets.STAGING_SSH_HOST }}
+      PORT: ${{ secrets.STAGING_SSH_PORT }}
+      USER_: ${{ secrets.STAGING_SSH_USER }}
+      ROOT: ${{ secrets.STAGING_ROOT }}          # e.g. www/staging.yawmiyati.shop/public_html (stores in eg/ and iq/)
+      STORES: ${{ vars.STAGING_STORES || 'eg iq' }}
+    steps:
+      - name: Credentials present?
+        id: creds
+        run: |
+          if [ -z "$HOST" ] || [ -z "$USER_" ] || [ -z "$ROOT" ]; then
+            echo "::notice::staging secrets not set yet (docs/STAGING.md step 3): nothing deployed"; echo "ok=no" >> "$GITHUB_OUTPUT"
+          else echo "ok=yes" >> "$GITHUB_OUTPUT"; fi
+      - name: Only a commit whose tests passed
+        if: steps.creds.outputs.ok == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          c=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${GITHUB_SHA}&status=success&per_page=1" --jq '.total_count')
+          [ "$c" -ge 1 ] || { echo "::error::no successful tests run for ${GITHUB_SHA}: push to main and wait for green CI first"; exit 1; }
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        if: steps.creds.outputs.ok == 'yes'
+        with:
+          persist-credentials: false
+      - name: SSH key
+        if: steps.creds.outputs.ok == 'yes'
+        env:
+          KEY: ${{ secrets.STAGING_SSH_KEY }}
+          KNOWN: ${{ secrets.STAGING_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_staging && chmod 600 ~/.ssh/id_staging
+          printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts   # pinned host key: never trust on first use
+      - name: Copy plugin and theme to each store
+        if: steps.creds.outputs.ok == 'yes'
+        run: |
+          SSH="ssh -i ~/.ssh/id_staging -p ${PORT:-18765} -o StrictHostKeyChecking=yes"
+          for cc in $STORES; do
+            [[ "$cc" =~ ^(eg|iq|sa|ae|om)$ ]] || { echo "::error::bad store $cc"; exit 1; }
+            dest="$USER_@$HOST:$ROOT/$cc/wp-content"
+            rsync -az --delete -e "$SSH" plugin/yawmiyati-commerce/ "$dest/plugins/yawmiyati-commerce/"
+            rsync -az --delete -e "$SSH" theme/yawmiyati/ "$dest/themes/yawmiyati/"
+            echo "$cc: release ${GITHUB_REF_NAME} (${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
+          done
+      - name: Launch check per store (report only)
+        if: steps.creds.outputs.ok == 'yes'
+        run: |
+          SSH="ssh -i ~/.ssh/id_staging -p ${PORT:-18765} -o StrictHostKeyChecking=yes $USER_@$HOST"
+          for cc in $STORES; do
+            echo "### $cc" >> "$GITHUB_STEP_SUMMARY"
+            $SSH "cd $ROOT/$cc && wp cache flush --quiet; wp option update ym_release '${GITHUB_REF_NAME}' --quiet; wp ym launch-check" >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          done
+      - name: Remove the key
+        if: always()
+        run: rm -f ~/.ssh/id_staging

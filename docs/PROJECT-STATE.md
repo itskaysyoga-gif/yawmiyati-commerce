@@ -1,6 +1,7 @@
 # Project state
 
-_Last updated: 2026-10-29 (language and storefront round, see docs/reports/2026-10-29-language-storefront.md)_
+_Last updated: 2026-10-29 evening (visual polish pass and staging preparation, see docs/reports/2026-10-29-polish-staging.md;
+before that the language and storefront round, docs/reports/2026-10-29-language-storefront.md)_
 
 Status words used everywhere in this repo (also in docs/LAUNCH-CHECKLIST.md):
 - **Implemented**: code in this repo runs on the local stores.
@@ -16,8 +17,12 @@ Repository: still **public** (launch checklist #1).
 - **Development complete: yes** for everything buildable without accounts, all five countries, including this
   round's review (API budget, workflows, language foundations, checkout, email and consent reliability, hero).
   Final commit and CI run: recorded in the Project handoff (`claude/session-handoff-2026-10-28.md`). Tests on that tree,
-  run locally: **115 end-to-end** (the WebKit/iPhone test only in CI), **777 in-store checks** (EG 164, IQ 165, SA 151, AE 145, OM 152) and
-  **17 studio and API-ledger checks**. Up from 106 / 772 / 10 at the start of the round (e10abdf).
+  run locally: **116 end-to-end** (the WebKit/iPhone test only in CI), **777 in-store checks** (EG 164, IQ 165, SA 151, AE 145, OM 152) and
+  **17 studio and API-ledger checks**. Up from 106 / 772 / 10 on 29 Oct morning (e10abdf).
+- **Design: approved** (Rashid, 29 Oct evening: warm berry/ivory/blush/sage). One bounded polish pass done; what still
+  needs assets is in docs/PHOTOGRAPHY.md (home photo per country, all twelve product photos).
+- **Next phase: staging** (docs/STAGING.md): hosting, the Taager plugin on Egypt then Iraq staging, real test orders
+  E1-E9 / I1-I9. Deployment by `staging-*` tag (deploy-staging workflow, idle until the secrets exist).
 - **Email: dormant at launch** (Rashid, 29 Oct): phone-only stores; the hardened email code stays off.
 - **Language: AI-reviewed, not native-reviewed.** Every owned string is in the copy ledger (docs/language/); 15 AI
   critique batches, all items resolved; native review packages ready (O8).

@@ -27,7 +27,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 17 | `name_err` | checkout form | رجاءً اكتبي الاسم الأول واسم العائلة. | ok | |
 | 18 | `phone_label` | checkout form | رقم الموبايل | ok | |
 | 19 | `phone_err` | checkout form | رجاءً اكتبي رقم موبايل عراقي من 11 رقم يبدأ بـ 07. | revise | |
-| 20 | `phone2` | checkout form | رقم موبايل ثاني (اختياري) | ok | |
+| 20 | `phone2` | checkout form | رقم موبايل ثاني | ok | |
 | 21 | `phone2_help` | checkout form | إذا رقمج الأول مسدود، ممكن الاتصال يجي على هذا الرقم. | revise | |
 | 22 | `phone2_err` | checkout form | الرقم الثاني:  | ok | |
 | 23 | `gov_label` | checkout form | المحافظة | ok | |
@@ -44,7 +44,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 34 | `in_flight` | errors and states | طلبج دا يتسجل هسّه، انتظري ثواني رجاءً. | ok | |
 | 35 | `cart_saved` | errors and states | باقي أغراض سلتج محفوظة، وترجع للسلة بعد الطلب. | ok | |
 | 36 | `home_trust` | policy line | الدفع عند الاستلام¦التوصيل لكل المحافظات¦تأكيد بالتلفون قبل الشحن | question | |
-| 37 | `privacy_note` | policy line | نستخدم معلوماتج حتى نتأكد من طلبج ونوصّله ونتابع وياج إذا صارت مشكلة، وحتى نحمي المتجر من الطلبات الوهمية. الرسائل التسويقية بس إذا وافقتي عليها. التفاصيل بـ [privacy_policy]. | ok | |
+| 37 | `privacy_note` | policy line | نستخدم معلوماتج حتى نتأكد من طلبج ونوصّله ونتابع وياج إذا صارت مشكلة، وحتى نحمي المتجر من الطلبات الوهمية. الرسائل التسويقية بس إذا وافقتي عليها. التفاصيل في [privacy_policy]. | ok | |
 | 38 | `market_closed` | policy line | الطلب من يومياتي بالعراق بعده مو متاح. | question | |
 | 39 | `try_again` | errors and states | صارت مشكلة بإرسال الطلب. حدّثي الصفحة وجرّبي مرة ثانية. | ok | |
 | 40 | `rate_limited` | errors and states | صارت محاولات هواية بوقت قصير. رجاءً انتظري كم دقيقة وجرّبي مرة ثانية. | revise | |
@@ -55,7 +55,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 45 | `total_range` | prices and totals | المجموع ويا التوصيل من %1$s إلى %2$s حسب المحافظة | ok | |
 | 46 | `pay_total` | prices and totals | المطلوب وقت الاستلام | ok | |
 | 47 | `thanks_steps` | policy line | راح يوصلج اتصال حتى نتأكد من الطلب والعنوان، وما ينشحن شي قبل التأكيد¦بعد التأكيد نجهّز الشحنة وندزّها¦الدفع كاش للمندوب وقت الاستلام، مو قبل | ok | |
-| 48 | `email_label` | checkout form | الإيميل (اختياري، إذا تريدين وصل الطلب) | ok | |
+| 48 | `email_label` | checkout form | الإيميل، إذا تريدين وصل الطلب | ok | |
 | 49 | `email_err` | checkout form | رجاءً اكتبي إيميل صحيح أو خلّي الخانة فارغة. | revise | |
 | 50 | `subtotal_label` | prices and totals | مجموع المنتجات | ok | |
 | 51 | `delivery_after_gov` | prices and totals | أجور التوصيل تنحسب من تختارين المحافظة | ok | |
@@ -101,7 +101,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 36 | `product.IQ030403SENK99.spec4.label` | product | التركيب | ok | |
 | 37 | `product.IQ030501SDMN99.name` | product | رف فوق السنك + طقم دواسات قطعتين | ok | |
 | 38 | `product.IQ030501SDMN99.label` | product | الرف + طقم دواسات قطعتين | ok | |
-| 39 | `product.IQ030501SDMN99.note` | product | الرف والدواسات بطلب واحد وأجور توصيل وحدة | ok | |
+| 39 | `product.IQ030501SDMN99.note` | product | المجموع مع التوصيل 65,000 د.ع | ok | |
 | 40 | `product.IQ030501SDMN99.saving` | product | توفرين 3,000 د.ع عن الرف والدواسات منفصلين | ok | |
 | 41 | `product.IQ030106MATT99.name` | product | طقم دواسات قطعتين | ok | |
 | 42 | `product.IQ030106MATT99.benefit` | product | قطعتين، وحدة للمطبخ ووحدة للحمام. | ok | |
@@ -124,10 +124,15 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 59 | `product.IQ030104STAN99.benefit` | product | ستاند بماسورتين ورف تحت. | ok | |
 | 60 | `product.IQ030104STAN99.spec1.label` | product | الارتفاع والعرض | ok | |
 | 61 | `product.IQ030104STAN99.spec2.label` | product | الخامة | ok | |
-| 62 | `cart_totals` | other | ملخص السلة | ok | |
-| 63 | `to_checkout` | other | إكمال الطلب | ok | |
-| 64 | `fix_these` | other | راجعي هالنقاط قبل لا تدزين الطلب: | ok | |
-| 65 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
+| 62 | `phone2_add` | other | + إضافة رقم موبايل ثاني | - | |
+| 63 | `cart_totals` | other | ملخص السلة | ok | |
+| 64 | `to_checkout` | other | إكمال الطلب | ok | |
+| 65 | `fix_these` | other | راجعي هالنقاط قبل لا تدزين الطلب: | ok | |
+| 66 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
+| 67 | `cart_empty` | other | سلتج فارغة هسّه. | - | |
+| 68 | `notfound_title` | other | هالصفحة مو موجودة | - | |
+| 69 | `notfound_help` | other | يمكن الرابط تغيّر. جرّبي البحث أو شوفي كل المنتجات. | - | |
+| 70 | `gallery_n` | other | صورة %1$d من %2$d | - | |
 
 ## Priority 2b: buttons, navigation, search (one glance)
 `buy_short`: اطلبي هسّه · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبج · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦أجور التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: العراق · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والإرجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: ما لكينا نتائج لـ "%s". · `no_products`: ماكو منتجات هنا هسّه. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: العدد · `qty_less`: تقليل العدد · `qty_more`: زيادة العدد · `video_play`: تشغيل الفيديو · `review_rating`: تقييمج · `review_text`: رأيج · `review_name`: اسمج الأول (يطلع ويا رأيج) · `review_submit`: إرسال رأيج · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف

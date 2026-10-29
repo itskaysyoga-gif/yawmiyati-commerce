@@ -194,8 +194,15 @@ test('Checkout form: our fields in order, no coupon or notes, fee appears once a
   await page.goto(`${h.BASE.iq}/product/sink-rack/`);
   await Promise.all([page.waitForURL(/\/checkout\//), page.locator('button[value="buy"]').click()]);
   await page.waitForLoadState('networkidle');
-  const ids = await page.$$eval('.woocommerce-billing-fields .form-row:not(.ym-hidden)', (els) => els.map((e) => e.id));
+  const ids = await page.$$eval('.woocommerce-billing-fields .form-row:not(.ym-hidden):not(.ym-phone2-add)', (els) => els.map((e) => e.id));
   assert.deepEqual(ids, ['billing_first_name_field', 'billing_phone_field', 'ym_phone2_field', 'billing_state_field', 'billing_address_1_field', 'billing_address_2_field', 'ym_landmark_field']);
+  // The second phone opens on request, right where it belongs, and says "optional" once.
+  assert.equal(await page.locator('#ym_phone2').isVisible(), false);
+  await page.locator('[data-ym-phone2-add]').click();
+  assert.equal(await page.locator('#ym_phone2').isVisible(), true);
+  assert.equal(await page.locator('[data-ym-phone2-add]').isVisible(), false);
+  assert.equal(((await page.locator('label[for="ym_phone2"]').innerText()).match(/اختياري/g) || []).length, 1);
+  assert.match(await page.locator('[data-ym-call-note]').innerText(), /اتصال/, 'the phone confirmation is said next to the button');
   assert.equal(await page.locator('.woocommerce-form-coupon-toggle, #order_comments').count(), 0);
   assert.match(await page.locator('.woocommerce-shipping-totals td').innerText(), /اختاري المحافظة/);
   await page.evaluate(() => jQuery('#billing_state').val('BA').trigger('change'));

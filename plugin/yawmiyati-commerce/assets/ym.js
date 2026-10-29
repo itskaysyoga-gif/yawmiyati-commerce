@@ -74,14 +74,21 @@
   }
   sync();
 
-  // Sticky order bar: shown only while the main order button is off screen, so it never covers the form itself.
+  // Sticky order bar: shown only while no part of the order form (offers, quantity, buttons) is on screen, so it never
+  // covers the form itself.
   var sticky = pdp.querySelector('[data-ym-sticky]');
   var mainBuy = form && form.querySelector('button[value="buy"]');
   if (sticky && mainBuy) {
     sticky.querySelector('[data-ym-sticky-buy]').addEventListener('click', function () { mainBuy.click(); });
     if ('IntersectionObserver' in window) {
       sticky.hidden = true;
-      new IntersectionObserver(function (entries) { sticky.hidden = entries[0].isIntersecting; }).observe(mainBuy);
+      var seen = new Map();
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { seen.set(e.target, e.isIntersecting); });
+        var any = false;
+        seen.forEach(function (v) { any = any || v; });
+        sticky.hidden = any;
+      }).observe(form);
     }
   }
 })();
