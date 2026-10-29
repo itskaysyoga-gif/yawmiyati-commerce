@@ -1,0 +1,32 @@
+# Content Studio: draft creative briefs with the Anthropic API from approved-facts snapshots.
+# Runs when a branch named studio-run/<anything> is pushed (Actions cannot be dispatched from the build container).
+# Uses the ANTHROPIC_API_KEY repository secret; studio/spend.json caps total spend (YM_STUDIO_BUDGET_USD, default 40)
+# and each run (3 USD), priced with rates set above list price. Results are committed back to the same branch as
+# drafts; nothing is published by this workflow.
+name: studio-scripts
+on:
+  push:
+    branches: ['studio-run/**']
+permissions:
+  contents: write
+jobs:
+  briefs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Draft briefs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node studio/brief.mjs $(cat studio/requests/current.txt)
+      - name: Commit drafts to this branch
+        run: |
+          git config user.name "studio bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add studio/briefs studio/spend.json
+          git commit -m "Studio briefs (run ${{ github.run_id }}): drafts, dialect review pending" || echo "nothing new"
+          git push origin HEAD:${{ github.ref_name }}
+          cat studio/spend.json | tail -20 >> "$GITHUB_STEP_SUMMARY"

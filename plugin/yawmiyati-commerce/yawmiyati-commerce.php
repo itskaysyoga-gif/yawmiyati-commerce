@@ -38,6 +38,7 @@ require_once YM_DIR . '/includes/class-ym-seo.php';
 require_once YM_DIR . '/includes/class-ym-offers.php';
 require_once YM_DIR . '/includes/class-ym-reco.php';
 require_once YM_DIR . '/includes/class-ym-mail.php';
+require_once YM_DIR . '/includes/class-ym-studio.php';
 require_once YM_DIR . '/includes/class-ym-checkout.php';
 require_once YM_DIR . '/includes/class-ym-orders.php';
 require_once YM_DIR . '/includes/class-ym-risk.php';
@@ -60,6 +61,7 @@ add_action( 'plugins_loaded', function () {
 	YM_Offers::init();
 	YM_Reco::init();
 	YM_Mail::init();
+	YM_Studio::init();
 	YM_Checkout::init();
 	YM_Orders::init();
 	YM_Risk::init();

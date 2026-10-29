@@ -1,0 +1,140 @@
+{
+    "country": "EG",
+    "country_name": "مصر",
+    "voice": "eg",
+    "currency": "EGP",
+    "symbol": "ج.م",
+    "decimals": 0,
+    "sku": "EG030106MKKT99",
+    "name": "طقم موكيت فائق الامتصاص",
+    "price": 399,
+    "price_text": "399 ج.م",
+    "offers": [
+        {
+            "sku": "EG030106MKKT99",
+            "label": "طقم واحد",
+            "note": "قطعتين: طويلة + صغيرة",
+            "price": 399,
+            "in_stock": true,
+            "default": true
+        },
+        {
+            "sku": "EG030108BUND99",
+            "label": "طقمين",
+            "note": "4 قطع، للمطبخ والحمام",
+            "price": 749,
+            "in_stock": true,
+            "default": false
+        }
+    ],
+    "delivery": {
+        "min": 95,
+        "max": 105,
+        "text": "التوصيل من 95 لـ 105 ج.م حسب المحافظة",
+        "one_fee": "رسوم التوصيل بتتحسب مرة واحدة على الطلب كله، مهما كان عدد المنتجات.",
+        "payment": "الدفع كاش للمندوب وقت الاستلام. بعد الدفع تقدري تفتحي الشحنة، والفاتورة هتلاقيها جوّاها."
+    },
+    "benefit": "قطعتين في الطقم: واحدة طويلة وواحدة صغيرة. بيشرب المية بدل ما تفضل على الأرض.",
+    "benefits": [
+        {
+            "title": "بتشرب المية بسرعة.",
+            "text": "سطح فائق الامتصاص حسب مواصفات المورد."
+        },
+        {
+            "title": "مقاسين في طقم واحد.",
+            "text": "طويلة للمطبخ أو الحوض، وصغيرة للحمام أو الغسالة."
+        },
+        {
+            "title": "لون هادي.",
+            "text": "رمادي بخطوط فاتحة، زي الصورة."
+        }
+    ],
+    "fit": "قيسي المساحة قدّام الحوض أو باب الحمام وقارنيها بمقاس القطعتين. لو المكان أضيق، الصغيرة تنفع لوحدها قدّام الغسالة.",
+    "diary": "الطويلة قدّام الحوض والصغيرة على باب الحمام، كده أول خطوة بعد المية تكون على حاجة بتشرب.",
+    "specs": [
+        {
+            "label": "في الطقم",
+            "value": "قطعتين"
+        },
+        {
+            "label": "المقاسات",
+            "value": null
+        },
+        {
+            "label": "الخامة",
+            "value": null
+        },
+        {
+            "label": "الغسيل",
+            "value": null
+        }
+    ],
+    "media": [
+        {
+            "id": 18,
+            "url": "http://localhost:8081/wp-content/uploads/2026/10/eg-mats-1.jpg",
+            "file": "eg-mats-1.jpg",
+            "alt": "القطعتين جنب بعض",
+            "role": "",
+            "final": false,
+            "source": "Taager listing thumbnail (600 px), captured 2026-10-28, cropped to remove ad text: media/interim/eg-mats-1.jpg",
+            "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)",
+            "channels": [],
+            "approved": "",
+            "expires": "",
+            "organic": false,
+            "paid": false,
+            "card": {
+                "mode": "photo-whole",
+                "weak": false
+            }
+        },
+        {
+            "id": 19,
+            "url": "http://localhost:8081/wp-content/uploads/2026/10/eg-mats-2.jpg",
+            "file": "eg-mats-2.jpg",
+            "alt": "القطعة الصغيرة عن قرب",
+            "role": "",
+            "final": false,
+            "source": "Taager listing thumbnail (600 px), captured 2026-10-28, cropped to remove ad text: media/interim/eg-mats-2.jpg",
+            "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)",
+            "channels": [],
+            "approved": "",
+            "expires": "",
+            "organic": false,
+            "paid": false,
+            "card": {
+                "mode": "photo-whole",
+                "weak": true
+            }
+        }
+    ],
+    "in_stock": true,
+    "stock_checked": null,
+    "stock_fresh": false,
+    "gate_blockers": [
+        "check_identity",
+        "check_specs",
+        "check_media",
+        "check_price",
+        "spec_missing",
+        "media_resolution",
+        "media_original",
+        "media_rejected",
+        "media_interim",
+        "media_unmatched",
+        "media_partial",
+        "media_count",
+        "media_coverage",
+        "stock_unverified"
+    ],
+    "market": {
+        "catalog": false,
+        "checkout": false,
+        "ads": false
+    },
+    "landing_url": "http://localhost:8081/product/absorbent-mats/",
+    "environment": "local",
+    "exported_at": "2026-10-29T06:58:44+00:00",
+    "offer_version": "f356eab73227"
+}

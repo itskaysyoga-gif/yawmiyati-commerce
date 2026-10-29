@@ -929,4 +929,20 @@ class YM_CLI {
 		$rows = YM_Reco::report( time() - DAY_IN_SECONDS * max( 1, (int) ( $assoc['days'] ?? 60 ) ) );
 		WP_CLI::log( wp_json_encode( $rows ? $rows : new stdClass(), JSON_PRETTY_PRINT ) );
 	}
+
+	/**
+	 * Approved facts for the Content Studio, as JSON (the same export the publisher re-reads before posting).
+	 *
+	 * <sku>
+	 * : The offer's SKU (any offer of the page).
+	 *
+	 * @subcommand studio-facts
+	 */
+	public function studio_facts( $args ) {
+		$f = YM_Studio::facts( (string) $args[0] );
+		if ( ! $f ) {
+			WP_CLI::error( 'Unknown SKU' );
+		}
+		WP_CLI::line( wp_json_encode( $f, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
+	}
 }

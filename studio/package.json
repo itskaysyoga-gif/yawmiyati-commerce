@@ -1,0 +1,19 @@
+{
+  "name": "yawmiyati-studio",
+  "private": true,
+  "description": "Yawmiyati Content Studio: approved catalog facts -> scripts -> rendered videos and stills -> approval -> publishing records. Separate from the store; never runs on the WooCommerce host.",
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs",
+    "qa": "node qa.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.539",
+    "@remotion/cli": "4.0.539",
+    "@remotion/renderer": "4.0.539",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.539"
+  }
+}

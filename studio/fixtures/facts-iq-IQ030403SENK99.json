@@ -1,0 +1,127 @@
+{
+    "country": "IQ",
+    "country_name": "العراق",
+    "voice": "iq",
+    "currency": "IQD",
+    "symbol": "د.ع",
+    "decimals": 0,
+    "sku": "IQ030403SENK99",
+    "name": "رف فوق السنك",
+    "price": 43000,
+    "price_text": "43,000 د.ع",
+    "offers": [
+        {
+            "sku": "IQ030403SENK99",
+            "label": "الرف لوحده",
+            "note": "المجموع مع التوصيل 50,000 د.ع",
+            "price": 43000,
+            "in_stock": true,
+            "default": true
+        },
+        {
+            "sku": "IQ030501SDMN99",
+            "label": "الرف + طقم موكيت قطعتين",
+            "note": "المجموع مع التوصيل 65,000 د.ع",
+            "price": 58000,
+            "in_stock": true,
+            "default": false
+        }
+    ],
+    "delivery": {
+        "min": 7000,
+        "max": 7000,
+        "text": "التوصيل 7,000 د.ع لكل المحافظات",
+        "one_fee": "أجور التوصيل تنحسب مرة وحدة على الطلب كله، مهما كان عدد المنتجات.",
+        "payment": "الدفع كاش للمندوب وقت الاستلام. بعد الدفع تكدرين تفتحين الكرتونة، والفاتورة داخلها."
+    },
+    "benefit": "الصحون تنشف فوق السنك، والكاونتر يبقى فاضي للشغل.",
+    "benefits": [],
+    "fit": "قيسي عرض السنك من الحافة للحافة، وتأكدي إنه أقل من الفتحة بين رجول الرف.",
+    "diary": "قبل لا تطلبين، قيسي عرض السنك مالتج من الحافة للحافة وقارنيه بمقاس الرف.",
+    "specs": [
+        {
+            "label": "العرض المناسب للسنك",
+            "value": null
+        },
+        {
+            "label": "الخامة",
+            "value": null
+        },
+        {
+            "label": "محتويات الكرتونة",
+            "value": null
+        },
+        {
+            "label": "التركيب",
+            "value": null
+        }
+    ],
+    "media": [
+        {
+            "id": 18,
+            "url": "http://localhost:8082/wp-content/uploads/2026/10/iq-sink-rack-1.jpg",
+            "file": "iq-sink-rack-1.jpg",
+            "alt": "الرف فوق السنك",
+            "role": "",
+            "final": false,
+            "source": "Taager listing thumbnail (600 px), captured 2026-10-28, cropped to remove ad text: media/interim/iq-sink-rack-1.jpg",
+            "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)",
+            "channels": [],
+            "approved": "",
+            "expires": "",
+            "organic": false,
+            "paid": false,
+            "card": {
+                "mode": "photo-whole",
+                "weak": false
+            }
+        },
+        {
+            "id": 19,
+            "url": "http://localhost:8082/wp-content/uploads/2026/10/iq-sink-rack-2.jpg",
+            "file": "iq-sink-rack-2.jpg",
+            "alt": "الطابق التحتاني وحامل الأدوات",
+            "role": "",
+            "final": false,
+            "source": "Taager listing thumbnail (600 px), captured 2026-10-28, cropped to remove ad text: media/interim/iq-sink-rack-2.jpg",
+            "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)",
+            "channels": [],
+            "approved": "",
+            "expires": "",
+            "organic": false,
+            "paid": false,
+            "card": {
+                "mode": "photo-whole",
+                "weak": false
+            }
+        }
+    ],
+    "in_stock": true,
+    "stock_checked": null,
+    "stock_fresh": false,
+    "gate_blockers": [
+        "check_identity",
+        "check_specs",
+        "check_media",
+        "check_price",
+        "spec_missing",
+        "media_resolution",
+        "media_original",
+        "media_rejected",
+        "media_interim",
+        "media_unmatched",
+        "media_partial",
+        "media_count",
+        "media_coverage",
+        "stock_unverified"
+    ],
+    "market": {
+        "catalog": false,
+        "checkout": false,
+        "ads": false
+    },
+    "landing_url": "http://localhost:8082/product/sink-rack/",
+    "environment": "local",
+    "exported_at": "2026-10-29T06:58:45+00:00",
+    "offer_version": "c2497d24a12e"
+}
