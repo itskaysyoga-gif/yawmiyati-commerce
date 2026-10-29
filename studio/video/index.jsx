@@ -20,7 +20,7 @@ const OFFER = 150; // 5 s
 export const reelFrames = (p) => HOOK + BEAT * p.angle.beats.length + OFFER;
 
 const Base = ({ children, w }) => (
-  <AbsoluteFill style={{ background: C.ivory, direction: 'rtl', fontFamily: FONT, color: C.ink }}>
+  <AbsoluteFill lang="ar" dir="rtl" style={{ background: C.ivory, direction: 'rtl', fontFamily: FONT, color: C.ink }}>
     {children}
   </AbsoluteFill>
 );

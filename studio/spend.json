@@ -1,0 +1,33 @@
+{
+ "cap_usd": 40,
+ "rates_usd_per_mtok": {
+  "in": 5,
+  "out": 25
+ },
+ "calls": [
+  {
+   "at": "2026-10-29T07:12:27.063Z",
+   "model": "claude-sonnet-5-5",
+   "purpose": "brief EG EG030106MKKT99",
+   "input_tokens": 3033,
+   "output_tokens": 3000,
+   "usd": 0.0902
+  },
+  {
+   "at": "2026-10-29T07:12:46.983Z",
+   "model": "claude-sonnet-5-5",
+   "purpose": "brief EG EG030106MKKT99",
+   "input_tokens": 3056,
+   "output_tokens": 3000,
+   "usd": 0.0903
+  },
+  {
+   "at": "2026-10-29T07:13:01.903Z",
+   "model": "claude-sonnet-5-5",
+   "purpose": "brief IQ IQ030403SENK99",
+   "input_tokens": 2599,
+   "output_tokens": 2292,
+   "usd": 0.0703
+  }
+ ]
+}

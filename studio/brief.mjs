@@ -30,7 +30,7 @@ function system(f) {
     '- No superlatives ("best", "number one"), no medical or cleaning-germ claims, no "trend".',
     `- The call to action names the country (${f.country_name}) and points to the website order; the website is the only way to order.`,
     'Answer by calling the write_brief tool once.',
-    `Angles: "problem" = the everyday problem, the product in use, the result; "fit" = how to check it fits her space before ordering (from the fit fact; tell her to compare with the measurements on the product page, never state a measurement); "offer" = which offer to choose (labels only, no prices).`,
+    `Angles: "problem" = the everyday problem, the product in use, the result; "fit" = how to check it suits her space before ordering: when the size specs are known, tell her to compare with the measurements on the product page (never state one); when they are unknown (listed in unknown_specs), do NOT mention measurements or sizes at all and explain only where each piece goes, from the diary and fit facts; "offer" = which offer to choose (labels only, no prices).`,
     'Lengths: hook <= 46 characters, beat <= 52, cta <= 34, thumbnail <= 30, carousel slide <= 60, caption <= 600 (caption may say the price and delivery are on the page; no numbers).',
     '',
     'VOICE GUIDE:',
@@ -48,7 +48,7 @@ async function call(f, extra) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: system(f), tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
+    body: JSON.stringify({ model: MODEL, max_tokens: 4500, system: system(f), tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
   });
   const body = await res.json();
   if (!res.ok) throw new Error(`API ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
