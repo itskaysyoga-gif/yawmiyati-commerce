@@ -464,12 +464,14 @@
    "purpose": "language critique sa 04-email-consent",
    "model": "claude-opus-5-5",
    "run": "40864152435",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 18209,
    "max_output_tokens": 8000,
    "reserved_usd": 0.349254,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.110388,
+   "usd_list": 0.073592,
+   "input_tokens": 6428,
+   "output_tokens": 2394
   }
  ]
 }
