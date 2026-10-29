@@ -124,7 +124,7 @@ export class GitStore {
     // Another process in the same checkout may hold a git lock (shallow.lock, index.lock): wait and retry.
     for (let i = 0; ; i++) {
       try { return this.gitOnce(args, input); } catch (e) {
-        if (i < 40 && /\.lock': File exists|Unable to create .*\.lock|shallow file has changed/.test(String(e.stderr || ''))) { const until = Date.now() + 25 + Math.random() * 75; while (Date.now() < until) { /* short spin */ } continue; }
+        if (i < 40 && /\.lock': File exists|Unable to create .*\.lock|shallow file has changed|cannot lock ref/.test(String(e.stderr || ''))) { const until = Date.now() + 25 + Math.random() * 75; while (Date.now() < until) { /* short spin */ } continue; }
         throw e;
       }
     }
@@ -135,7 +135,7 @@ export class GitStore {
   fetchBase() {
     // A ref of our own per read: several processes may share one checkout.
     const local = `refs/ym-ledger/${process.pid}-${crypto.randomBytes(4).toString('hex')}`;
-    try { this.git(['fetch', '--quiet', '--no-tags', '--depth=1', this.remote, `+refs/heads/${this.branch}:${local}`]); } catch (e) {
+    try { this.git(['fetch', '--quiet', '--no-tags', '--no-write-fetch-head', '--refmap=', '--depth=1', this.remote, `+refs/heads/${this.branch}:${local}`]); } catch (e) {
       if (/couldn't find remote ref|not our ref|no such ref/i.test(String(e.stderr || e.message))) return { sha: '', data: null };
       throw e;
     }

@@ -14,7 +14,7 @@ concurrency:
 jobs:
   stores:
     runs-on: ubuntu-24.04
-    timeout-minutes: 55
+    timeout-minutes: 80   # five stores and ~115 browser tests; the 29 Oct round added about 10 minutes
     permissions:
       contents: read
     steps:

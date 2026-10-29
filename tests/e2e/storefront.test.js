@@ -203,7 +203,7 @@ test('Reviews: only after a verified delivery, through a signed link; held for m
   await page.fill('textarea[name="ym_text"]', 'الرف مرتب ومضبوط فوك السنك');
   await page.fill('input[name="ym_name"]', 'زينب');
   await Promise.all([page.waitForNavigation(), page.locator('.ym-review-form button[type="submit"]').click()]);
-  assert.match(await page.locator('main').innerText(), /بعد ما نراجعه/);
+  assert.match(await page.locator("main").innerText(), /نراجع رأيج قبل/);
   await page.goto(h.BASE.iq + '/product/sink-rack/');
   assert.doesNotMatch(await page.locator('body').innerText(), /مرتب ومضبوط/, 'not shown before approval');
   const pending = h.wp('iq', 'ym', 'reviews');

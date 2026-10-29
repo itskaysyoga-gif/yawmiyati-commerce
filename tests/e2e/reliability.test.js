@@ -17,17 +17,12 @@ const outbox = (cc) => JSON.parse(h.wpEval(cc, 'echo wp_json_encode( get_option(
 const contact = (email) => JSON.parse(h.wpEval('eg', `echo wp_json_encode( YM_Mail::contact( "${email}" ) );`));
 const logRows = (email) => JSON.parse(h.wpEval('eg', `global $wpdb; echo wp_json_encode( $wpdb->get_results( $wpdb->prepare( "SELECT kind, ref, state, marketing FROM \`ym_shared\`.\`ym_mail_log\` WHERE email_hash = %s ORDER BY id", "${sha(email)}" ), ARRAY_A ) );`));
 const sql = (q) => h.wpEval('eg', `global $wpdb; $wpdb->query( ${JSON.stringify(q)} );`);
+// One PHP call per store (each WP-CLI start costs about a second; in CI more).
 function mailOn(on) {
-  for (const cc of ['eg', 'iq', 'sa']) {
-    if (on) {
-      h.wp(cc, 'option', 'update', 'ym_email_flows', FLOWS, '--format=json');
-      h.wp(cc, 'option', 'update', 'ym_test_mail_capture', '1');
-      h.wp(cc, 'option', 'update', 'ym_test_webhook_key', 'hook-key-test');
-    } else {
-      for (const k of ['ym_email_flows', 'ym_test_mail_capture', 'ym_test_webhook_key', 'ym_test_mail_outcome']) h.wp(cc, 'option', 'delete', k);
-    }
-    h.wp(cc, 'option', 'delete', 'ym_test_mail_outbox');
-  }
+  const php = on
+    ? `update_option("ym_email_flows", json_decode('${FLOWS}', true)); update_option("ym_test_mail_capture", "1"); update_option("ym_test_webhook_key", "hook-key-test"); delete_option("ym_test_mail_outbox"); delete_option("ym_test_mail_outcome");`
+    : 'foreach (array("ym_email_flows","ym_test_mail_capture","ym_test_webhook_key","ym_test_mail_outcome","ym_test_mail_outbox","ym_test_cap_pause_ms") as $k) delete_option($k);';
+  for (const cc of ['eg', 'iq', 'sa']) h.wpEval(cc, php);
 }
 const subscribe = (email) => fetch(`${h.BASE.eg}/wp-json/ym/v1/subscribe`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-YM-Test-Ip': `10.9.${Math.floor(Math.random() * 250)}.${1 + Math.floor(Math.random() * 250)}` }, body: JSON.stringify({ email, consent: '1', source: 'footer' }) });
 const confirmLinks = (email) => outbox('eg').filter((m) => m.to === email && m.kind === 'confirm').map((m) => m.html.match(/href="([^"]*ym_confirm=[^"]+)"/)[1].replace(/&#038;|&amp;/g, '&'));
@@ -40,7 +35,7 @@ function subscribed(email) {
 }
 const sendMkt = (cc, email, kind, ref) => h.wpEval(cc, `echo YM_Mail::send_marketing( YM_Mail::contact("${email}"), "${kind}", "${ref}", "s", array("b") ) ? "sent" : "held";`);
 
-before(async () => { browser = await chromium.launch(); });
+before(async () => { browser = await chromium.launch(); mailOn(true); });
 after(async () => { mailOn(false); await browser.close(); });
 
 test('Checkout before a governorate: products subtotal with "delivery after choosing", never a payable total; after choosing, one total with the fee; no order without a governorate', async () => {
@@ -74,7 +69,6 @@ test('Checkout before a governorate: products subtotal with "delivery after choo
 });
 
 test('Confirmation links: opening changes nothing; only the button confirms, once; an old link never confirms a newer signup; complaints are not lifted by a form; per-address cooldown', async () => {
-  mailOn(true);
   const email = `link${Date.now()}@example.test`;
   assert.equal((await subscribe(email)).status, 200);
   const [link1] = confirmLinks(email);
@@ -109,7 +103,6 @@ test('Confirmation links: opening changes nothing; only the button confirms, onc
 });
 
 test('Send outcomes: a timeout is "unknown": kept, never resent automatically, counted against the cap; a refusal is "failed" and may be retried; a person resolves unknowns', async () => {
-  mailOn(true);
   const email = `outcome${Date.now()}@example.test`;
   subscribed(email);
   h.wp('eg', 'option', 'update', 'ym_test_mail_outcome', 'timeout');
@@ -132,11 +125,10 @@ test('Send outcomes: a timeout is "unknown": kept, never resent automatically, c
 });
 
 test('Weekly cap across stores under concurrency: six sends at the same moment from three stores, exactly one goes out', async () => {
-  mailOn(true);
   const email = `cap${Date.now()}@example.test`;
   subscribed(email);
   // Each sender pauses 1.5 s between reading the count and reserving, so without the row lock all six would pass.
-  for (const cc of ['eg', 'iq', 'sa']) h.wp(cc, 'option', 'update', 'ym_test_cap_pause_ms', '1500');
+  for (const cc of ['eg', 'iq', 'sa']) h.wpEval(cc, 'update_option("ym_test_cap_pause_ms", "1500");');
   const runs = ['eg', 'iq', 'sa', 'eg', 'iq', 'sa'].map((cc, i) => new Promise((resolve) => {
     const p = spawn(path.join(h.ROOT, 'dev/wp.sh'), [cc, 'eval', `echo YM_Mail::send_marketing( YM_Mail::contact("${email}"), "campaign", "c${i}", "s", array("b") ) ? "sent" : "held";`]);
     let out = '';
@@ -144,7 +136,7 @@ test('Weekly cap across stores under concurrency: six sends at the same moment f
     p.on('close', () => resolve(out.trim()));
   }));
   const res = await Promise.all(runs);
-  for (const cc of ['eg', 'iq', 'sa']) h.wp(cc, 'option', 'delete', 'ym_test_cap_pause_ms');
+  for (const cc of ['eg', 'iq', 'sa']) h.wpEval(cc, 'delete_option("ym_test_cap_pause_ms");');
   assert.equal(res.filter((r) => r === 'sent').length, 1, `results: ${res.join(',')}`);
   assert.equal(logRows(email).filter((r) => r.marketing === '1' && r.state !== 'failed').length, 1);
   // Suppression is read inside the same lock: once she unsubscribes, a stale "subscribed" record passed in sends nothing.
@@ -156,7 +148,6 @@ test('Weekly cap across stores under concurrency: six sends at the same moment f
 });
 
 test('Webhook half-failures: a suppression that cannot be saved answers 500 and is finished by the retry; a recorded-but-unapplied event is applied', async () => {
-  mailOn(true);
   const email = `hook${Date.now()}@example.test`;
   const post = (body) => fetch(`${h.BASE.iq}/wp-json/ym/v1/mail-events`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-YM-Key': 'hook-key-test' }, body: JSON.stringify(body) });
   const ev = { event: 'hard_bounce', email, 'message-id': '<h1@test>', ts_event: 1700000000 };

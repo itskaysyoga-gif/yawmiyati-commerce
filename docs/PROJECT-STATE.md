@@ -16,9 +16,10 @@ Repository: still **public** (launch checklist #1).
 - **Development complete: yes** for everything buildable without accounts, all five countries, including this
   round's review (API budget, workflows, language foundations, checkout, email and consent reliability, hero).
   Final commit and CI run: recorded in the Project handoff (`claude/session-handoff-2026-10-28.md`). Tests on that tree,
-  run locally: **@E2E@ end-to-end** (the WebKit/iPhone test only in CI), **@INT@ in-store checks** (@INTD@) and
-  **@STUDIO@ studio and API-ledger checks**. Up from 106 / 772 / 10 at the start of the round (e10abdf).
-- **Language: AI-reviewed, not native-reviewed.** Every owned string is in the copy ledger (docs/language/); 11 AI
+  run locally: **115 end-to-end** (the WebKit/iPhone test only in CI), **777 in-store checks** (EG 164, IQ 165, SA 151, AE 145, OM 152) and
+  **17 studio and API-ledger checks**. Up from 106 / 772 / 10 at the start of the round (e10abdf).
+- **Email: dormant at launch** (Rashid, 29 Oct): phone-only stores; the hardened email code stays off.
+- **Language: AI-reviewed, not native-reviewed.** Every owned string is in the copy ledger (docs/language/); 15 AI
   critique batches, all items resolved; native review packages ready (O8).
 - **Video: scheduled last.** The 29 Oct samples are technical, not approved for ads (docs/CONTENT-STUDIO.md).
 - **Staging verified: no.** Waits for hosting and the domain (O4), then the Taager plugin on staging.

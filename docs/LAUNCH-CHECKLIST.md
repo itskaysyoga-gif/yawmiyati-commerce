@@ -20,7 +20,7 @@ stock and operational tests pass. Saudi Arabia, UAE and Oman stay prepared and c
 | --- | --- | --- | --- | --- |
 | Shared API budget (ledger branch, reservations, CAS, envelopes) | yes | yes (file and git stores under concurrency; unknown/failed kept) | used by 3 real critique runs in CI | Rashid's 40 USD ceiling |
 | Workflow hardening (inputs, failing checks, pinned actions, permissions, concurrency) | yes | CI runs | — | — |
-| Copy revision EG, IQ, Gulf base; SA/AE/OM glossaries | yes | AI-critiqued (11 batches), all items resolved | — | **native review: no** (O8) |
+| Copy revision EG, IQ, Gulf base; SA/AE/OM glossaries | yes | AI-critiqued (15 batches), all items resolved | — | **native review: no** (O8) |
 | Checkout subtotal before governorate | yes | yes (regression) | — | — |
 | Email: send states, weekly cap under lock, single-use POST confirmations, webhook retries, address cooldowns | yes | yes (regressions; cap race proven) | **no** (Brevo O14) | — |
 | Consent: explicit stores, server events off, window reproduced | yes | yes | no (needs host, O10/O11) | Rashid decides server events at P1 (O21) |
@@ -55,7 +55,7 @@ twice for the same approval.
 | O11 | Measurement accounts | GTM, GA4, Meta dataset + CAPI token, Snap (or decide no Snap: then "سناب شات" leaves the consent labels) | IDs and tokens in the environment | Ads (P1 21-22) |
 | O12 | Meta publishing (scheduled last) | You own the Facebook and Instagram accounts; what is missing: Instagram professional account linked to the Yawmiyati Page; a private **test** IG account; a Meta app with instagram_content_publish and pages_manage_posts; a long-lived token in the studio's environment | `node studio/publish.mjs` token check passes; one test post published with its ID recorded | Organic publishing (P3 34-36) |
 | O13 | Studio facts key + upload user | YM_STUDIO_KEY on every store; a WordPress user that can only upload media, with an application password, for the publisher | Publisher preflight reads facts; upload works | Organic publishing |
-| O14 | Brevo | Brevo account; authenticate the sending domain (SPF, DKIM, DMARC); a monitored reply address; one list per country | Brevo shows the domain authenticated; test mail lands in Gmail and Outlook | Email flows (P3 30-33) |
+| O14 | Brevo (deferred: email dormant at launch, DECISIONS 29 Oct) | Brevo account; authenticate the sending domain (SPF, DKIM, DMARC); a monitored reply address; one list per country | Brevo shows the domain authenticated; test mail lands in Gmail and Outlook | Email flows (P3 30-33) |
 | O15 | Music | Choose a track licensed for paid social use, or decide silent | Licence text | Paid video ads with music |
 | O16 | Meta spending limit | Ads Manager → account spending limit | Limit visible | Any ad spend |
 | O17 | Egypt privacy, marketing and returns rules | Confirm with a local adviser: (a) what the operator must register or record before marketing to Egyptian customers; (b) whether Consumer Protection Law 181/2018 art. 17 gives online buyers a 14-day return without a defect (our returns line follows the supplier: defects only, 14 days) and who honours it | Written note | Email marketing and advertising tags in Egypt; the Egypt returns text |
@@ -110,6 +110,7 @@ twice for the same approval.
 | 29b | Genuine reviews flowing; OrderDelivered events arriving | R + C | open |
 
 ## P3: growth tools, each switched on only after its provider test
+Email (30-33) is dormant at launch by Rashid's decision of 29 Oct; the stores launch phone-only.
 | # | Item | Owner | Status | How we know it is done |
 | --- | --- | --- | --- | --- |
 | 30 | Brevo domain authenticated (SPF, DKIM, DMARC aligned), reply address monitored | R | open | Brevo dashboard; reply received |

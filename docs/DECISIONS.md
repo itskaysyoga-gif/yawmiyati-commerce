@@ -2,6 +2,7 @@
 
 Newest first. Each entry: date, decision, why.
 
+- 2026-10-29 — Email stays dormant at launch (Rashid): the stores launch phone-only; no email field at checkout, no newsletter signup, nothing sent, Brevo not connected. The hardened code and its tests stay, switched off (`ym_email_flows` empty), and are revisited after real orders. O14 and P3-30..33 are not launch work.
 - 2026-10-29 (language and storefront round) — ChatGPT's "storefront and language completion round" review adopted in its order, with the corrections in docs/reports/2026-10-29-language-storefront.md. Video production is scheduled last; no video scripts, renders or API spend on video until the storefront, language and reliability work is done and real media exist.
 - 2026-10-29 — One Anthropic API budget for every paid generator: ledger on branch ledger/anthropic, compare-and-swap writes, reservation of the maximum cost before each call, unknown or failed calls keep their reservation, 40 USD cap with envelopes EG 18 / IQ 12 / Gulf 5 / reserve 5 (docs/API-BUDGET.md). Models and rates come from tools/spend/rates.json only.
 - 2026-10-29 — GitHub Actions builds and tests; paid generation there is only an on-demand development step (copy drafts, language critique, video briefs), queued one at a time. Rendering, scheduling, publishing and customer email never run in Actions. Actions are pinned to commit SHAs with per-job permissions.

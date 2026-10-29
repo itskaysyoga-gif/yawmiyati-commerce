@@ -15,7 +15,7 @@ only in CI), 772 in-store checks (EG 163, IQ 164, SA 150, AE 144, OM 151), 10 st
 | --- | --- | --- | --- |
 | 1 | API budget | One ledger for every paid generator (`tools/spend/`), on branch `ledger/anthropic`, written by compare-and-swap pushes; reserve the maximum (prompt bytes + max_tokens at 1.5× list) before each call; settle with returned usage; unknown or failed calls keep their reservation; 40 USD cap with envelopes EG 18 / IQ 12 / Gulf 5 / reserve 5; models and rates only from `rates.json`; studio and copy drafts moved onto it; earlier calls migrated (docs/API-BUDGET.md) | tools/spend/test: limits; 12 processes on a file store and 8 on two git checkouts racing, none overspent or lost; timeout → unknown kept; HTTP error → failed kept; retry reserves again; key never in the ledger |
 | 1 | Workflows | Inputs validated and passed as environment variables; rule errors and product errors fail the run while drafts are kept as rejected; actions pinned to commit SHAs (checkout v5.1.0, setup-node v5.0.0, setup-php 2.40.0); `permissions: {}` at the top and per job; tests cancel superseded runs, paid runs queue in one group; `render.mjs`/`publish.mjs` refuse to run in Actions | CI runs of this round; three `language-critique` runs |
-| 2 | Language | Evidence per country (docs/language/evidence/); three layers in the voice guides; Iraqi spelling policy; SA/AE/OM glossaries; copy ledger per country (every owned string: existing, proposed, reason, facts, status); rendered-page inventory of WooCommerce strings (four overridden); full revision of EG, IQ and the Gulf base; 11 critique batches (Claude Opus 5.5, separate context) with every "revise"/"question" resolved; native review packages | docs/language/, tools/language/critique/*.json |
+| 2 | Language | Evidence per country (docs/language/evidence/); three layers in the voice guides; Iraqi spelling policy; SA/AE/OM glossaries; copy ledger per country (every owned string: existing, proposed, reason, facts, status); rendered-page inventory of WooCommerce strings (four overridden); full revision of EG, IQ and the Gulf base; 15 critique batches in four runs (Claude Opus 5.5, separate context) with every "revise"/"question" resolved; native review packages | docs/language/, tools/language/critique/*.json |
 | 3 | Checkout | Before a governorate: "مجموع المنتجات" + "delivery after choosing", never "المطلوب وقت الاستلام"; after: one total with the fee; no order without a governorate | reliability.test.js (exact state of the review's screenshot) |
 | 3 | Email | Send states sending/accepted/failed/unknown (unknown never resent, counted, resolved by provider event or a person); Brevo idempotency key; one marketing email a week across stores and flows, reserved under a row lock with suppression re-read inside it; weekly newsletter only via `wp ym mail newsletter`; confirmation links bound to nonce + wording, single-use; links act only on POST (button or RFC 8058 one-click); per-address cooldowns, generous per-IP; complaints and bounces lifted only by a person; webhook saves suppression first, answers 500 on failure | reliability.test.js: cap race (six senders, three stores: one sent; **fails without the lock**, checked), old link after unsubscribe + new signup refused, single use, scanner GET changes nothing, timeout/refusal outcomes, webhook half-failures |
 | 3 | Consent | `YM_CONSENT_STORES` has no default (an uninstalled SA/AE/OM listed by default would have held every Egypt and Iraq event forever); server-side ad events off unless `YM_SERVER_EVENTS` is true; invariant and window written exactly (MEASUREMENT.md §4) and the window reproduced | reliability.test.js: stores not configured / not listed → wait; uninstalled markets hold nothing; events off by default, order unaffected; the window reproduced and closed after the flush |
@@ -50,9 +50,11 @@ only in CI), 772 in-store checks (EG 163, IQ 164, SA 150, AE 144, OM 151), 10 st
    permissions are missing).
 
 ## Anthropic API usage this round
-Three critique runs (11 batches, Claude Opus 5.5) through the shared ledger. Figures are filled from
-`node tools/spend/cli.mjs status` at the end of the round (see "Counts and budget" below). The Anthropic console is
-the source of truth for what was charged (O20).
+Four critique runs, **15 calls** (Claude Opus 5.5), all settled through the shared ledger: 150,450 input and 70,369
+output tokens; **2.01 USD at list price, 3.01 USD counted** (1.5×). Ledger total including earlier calls: **4.42 USD
+held of 40** (2.28 at list for settled calls, plus a 1 USD reservation for unrecorded calls in earlier failed runs);
+**35.58 USD remaining**. By envelope: EG 1.41 / 18, IQ 1.23 / 12, Gulf 0.79 / 5, reserve 1.00 / 5. No video or copy
+drafting calls. The Anthropic console is the source of truth for what was charged (O20).
 
 ## Residual risk, stated plainly
 - Language: AI-written and AI-critiqued, **not native-reviewed**; Iraqi spelling and Egyptian warmth are judgements
@@ -62,6 +64,13 @@ the source of truth for what was charged (O20).
 - The consent window above, if server events are switched on.
 - Everything about Taager remains unproven until staging.
 
-## Counts and budget
-Filled at the end of the round (final commit, CI run, local counts, ledger status): see the Project handoff
-`claude/session-handoff-2026-10-28.md` and docs/PROJECT-STATE.md.
+## Counts
+Local, on the final tree: **115 end-to-end tests** (114 run here, the WebKit/iPhone test in CI), **777 in-store
+checks** (EG 164, IQ 165, SA 151, AE 145, OM 152), **17 studio and API-ledger checks** (10 + 7). The last full local
+run had one failure, an assertion still expecting the old review-thanks wording; it was updated and that test rerun
+green. The first CI run of the round was cancelled at the 55-minute job limit (the suite grew by nine browser tests);
+the new tests were made cheaper (one PHP call per store for setup) and the job limit raised to 80 minutes. CI on the
+final commit: recorded in the Project handoff and docs/PROJECT-STATE.md.
+
+## Decision taken with Rashid this round
+Email stays dormant at launch: phone-only stores; the hardened email code stays off and is revisited after real orders.
