@@ -918,6 +918,60 @@ class YM_CLI {
 	}
 
 	/**
+	 * Email operations (docs/EMAIL.md).
+	 *
+	 * <action>
+	 * : unknown | resolve | unblock | newsletter
+	 *
+	 * [<arg>...]
+	 * : resolve <log id> <accepted|failed> (after checking the provider's log); unblock <email> (lift a bounce or
+	 *   complaint after checking; she must still opt in again); newsletter <issue-ref> (sends to this country's
+	 *   subscribers through the shared one-a-week cap)
+	 *
+	 * [--note=<note>]
+	 * : Why (resolve, unblock).
+	 *
+	 * [--subject=<subject>]
+	 * : Newsletter subject.
+	 *
+	 * [--body-file=<file>]
+	 * : Newsletter body, one paragraph per line.
+	 *
+	 * [--dry-run]
+	 * : Newsletter: count the recipients, send nothing.
+	 */
+	public function mail( $args, $assoc ) {
+		switch ( $args[0] ?? '' ) {
+			case 'unknown':
+				WP_CLI::log( wp_json_encode( YM_Mail::unknown_sends(), JSON_PRETTY_PRINT ) );
+				break;
+			case 'resolve':
+				YM_Mail::resolve( (int) ( $args[1] ?? 0 ), (string) ( $args[2] ?? '' ), (string) ( $assoc['note'] ?? '' ) ) ? WP_CLI::success( 'resolved' ) : WP_CLI::error( 'no unknown send with that id, or state not accepted|failed' );
+				break;
+			case 'unblock':
+				if ( empty( $assoc['note'] ) ) {
+					WP_CLI::error( '--note is required: say what you checked' );
+				}
+				YM_Mail::unblock( (string) ( $args[1] ?? '' ) ) ? WP_CLI::success( 'lifted; she can opt in again' ) : WP_CLI::error( 'not bounced or complained' );
+				YM_Ops::log( 'mail_unblock', array( 'note' => (string) $assoc['note'] ) );
+				break;
+			case 'newsletter':
+				$ref = (string) ( $args[1] ?? '' );
+				$body = isset( $assoc['body-file'] ) ? array_values( array_filter( array_map( 'trim', explode( "\n", (string) file_get_contents( $assoc['body-file'] ) ) ) ) ) : array(); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				if ( ! preg_match( '/^[a-z0-9-]{3,40}$/', $ref ) || empty( $assoc['subject'] ) || ! $body ) {
+					WP_CLI::error( 'usage: wp ym mail newsletter <issue-ref> --subject=... --body-file=... [--dry-run]' );
+				}
+				if ( ! YM_Mail::enabled( 'newsletter' ) ) {
+					WP_CLI::error( 'the newsletter flow is off (ym_email_flows)' );
+				}
+				WP_CLI::log( wp_json_encode( YM_Mail::newsletter( $ref, (string) $assoc['subject'], $body, isset( $assoc['dry-run'] ) ) ) );
+				break;
+			default:
+				WP_CLI::error( 'action: unknown | resolve | unblock | newsletter' );
+		}
+	}
+
+	/**
 	 * Recommendations: what was added from them and what became of those orders (verified outcomes only).
 	 *
 	 * [--days=<days>]

@@ -493,6 +493,9 @@ final class YM_Mail {
 		$live = "state IN ('sending','accepted','unknown')";
 		$day  = (int) self::q( 'get_var', $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::t( 'ym_mail_log' ) . " WHERE email_hash = %s AND marketing = 1 AND $live AND at > %d", $h, time() - DAY_IN_SECONDS ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$week = (int) self::q( 'get_var', $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::t( 'ym_mail_log' ) . " WHERE email_hash = %s AND marketing = 1 AND $live AND at > %d", $h, time() - WEEK_IN_SECONDS ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( YM_Env::test_hooks() && (int) get_option( 'ym_test_cap_pause_ms' ) ) {
+			usleep( 1000 * (int) get_option( 'ym_test_cap_pause_ms' ) ); // local test hook: widen the race window
+		}
 		if ( $day >= self::CAP_DAY || $week >= self::CAP_WEEK ) {
 			self::q( 'query', 'ROLLBACK' );
 			YM_Ops::log( 'mail_capped', array( 'kind' => $kind ) );

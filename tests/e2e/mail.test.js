@@ -103,6 +103,9 @@ test('Newsletter: explicit consent, confirmed address, welcome with one-click un
   const link = confirm.html.match(/href="([^"]*ym_confirm=[^"]+)"/)[1].replace(/&#038;|&amp;/g, '&');
   assert.ok(!outbox('eg').some((m) => m.to === email && m.marketing), 'no marketing before confirmation');
   await page.goto(link);
+  assert.equal(contact('eg', email).status, 'pending', 'opening the link changes nothing (mail scanners)');
+  await Promise.all([page.waitForLoadState('load'), page.locator('[data-ym-mail-action=confirm]').click()]);
+  await page.waitForSelector('[data-ym-mail-result]');
   assert.equal(await page.locator('[data-ym-mail-result]').getAttribute('data-ym-mail-result'), 'news_confirmed');
   c = contact('eg', email);
   assert.equal(c.status, 'subscribed');
@@ -111,7 +114,7 @@ test('Newsletter: explicit consent, confirmed address, welcome with one-click un
   assert.match(welcome.headers['List-Unsubscribe'], /ym_unsub=/);
   assert.equal(welcome.headers['List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click');
   assert.ok(brevo('eg').some((b) => b.email === email && b.fields.emailBlacklisted === false), 'Brevo contact created on confirmation only');
-  // Cross-store cap: the same person, one marketing mail a day across all stores.
+  // Cross-store cap: the same person, one marketing mail a week across all stores and flows.
   assert.equal(h.wpEval('iq', `echo YM_Mail::send_marketing( YM_Mail::contact("${email}"), "test", "x1", "s", array("b") ) ? "sent" : "held";`), 'held');
   // One-click unsubscribe (as a mail client does it), then nothing anywhere.
   const unsub = welcome.headers['List-Unsubscribe'].slice(1, -1);
