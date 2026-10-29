@@ -312,6 +312,20 @@
    "usd_list": 0.1619,
    "input_tokens": 11520,
    "output_tokens": 5791
+  },
+  {
+   "id": "5569fa1b8d0d793c",
+   "at": "2026-10-29T10:32:13.961Z",
+   "scope": "eg",
+   "purpose": "language critique eg 04-email-consent",
+   "model": "claude-opus-5-5",
+   "run": "40857955261",
+   "state": "reserved",
+   "max_input_tokens": 28592,
+   "max_output_tokens": 8000,
+   "reserved_usd": 0.411552,
+   "usd": null,
+   "usd_list": null
   }
  ]
 }
