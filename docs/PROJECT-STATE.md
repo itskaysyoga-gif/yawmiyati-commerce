@@ -1,26 +1,28 @@
 # Project state
 
-_Last updated: 2026-10-29 (stabilization round, see docs/reports/2026-10-29-stabilization.md)_
+_Last updated: 2026-10-29 (completion and growth round, see docs/reports/2026-10-29-completion-growth.md)_
 
-Status words used everywhere in this repo:
-- **Designed**: exists only on the design canvas.
+Status words used everywhere in this repo (also in docs/LAUNCH-CHECKLIST.md):
 - **Implemented**: code in this repo runs on the local stores.
-- **Tested**: an automated check passes locally and in GitHub Actions (CI). No Taager involved.
-- **Supplier-verified**: confirmed against Taager itself (a real test order, the live catalog, or a written answer). A support chat answer is "Taager said", not verified.
+- **Locally tested**: an automated check passes locally and in GitHub Actions (CI). No Taager, Meta or Brevo involved.
+- **Provider-tested / supplier-verified**: observed on the real service (a Taager test order, a Meta test-account post,
+  a Brevo send) or a written answer. A support chat answer is "Taager said", not verified.
+- **Commercially approved**: Rashid's yes on facts, prices, media rights and spend.
 
 Nothing is supplier-verified. There is no live store, no Taager link and no real order.
 Repository: still **public** (launch checklist #1).
 
 ## Readiness (definitions and per-country status: docs/LAUNCH-CHECKLIST.md)
-- **Development complete: yes**, all five countries, as of commit 27177a8, CI run 40780852912 (green). Tests: 90
-  end-to-end, 667 in-store checks (docs/reports/2026-10-29-stabilization.md). No known open defect.
-- **Staging verified: no.** Waits for hosting and the domain (checklist #3), then the Taager plugin on staging.
-- **Commercially ready: no.** Also needs the approved assortment (docs/ASSORTMENT-v1.md), verified product records
-  and media, policy facts, native review and a payout test.
-
-Correction to the previous handoff: it said CI was green on commit 9922223. It was not: run 40748106500 failed on a
-real duplicate-order race (two simultaneous requests both created an order). Fixed in 0700841; CI green since.
-Latest code commit e4ebf87: CI run 40770712452 green. Store preview artifact republished from it.
+- **Development complete: yes** for everything the 29 Oct brief makes buildable without accounts, all five countries.
+  Final commit of the round: the commit that carries this line; its CI run is recorded in the Project handoff
+  (`claude/session-handoff-2026-10-28.md`). Tests on that tree, run locally: **106 end-to-end** (105 run in the
+  container, the WebKit/iPhone test only in CI), **772 in-store checks** (EG 163, IQ 164, SA 150, AE 144, OM 151) and
+  **10 Content Studio checks**. Up from 90 / 667 / 0 at the start of the round (c3cdab3).
+- **Staging verified: no.** Waits for hosting and the domain (O4), then the Taager plugin on staging.
+- **Commercially ready: no.** Also needs the approved assortment, verified product records and media, policy facts,
+  native review and a payout test.
+- **Growth tools live: no.** Email flows and organic publishing are built and locally tested, switched off, and wait
+  for their provider tests (Brevo O14, Meta O12).
 
 ## Where things stand
 | Area | Implemented | Tested | Supplier-verified |
@@ -40,6 +42,14 @@ Latest code commit e4ebf87: CI run 40770712452 green. Store preview artifact rep
 | Measurement: consent, withdrawal, purchase ack, late consent, key removal, verified delivered, stable retries | yes | yes (local) | live checks L1-L12 open; no accounts yet |
 | SEO: indexing by market, canonicals, breadcrumbs, category pages, retired-product policy, sitemaps | yes | yes | Search Console at launch |
 | Operations board, operator role, 90-day logs, backups + restore drill | yes | yes (drill passed locally) | — |
+| Consent withdrawal holds when a store can read but not write the ledger (two-phase events, store certificates, atomic queue) | yes | yes (cross-store, concurrency, backup/restore) | needs the shared DB and 5-min cron on the host |
+| Consent card: all / analytics only / essentials only | yes | yes | real devices at P1 |
+| Home focal image + action, curated orderable picks, tip, ordering steps; phone cart as cards | yes | yes | — |
+| Card derivatives (WebP + JPEG, one optical scale, weak photos flagged); media rights channels/expiry/approval | yes | yes | no image has written rights yet |
+| Recommendations v1 (curated, deterministic) | yes | yes | — |
+| Email permissions, double opt-in, cross-store suppression, caps, Brevo adapter + webhook; flows off | yes | yes (captured locally) | Brevo not connected |
+| Kill-gates on contribution with an 80 % band | yes | yes | needs mature orders |
+| Content Studio: facts export, API briefs (CI, capped), Remotion renders, QA, batch approval, Meta publisher | yes | yes (fake Graph API) | no Meta account connected; first batch blocked for production |
 | Copy: Egyptian, Iraqi, shared Gulf (SA/AE/OM) | drafts | lint only | native review not done |
 | Product selection: shortlists EG 40, IQ 40, SA 40, AE 15, OM 22; pricing on delivered contribution | research | scripts run | nothing approved |
 | First assortment recommended: Egypt 4 products / 5 offers, Iraq 4 / 5 (docs/ASSORTMENT-v1.md) | research | script run | awaiting Rashid's yes |
@@ -59,12 +69,14 @@ Latest code commit e4ebf87: CI run 40770712452 green. Store preview artifact rep
 11. Media originals and rights in writing.
 
 ## Waiting on Rashid
-The one list is in docs/LAUNCH-CHECKLIST.md ("Owner actions"). First three: make the repo private; yes on the design
-and on docs/ASSORTMENT-v1.md; buy the domain and hosting.
+The one table is in docs/LAUNCH-CHECKLIST.md ("Owner actions", O1-O19). First four: make the repo private; yes on the
+design (review PDF of 29 Oct) and on docs/ASSORTMENT-v1.md; buy the domain and hosting; ask Taager for sizes and
+original media with written rights.
 
 ## Next
 Launch checklist P0 in order (docs/LAUNCH-CHECKLIST.md): staging, Egypt Taager link + ordinary and held test orders,
-Iraq the same, verified product records, policy facts, native review. Ads only after P1.
+Iraq the same, verified product records (sizes for the mats and the rack first: their fit text depends on them),
+policy facts, native review. Ads only after P1. Growth tools (P3) one at a time after their provider tests.
 
 ## How to run locally
 See README.md. Five stores, about 18 minutes for the full CI run.

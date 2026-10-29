@@ -11,7 +11,9 @@ all running the theme and plugin in this repo from one release. Start with `docs
 | `plugin/.../copy`, `content` | Customer text per country (Egyptian, Iraqi, shared Gulf) and policy pages | draft, not native-reviewed |
 | `tests/` | Playwright end-to-end tests (`e2e/`) and in-store checks (`integration/`) | passing locally and in CI |
 | `dev/` | Local stores: pinned WordPress, WooCommerce, WP-CLI (checksummed), MariaDB 10.11 | working |
-| `tools/` | `export-preview.js` (static snapshot), `perf-lab.js`, `copy/` (Anthropic draft pipeline) | working |
+| `tools/` | `export-preview.js` (static snapshot, stamped), `review-shots.js` (phone + desktop review PDF), `perf-lab.js`, `copy/` (Anthropic draft pipeline) | working |
+| `studio/` | Content Studio: facts → API briefs (CI, capped) → Remotion renders → QA → batch approval → Meta publisher (docs/CONTENT-STUDIO.md) | locally tested; no account connected |
+| `.claude/skills/` | Seven custom project skills (catalog-evidence … growth-review); Remotion's own skills via `studio/skills-sync.sh` | — |
 | `deploy/` | Domain-root chooser and robots.txt; `backup.sh`, `restore.sh` | ready for launch |
 | `research/` | Catalog export, benchmarks, launch assortment, selection pipeline and five-country shortlists, pricing | not supplier-verified, nothing approved |
 | `media/interim/` | Low-resolution crops of Taager images; blocked as final media | interim |
@@ -37,6 +39,7 @@ The local admin password is random and never printed; use WP-CLI instead of the 
 npm ci                      # Playwright 1.63.0, exact versions from package-lock.json
 npm test                    # end-to-end tests against the running stores (WebKit test skipped if not installed)
 npm run test:integration    # in-store checks on all five stores
+node --test studio/test/*.test.mjs   # Content Studio rules and publisher (fake Graph API)
 node tools/perf-lab.js out.json   # lab Core Web Vitals on a throttled phone profile (local numbers are not production)
 ```
 
