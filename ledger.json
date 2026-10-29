@@ -448,12 +448,14 @@
    "purpose": "language critique sa 03-policy-pages",
    "model": "claude-opus-5-5",
    "run": "40864152435",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 25283,
    "max_output_tokens": 8000,
    "reserved_usd": 0.391698,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.170454,
+   "usd_list": 0.113636,
+   "input_tokens": 9274,
+   "output_tokens": 3827
   }
  ]
 }
