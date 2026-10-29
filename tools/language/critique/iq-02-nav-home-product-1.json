@@ -1,0 +1,422 @@
+{
+ "country": "iq",
+ "batch": "02-nav-home-product-1",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:34:07.824Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "eb354a00bdbb766f",
+ "usage": {
+  "input_tokens": 12308,
+  "output_tokens": 7074,
+  "usd_counted": 0.286068
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.buy",
+   "verdict": "ok",
+   "note": "Clear CTA with COD."
+  },
+  {
+   "key": "copy.buy_short",
+   "verdict": "ok",
+   "note": "Familiar CTA."
+  },
+  {
+   "key": "copy.add",
+   "verdict": "ok",
+   "note": "Standard label."
+  },
+  {
+   "key": "copy.place",
+   "verdict": "ok",
+   "note": "Says what happens."
+  },
+  {
+   "key": "copy.choose",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks",
+   "verdict": "ok",
+   "note": "Natural and unambiguous."
+  },
+  {
+   "key": "copy.fit_q",
+   "verdict": "ok",
+   "note": "Neutral, clear."
+  },
+  {
+   "key": "copy.why",
+   "verdict": "ok",
+   "note": "Generic agreement per guide."
+  },
+  {
+   "key": "copy.specs_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.diary_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.zones_head",
+   "verdict": "question",
+   "note": "Delivery time per governorate is still unconfirmed, so the 'المدة' column should not appear until it is verified. Also, if the middle column shows the fee, 'أجور التوصيل' is clearer than 'التوصيل'."
+  },
+  {
+   "key": "copy.delivery_address",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.order_details",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.country_name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.switch_country",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.ask",
+   "verdict": "ok",
+   "note": "Warm, no timing promise."
+  },
+  {
+   "key": "copy.nav_delivery",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.nav_returns",
+   "verdict": "question",
+   "note": "'الاستبدال' promises exchanges, but the Iraq return/exchange policy is still open; if only returns are offered, use 'الإرجاع'."
+  },
+  {
+   "key": "copy.nav_privacy",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.nav_contact",
+   "verdict": "ok",
+   "note": "Deliberate brand choice."
+  },
+  {
+   "key": "copy.nav_faq",
+   "verdict": "ok",
+   "note": "Standard label."
+  },
+  {
+   "key": "copy.home_title",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.home_lede",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_word",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.categories",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.all_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_ph",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.cart_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_pick",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.see_all",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.results",
+   "verdict": "ok",
+   "note": "Avoids plural agreement."
+  },
+  {
+   "key": "copy.prev",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.next",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.pages",
+   "verdict": "ok",
+   "note": "Fine as a11y label."
+  },
+  {
+   "key": "copy.no_results",
+   "verdict": "ok",
+   "note": "Natural, follows spelling rule."
+  },
+  {
+   "key": "copy.no_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.no_results_help",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.qty_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.qty_less",
+   "verdict": "revise",
+   "note": "Read alone by a screen reader, 'أقل' does not say what the button does.",
+   "suggestion": "تقليل العدد"
+  },
+  {
+   "key": "copy.qty_more",
+   "verdict": "revise",
+   "note": "Read alone by a screen reader, 'أكثر' does not say what the button does.",
+   "suggestion": "زيادة العدد"
+  },
+  {
+   "key": "copy.video_play",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_verified",
+   "verdict": "question",
+   "note": "The feminine 'اشترت' assumes every reviewer is a woman; if a household member (e.g. a husband) can place the order and leave the review, a neutral badge such as 'طلب مستلَم' is safer."
+  },
+  {
+   "key": "copy.review_form_title",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.review_rating",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_text",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_name",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.review_submit",
+   "verdict": "revise",
+   "note": "Submit button should use the verbal-noun form like 'إرسال الطلب'; 'دزي' also lacks the shadda used elsewhere (دزّي).",
+   "suggestion": "إرسال رأيج"
+  },
+  {
+   "key": "copy.review_thanks",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.review_invalid",
+   "verdict": "ok",
+   "note": "No blame, offers help."
+  },
+  {
+   "key": "copy.review_done",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_stars",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_word",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.breadcrumb",
+   "verdict": "ok",
+   "note": "Good a11y label."
+  },
+  {
+   "key": "copy.home_cta",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_cats",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps",
+   "verdict": "ok",
+   "note": "Accurate order of events."
+  },
+  {
+   "key": "copy.home_tip_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_tip_body",
+   "verdict": "ok",
+   "note": "Practical, natural."
+  },
+  {
+   "key": "copy.home_featured",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks_next",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.reco_title",
+   "verdict": "ok",
+   "note": "Natural Iraqi."
+  },
+  {
+   "key": "copy.reco_complement",
+   "verdict": "revise",
+   "note": "'يكمّل وياه' treats both the suggested product and the current one as masculine, which does not fit feminine or plural products.",
+   "suggestion": "إضافة تكمّل اختيارج"
+  },
+  {
+   "key": "copy.reco_substitute",
+   "verdict": "ok",
+   "note": "Agrees with 'بديل'."
+  },
+  {
+   "key": "copy.reco_add",
+   "verdict": "ok",
+   "note": "Consistent."
+  },
+  {
+   "key": "category.kitchen",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.bathroom",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.laundry",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.storage",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.comfort",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.cleaning",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.name",
+   "verdict": "ok",
+   "note": "Clear local name."
+  },
+  {
+   "key": "product.IQ030403SENK99.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.note",
+   "verdict": "revise",
+   "note": "The change note says this line was removed, but the text still states a fixed total with delivery, which goes stale when the price or fee changes; empty the string.",
+   "suggestion": ""
+  },
+  {
+   "key": "product.IQ030403SENK99.benefit",
+   "verdict": "revise",
+   "note": "The benefit repeats 'والكاونتر يبقى فاضي للشغل' word for word from the diary note on the same page.",
+   "suggestion": "الصحون تنشف فوق السنك بدل ما تاخذ مكان على الكاونتر."
+  },
+  {
+   "key": "product.IQ030403SENK99.diary",
+   "verdict": "ok",
+   "note": "Fine once benefit is reworded."
+  },
+  {
+   "key": "product.IQ030403SENK99.fit",
+   "verdict": "ok",
+   "note": "Clear; shown only with real dimensions."
+  }
+ ]
+}

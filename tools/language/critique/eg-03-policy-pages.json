@@ -1,0 +1,270 @@
+{
+ "country": "eg",
+ "batch": "03-policy-pages",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:32:13.515Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "2024aa7778560196",
+ "usage": {
+  "input_tokens": 11520,
+  "output_tokens": 5791,
+  "usd_counted": 0.24285
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "page.delivery.01",
+   "verdict": "question",
+   "note": "\"لكل محافظات مصر\" says delivery covers every governorate, and nothing in the facts confirms that; keep it only if COUNTRY-RULES or the delivery partner confirms full coverage. The cash-on-delivery part is fine."
+  },
+  {
+   "key": "page.delivery.02",
+   "verdict": "question",
+   "note": "This heading promises a delivery time (\"المدة\"), but no delivery time is verified; if the one_fee text gives no time, the heading should be just \"رسوم التوصيل\"."
+  },
+  {
+   "key": "page.delivery.03",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.delivery.04",
+   "verdict": "ok",
+   "note": "Fine as a section heading, not a button."
+  },
+  {
+   "key": "page.delivery.05",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.delivery.06",
+   "verdict": "ok",
+   "note": "clear heading"
+  },
+  {
+   "key": "page.delivery.07",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.delivery.08",
+   "verdict": "ok",
+   "note": "heading"
+  },
+  {
+   "key": "page.delivery.09",
+   "verdict": "ok",
+   "note": "pending placeholder"
+  },
+  {
+   "key": "page.returns.01",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.returns.02",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.returns.03",
+   "verdict": "question",
+   "note": "The heading covers exchanges and returns in general, but this step asks for a photo of a defect; that only fits if returns are accepted for defects alone, so confirm the policy (and if not, say \"صورة للمنتج\")."
+  },
+  {
+   "key": "page.returns.04",
+   "verdict": "ok",
+   "note": "warm and clear"
+  },
+  {
+   "key": "page.returns.05",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.returns.06",
+   "verdict": "question",
+   "note": "Does this home-goods shop actually sell personal-care products? If not, this line implies a category that doesn't exist and should go."
+  },
+  {
+   "key": "page.returns.07",
+   "verdict": "ok",
+   "note": "pending placeholder"
+  },
+  {
+   "key": "page.privacy.01",
+   "verdict": "ok",
+   "note": "Good fix: dropping \"بس\" avoids overclaiming."
+  },
+  {
+   "key": "page.privacy.02",
+   "verdict": "ok",
+   "note": "natural FAQ-style heading"
+  },
+  {
+   "key": "page.privacy.03",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.privacy.04",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.privacy.05",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.privacy.06",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.privacy.07",
+   "verdict": "ok",
+   "note": "heading"
+  },
+  {
+   "key": "page.privacy.08",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.privacy.09",
+   "verdict": "revise",
+   "note": "\"بسبب واضح من صاحبة الطلب\" is ambiguous: it can read as \"the customer gave a clear reason\", which is the opposite of what's meant. \"وممكن يتراجع ويتشال\" also doesn't say who reviews or removes the record, and the passive phrasing is stiff.",
+   "suggestion": "حماية المتجر من الطلبات الوهمية والمكررة: بنراجع الطلبات المتكررة من نفس الرقم أو من نفس اتصال الإنترنت. وبنحتفظ بسجل للطلبات اللي اترفضت عند الاستلام لسبب واضح يرجع لصاحبة الطلب. السجل ده محفوظ مشفّر، وبيتمسح بعد مدة محددة، وممكن نراجعه ونشيله. الطلب اللي محتاج مراجعة بيستنى لحد ما حد من فريقنا يشوفه، ومش بيترفض أوتوماتيك."
+  },
+  {
+   "key": "page.privacy.10",
+   "verdict": "revise",
+   "note": "\"والإيصالات شغّالة\" sounds like an internal system note and will confuse the customer.",
+   "suggestion": "إرسال إيصال الطلب على إيميلك، لو كتبتيه ولو الخدمة دي متاحة."
+  },
+  {
+   "key": "page.privacy.11",
+   "verdict": "revise",
+   "note": "\"وبس\" says the data goes only to the confirmation team and the courier, but privacy.15 says the hashed phone number can go to ad platforms when she accepts all cookies; that's a contradiction in a policy text.",
+   "suggestion": "بنشارك بيانات الطلب مع فريق التأكيد وشركة الشحن اللي بتوصّله. ولو وافقتي على كل الكوكيز، ممكن نبعت رقمك كرمز مشفّر لمنصات الإعلانات زي ما هو موضح تحت."
+  },
+  {
+   "key": "page.privacy.12",
+   "verdict": "ok",
+   "note": "heading"
+  },
+  {
+   "key": "page.contact.01",
+   "verdict": "revise",
+   "note": "\"إنستغرام\" is spelled differently from \"إنستجرام\" in the other strings; the Egyptian spelling with ج should be used everywhere.",
+   "suggestion": "أسرع طريقة توصليلنا: رسالة على إنستجرام أو فيسبوك."
+  },
+  {
+   "key": "page.contact.02",
+   "verdict": "ok",
+   "note": "clear"
+  },
+  {
+   "key": "page.contact.03",
+   "verdict": "ok",
+   "note": "pending placeholder"
+  },
+  {
+   "key": "page.faq.01",
+   "verdict": "ok",
+   "note": "natural first-person question"
+  },
+  {
+   "key": "page.faq.02",
+   "verdict": "question",
+   "note": "The quoted button \"اطلبي دلوقتي\" must match the real product-page button exactly, and house rules put verbal nouns on buttons (e.g. \"إضافة إلى السلة\", \"إرسال الطلب\"). \"العرض\" can also read as a discount offer; if it means a quantity or variant, \"الكمية\" or \"الاختيار\" is safer."
+  },
+  {
+   "key": "page.faq.03",
+   "verdict": "question",
+   "note": "This question has no answer string after it (the next string is another question); either add an answer or a pending placeholder, or remove the question until a delivery time is verified."
+  },
+  {
+   "key": "page.faq.04",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.05",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.faq.06",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.07",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.faq.08",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.09",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.10",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.11",
+   "verdict": "ok",
+   "note": "shortcode"
+  },
+  {
+   "key": "page.faq.12",
+   "verdict": "ok",
+   "note": "natural"
+  },
+  {
+   "key": "page.faq.13",
+   "verdict": "ok",
+   "note": "pending placeholder"
+  },
+  {
+   "key": "page.privacy.13",
+   "verdict": "ok",
+   "note": "clear double opt-in and frequency limit"
+  },
+  {
+   "key": "page.privacy.14",
+   "verdict": "ok",
+   "note": "heading"
+  },
+  {
+   "key": "page.privacy.15",
+   "verdict": "ok",
+   "note": "Long but precise and consistent."
+  },
+  {
+   "key": "page.privacy.16",
+   "verdict": "ok",
+   "note": "heading"
+  },
+  {
+   "key": "page.privacy.17",
+   "verdict": "ok",
+   "note": "warm and clear"
+  },
+  {
+   "key": "page.privacy.18",
+   "verdict": "ok",
+   "note": "pending placeholder"
+  }
+ ]
+}

@@ -1,0 +1,206 @@
+{
+ "country": "iq",
+ "batch": "02-nav-home-product-2",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:34:38.662Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "84c5c6ae26135147",
+ "usage": {
+  "input_tokens": 8894,
+  "output_tokens": 3333,
+  "usd_counted": 0.153354
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "product.IQ030403SENK99.spec1.label",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "product.IQ030403SENK99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.spec4.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030403SENK99.image2.alt",
+   "verdict": "revise",
+   "note": "'الطابق' reads as a building floor (the voice guide uses it that way); a rack's lower tier is more naturally 'الرف التحتاني'.",
+   "suggestion": "الرف التحتاني وحامل الأدوات"
+  },
+  {
+   "key": "product.IQ030501SDMN99.name",
+   "verdict": "ok",
+   "note": "Good rename."
+  },
+  {
+   "key": "product.IQ030501SDMN99.label",
+   "verdict": "ok",
+   "note": "Consistent with name."
+  },
+  {
+   "key": "product.IQ030501SDMN99.note",
+   "verdict": "ok",
+   "note": "States the one-fee fact plainly."
+  },
+  {
+   "key": "product.IQ030501SDMN99.saving",
+   "verdict": "ok",
+   "note": "Saving is verified; wording is factual."
+  },
+  {
+   "key": "product.IQ030501SDMN99.image1.alt",
+   "verdict": "revise",
+   "note": "Still says 'موكيت' after the product was renamed to 'دواسات'; the alt text should match the name.",
+   "suggestion": "طقم دواسات قطعتين"
+  },
+  {
+   "key": "product.IQ030106MATT99.name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MATT99.benefit",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MATT99.spec1.label",
+   "verdict": "revise",
+   "note": "'بالطقم' alone reads like a fragment as a spec label; 'محتويات الطقم' is clearer.",
+   "suggestion": "محتويات الطقم"
+  },
+  {
+   "key": "product.IQ030106MATT99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MATT99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MATT99.image1.alt",
+   "verdict": "revise",
+   "note": "Still says 'موكيت', which doesn't match the renamed product 'دواسات'.",
+   "suggestion": "طقم دواسات رمادي"
+  },
+  {
+   "key": "product.IQ030301SOBA99.name",
+   "verdict": "revise",
+   "note": "'180 درجة' right after 'كهربائية' can be read as a temperature; saying it rotates removes the ambiguity.",
+   "suggestion": "صوبة كهربائية دوّارة 180 درجة"
+  },
+  {
+   "key": "product.IQ030301SOBA99.benefit",
+   "verdict": "ok",
+   "note": "Describes the rotation; fine."
+  },
+  {
+   "key": "product.IQ030301SOBA99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030301SOBA99.spec2.label",
+   "verdict": "question",
+   "note": "A 'الضمان' row implies a warranty that no given fact supports; confirm a warranty exists and what it covers before showing this."
+  },
+  {
+   "key": "product.IQ030301SOBA99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.benefit",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030106MONZ99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030107MASA99.name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030107MASA99.benefit",
+   "verdict": "ok",
+   "note": "Describes function."
+  },
+  {
+   "key": "product.IQ030107MASA99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030107MASA99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030104STAN99.name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030104STAN99.benefit",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030104STAN99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030104STAN99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.IQ030104STAN99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  }
+ ]
+}
