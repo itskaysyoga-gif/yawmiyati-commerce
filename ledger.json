@@ -352,12 +352,14 @@
    "purpose": "language critique iq 02-nav-home-product-2",
    "model": "claude-opus-5-5",
    "run": "40857955261",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 24313,
    "max_output_tokens": 8000,
    "reserved_usd": 0.385878,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.153354,
+   "usd_list": 0.102236,
+   "input_tokens": 8894,
+   "output_tokens": 3333
   }
  ]
 }
