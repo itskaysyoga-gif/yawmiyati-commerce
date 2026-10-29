@@ -1,14 +1,17 @@
 // Draft product copy with the Anthropic API from the fact sheet and the voice guide.
-// Usage: ANTHROPIC_API_KEY=... node tools/copy/draft.mjs <eg|iq> [sku ...]  → tools/copy/drafts/<cc>/<sku>.json
+// Usage: node tools/copy/draft.mjs <eg|iq> [sku ...]  → tools/copy/drafts/<cc>/<sku>.json
 // Runs in GitHub Actions (.github/workflows/copy-drafts.yml) where the key is a secret. Never paste the key anywhere.
+// Every call goes through the shared API ledger (tools/spend, docs/API-BUDGET.md). Exits 1 when any product failed.
 import fs from 'node:fs';
 import path from 'node:path';
+import { paidCall } from '../spend/anthropic.mjs';
+import { BudgetError } from '../spend/ledger.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const [cc, ...only] = process.argv.slice(2).map((s) => s.trim());
-const key = process.env.ANTHROPIC_API_KEY;
-const model = process.env.YM_COPY_MODEL || 'claude-sonnet-5-5';
-if (!key) { console.error('ANTHROPIC_API_KEY missing'); process.exit(2); }
+const model = 'claude-sonnet-5-5'; // priced in tools/spend/rates.json; never taken from the environment
+if (!['eg', 'iq'].includes(cc)) { console.error('usage: draft.mjs <eg|iq> [SKU ...]'); process.exit(2); }
+if (only.length > 20 || only.some((s) => !/^[A-Z0-9]{6,24}$/.test(s))) { console.error('SKUs: up to 20, capital letters and digits only'); process.exit(2); }
 const facts = JSON.parse(fs.readFileSync(path.join(root, `tools/copy/facts/${cc}.json`), 'utf8'));
 const voice = fs.readFileSync(path.join(root, `docs/voice/${cc.toUpperCase()}.md`), 'utf8');
 const dialect = cc === 'eg' ? 'Egyptian Arabic' : 'Iraqi (Baghdadi) Arabic';
@@ -31,28 +34,23 @@ Return ONLY a JSON object with these keys:
   "offer_labels": object mapping each offer SKU to a short label (max 24 characters)
   "used_facts": list of the exact facts you relied on`;
 
+// At most two attempts per product; each attempt is its own reserved call. A budget refusal stops at once.
 async function draft(product, attempt = 1) {
   try {
     return await draftOnce(product);
   } catch (e) {
     console.error(`${product.sku}: attempt ${attempt} failed: ${String(e.message).slice(0, 300)}`);
-    if (attempt >= 3) throw e;
-    await new Promise((r) => setTimeout(r, 5000 * attempt));
+    if (e instanceof BudgetError || attempt >= 2) throw e;
+    await new Promise((r) => setTimeout(r, 5000));
     return draft(product, attempt + 1);
   }
 }
 
 async function draftOnce(product) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model, max_tokens: 1200, system, messages: [{ role: 'user', content: `Facts:\n${JSON.stringify(product, null, 2)}` }] }),
-  });
-  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-  const body = await res.json();
+  const { json: body, entry } = await paidCall({ scope: cc, purpose: `copy draft ${cc.toUpperCase()} ${product.sku}`, body: { model, max_tokens: 1200, system, messages: [{ role: 'user', content: `Facts:\n${JSON.stringify(product, null, 2)}` }] } });
   const text = body.content.map((c) => c.text || '').join('');
   const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
-  return { ...json, _model: model, _usage: body.usage, _at: new Date().toISOString(), _status: 'draft: not native-reviewed, not fact-approved' };
+  return { ...json, _model: model, _usage: body.usage, _ledger: entry.id, _at: new Date().toISOString(), _status: 'draft: not native-reviewed, not fact-approved' };
 }
 
 const outDir = path.join(root, `tools/copy/drafts/${cc}`);
@@ -64,9 +62,11 @@ for (const p of facts.products.filter((p) => !only.length || only.includes(p.sku
     fs.writeFileSync(path.join(outDir, `${p.sku}.json`), JSON.stringify(d, null, 2) + '\n');
     console.log(`${p.sku}: ${d.name} (${d._usage.input_tokens}+${d._usage.output_tokens} tokens)`);
   } catch (e) {
-    errors.push(`${p.sku}: ${String(e.message).replace(/x-api-key[^,]*/gi, '').slice(0, 500)}`);
+    errors.push(`${p.sku}: ${String(e.message).replace(/sk-ant-[A-Za-z0-9_-]+/g, '[key]').slice(0, 500)}`);
+    if (e instanceof BudgetError) break;
   }
 }
 // Errors go to a file on the review branch (workflow logs are not always readable from here).
 if (errors.length) fs.writeFileSync(path.join(outDir, 'ERRORS.txt'), errors.join('\n') + '\n');
 console.log(`${errors.length} error(s)`);
+process.exit(errors.length ? 1 : 0);

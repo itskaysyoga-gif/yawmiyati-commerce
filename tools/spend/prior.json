@@ -1,0 +1,137 @@
+{
+ "_about": "API calls made before the shared ledger existed (28-29 Oct 2026), with the usage each answer reported. Calls in failed runs whose usage was never recorded are covered by one conservative \"unknown\" entry.",
+ "known": [
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:12:26.073Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030403SENK99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1626,
+   "output_tokens": 1035
+  },
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:12:35.171Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030106MATT99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1520,
+   "output_tokens": 1114
+  },
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:12:43.703Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030301SOBA99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1498,
+   "output_tokens": 1013
+  },
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:12:52.026Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030106MONZ99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1510,
+   "output_tokens": 1019
+  },
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:13:00.295Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030107MASA99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1505,
+   "output_tokens": 993
+  },
+  {
+   "source": "copy-drafts run 40742863270 (branch copy-drafts/iq-40742863270), usage recorded in the draft",
+   "at": "2026-10-28T18:13:07.326Z",
+   "scope": "iq",
+   "purpose": "copy draft IQ IQ030104STAN99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1499,
+   "output_tokens": 821
+  },
+  {
+   "source": "copy-drafts run 40743731736 (branch copy-drafts/eg-40743731736), usage recorded in the draft",
+   "at": "2026-10-28T18:18:03.581Z",
+   "scope": "eg",
+   "purpose": "copy draft EG EG030106MKKT99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1802,
+   "output_tokens": 1095
+  },
+  {
+   "source": "copy-drafts run 40743731736 (branch copy-drafts/eg-40743731736), usage recorded in the draft",
+   "at": "2026-10-28T18:18:13.388Z",
+   "scope": "eg",
+   "purpose": "copy draft EG EG030106STPG99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1703,
+   "output_tokens": 1195
+  },
+  {
+   "source": "copy-drafts run 40743731736 (branch copy-drafts/eg-40743731736), usage recorded in the draft",
+   "at": "2026-10-28T18:18:21.756Z",
+   "scope": "eg",
+   "purpose": "copy draft EG EG030301HAEE99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1705,
+   "output_tokens": 1010
+  },
+  {
+   "source": "copy-drafts run 40743731736 (branch copy-drafts/eg-40743731736), usage recorded in the draft",
+   "at": "2026-10-28T18:18:29.899Z",
+   "scope": "eg",
+   "purpose": "copy draft EG EG030401GB99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 1685,
+   "output_tokens": 929
+  },
+  {
+   "source": "studio/spend.json (run on studio-run/briefs-1/-2)",
+   "at": "2026-10-29T07:12:27.063Z",
+   "scope": "eg",
+   "purpose": "brief EG EG030106MKKT99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 3033,
+   "output_tokens": 3000
+  },
+  {
+   "source": "studio/spend.json (run on studio-run/briefs-1/-2)",
+   "at": "2026-10-29T07:12:46.983Z",
+   "scope": "eg",
+   "purpose": "brief EG EG030106MKKT99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 3056,
+   "output_tokens": 3000
+  },
+  {
+   "source": "studio/spend.json (run on studio-run/briefs-1/-2)",
+   "at": "2026-10-29T07:13:01.903Z",
+   "scope": "iq",
+   "purpose": "brief IQ IQ030403SENK99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 2599,
+   "output_tokens": 2292
+  },
+  {
+   "source": "studio/spend.json (run on studio-run/briefs-1/-2)",
+   "at": "2026-10-29T07:14:57.087Z",
+   "scope": "eg",
+   "purpose": "brief EG EG030106MKKT99",
+   "model": "claude-sonnet-5-5",
+   "input_tokens": 3084,
+   "output_tokens": 3328
+  }
+ ],
+ "unknown": {
+  "scope": "reserve",
+  "model": "claude-sonnet-5-5",
+  "reserved_usd": 1,
+  "note": "Failed runs whose calls may have been billed without a recorded usage: studio-scripts 40832602690, 40832871836 (2 answers received, then a parse error), 40833309790, 40833646057 (HTTP 400); copy-drafts 40742859157, 40743408209; plus any retries inside the two successful copy-drafts runs. Held at 1 USD until reconciled with the Anthropic console."
+ }
+}

@@ -1,33 +1,49 @@
 # Content Studio: draft creative briefs with the Anthropic API from approved-facts snapshots.
-# Runs when a branch named studio-run/<anything> is pushed (Actions cannot be dispatched from the build container).
-# Uses the ANTHROPIC_API_KEY repository secret; studio/spend.json caps total spend (YM_STUDIO_BUDGET_USD, default 40)
-# and each run (3 USD), priced with rates set above list price. Results are committed back to the same branch as
-# drafts; nothing is published by this workflow.
+# Runs when a branch named studio-run/<name> is pushed (Actions cannot be dispatched from the build container).
+# Video work is scheduled last (review of 29 Oct 2026): this workflow stays for when that phase begins.
+# Spend goes through the shared ledger on branch ledger/anthropic (docs/API-BUDGET.md); runs that could spend are
+# queued one at a time. Results are committed back to the same branch as drafts; nothing is published here.
+# GitHub Actions only drafts here: rendering, scheduling and publishing never run in Actions.
 name: studio-scripts
 on:
   push:
     branches: ['studio-run/**']
-permissions:
-  contents: write
+permissions: {}
+concurrency:
+  group: anthropic-api
+  cancel-in-progress: false
 jobs:
   briefs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: write   # commit drafts to this branch and write the ledger branch; nothing else
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '22'
+      - name: Validate branch
+        run: '[[ "$GITHUB_REF_NAME" =~ ^studio-run/[A-Za-z0-9._-]{1,60}$ ]] || { echo "::error::branch name not allowed"; exit 1; }'
       - name: Draft briefs
+        id: briefs
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node studio/brief.mjs $(cat studio/requests/current.txt) || echo "BRIEF_FAILED=1" >> "$GITHUB_ENV"
-      - name: Commit drafts to this branch
+        run: node studio/brief.mjs --request studio/requests/current.txt
+      - name: Commit drafts to this branch (rejected drafts kept for diagnosis)
+        if: always()
         run: |
           git config user.name "studio bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -A studio/ || true
-          git commit -m "Studio briefs (run ${{ github.run_id }}): drafts, dialect review pending" || echo "nothing new"
-          git push origin HEAD:${{ github.ref_name }}
-          cat studio/spend.json | tail -20 >> "$GITHUB_STEP_SUMMARY" || true
-          if [ -n "$BRIEF_FAILED" ]; then echo "::error::brief drafting failed (see the annotations above)"; exit 1; fi
+          git add -A studio/briefs || true
+          git commit -m "Studio briefs (run ${GITHUB_RUN_ID}): ${{ steps.briefs.outcome }}, dialect review pending" || echo "nothing new"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+      - name: API budget
+        if: always()
+        run: node tools/spend/cli.mjs status || true
+      - name: Fail when drafting failed
+        if: steps.briefs.outcome != 'success'
+        run: |
+          echo "::error::brief drafting failed or a draft broke the rules (see the annotations above)"
+          exit 1

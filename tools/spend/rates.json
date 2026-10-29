@@ -1,0 +1,12 @@
+{
+ "_about": "Anthropic list prices (USD per million tokens, base input / output) and the multiplier the ledger counts at. Only models listed here may be called. Rates are never read from the environment.",
+ "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+ "captured": "2026-10-29",
+ "count_multiplier": 1.5,
+ "models": {
+  "claude-sonnet-5-5": { "in": 2, "out": 10 },
+  "claude-opus-5-5": { "in": 4, "out": 20 },
+  "claude-haiku-5-5": { "in": 0.1, "out": 0.5, "note": "list price for prompts up to 100,000 tokens; the ledger refuses larger prompts for this model" }
+ },
+ "max_output_tokens": 8000
+}

@@ -1,5 +1,8 @@
 # Drafts product copy with the Anthropic API and pushes the drafts to a branch for review.
 # Manual only. Uses the ANTHROPIC_API_KEY repository secret. Drafts are never published by this workflow.
+# Spend goes through the shared ledger on branch ledger/anthropic (docs/API-BUDGET.md); runs that could spend are
+# queued one at a time (concurrency group anthropic-api). Inputs reach the scripts as environment variables only,
+# after validation; they are never pasted into shell source.
 name: copy-drafts
 on:
   workflow_dispatch:
@@ -12,34 +15,60 @@ on:
         description: space-separated SKUs (empty = all products)
         required: false
         default: ''
-permissions:
-  contents: write
+permissions: {}
+concurrency:
+  group: anthropic-api
+  cancel-in-progress: false
 jobs:
   draft:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: write   # push the review branch and the ledger branch; nothing else
+    env:
+      COUNTRY: ${{ inputs.country }}
+      SKUS: ${{ inputs.skus }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: '22'
+      - name: Validate inputs
+        run: |
+          [[ "$COUNTRY" =~ ^(eg|iq)$ ]] || { echo "::error::country must be eg or iq"; exit 1; }
+          [[ "$SKUS" =~ ^[A-Z0-9\ ]{0,500}$ ]] || { echo "::error::SKUs: capital letters, digits and spaces only"; exit 1; }
       - name: Facts
-        run: node tools/copy/facts.mjs "${{ inputs.country }}"
+        run: node tools/copy/facts.mjs "$COUNTRY"
       - name: Draft
+        id: draft
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node tools/copy/draft.mjs "${{ inputs.country }}" ${{ inputs.skus }}
-      - name: Check drafts
-        run: node tools/copy/validate.mjs "${{ inputs.country }}" || echo "CHECK_FAILED=1" >> "$GITHUB_ENV"
-        continue-on-error: true
-      - name: Push drafts to a review branch
         run: |
-          branch="copy-drafts/${{ inputs.country }}-${{ github.run_id }}"
+          read -ra list <<< "$SKUS"
+          node tools/copy/draft.mjs "$COUNTRY" "${list[@]}"
+      - name: Check drafts
+        id: check
+        if: always()
+        continue-on-error: true
+        run: node tools/copy/validate.mjs "$COUNTRY"
+      - name: Push drafts to a review branch (kept for diagnosis even when rejected)
+        if: always()
+        run: |
+          branch="copy-drafts/${COUNTRY}-${GITHUB_RUN_ID}"
           git config user.name "copy-drafts bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout -b "$branch"
           git add tools/copy/facts tools/copy/drafts || true
-          git commit -m "Copy drafts ${{ inputs.country }} (run ${{ github.run_id }}): draft, not reviewed"
+          git commit -m "Copy drafts ${COUNTRY} (run ${GITHUB_RUN_ID}): draft=${{ steps.draft.outcome }}, check=${{ steps.check.outcome }}" || echo "nothing to commit"
           git push origin "$branch"
           echo "Drafts on branch $branch" >> "$GITHUB_STEP_SUMMARY"
-          cat "tools/copy/drafts/${{ inputs.country }}/REPORT.md" >> "$GITHUB_STEP_SUMMARY"
+          cat "tools/copy/drafts/${COUNTRY}/REPORT.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+      - name: API budget
+        if: always()
+        run: node tools/spend/cli.mjs status || true
+      - name: Fail when drafting or checking failed
+        if: steps.draft.outcome != 'success' || steps.check.outcome != 'success'
+        run: |
+          echo "::error::draft=${{ steps.draft.outcome }} check=${{ steps.check.outcome }}: the drafts on the branch are rejected"
+          exit 1

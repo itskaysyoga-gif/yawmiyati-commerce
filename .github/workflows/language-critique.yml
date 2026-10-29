@@ -1,0 +1,48 @@
+# Independent AI critique of a small batch of customer strings (review of 29 Oct 2026, §3). A development step:
+# it reads strings from the repo and writes a critique file back to the same branch; nothing reaches customers.
+# Runs when a branch named language-run/<name> is pushed with tools/language/requests/current.json.
+# Spend goes through the shared ledger on branch ledger/anthropic (docs/API-BUDGET.md); runs that could spend are
+# queued one at a time.
+name: language-critique
+on:
+  push:
+    branches: ['language-run/**']
+permissions: {}
+concurrency:
+  group: anthropic-api
+  cancel-in-progress: false
+jobs:
+  critique:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write   # commit the critique to this branch and write the ledger branch; nothing else
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '22'
+      - name: Validate branch
+        run: '[[ "$GITHUB_REF_NAME" =~ ^language-run/[A-Za-z0-9._-]{1,60}$ ]] || { echo "::error::branch name not allowed"; exit 1; }'
+      - name: Critique
+        id: critique
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node tools/language/critique.mjs tools/language/requests/current.json
+      - name: Commit the critique to this branch
+        if: always()
+        run: |
+          git config user.name "language bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tools/language/critique || true
+          git commit -m "Language critique (run ${GITHUB_RUN_ID}): ${{ steps.critique.outcome }}; AI critique, not native review" || echo "nothing new"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+      - name: API budget
+        if: always()
+        run: node tools/spend/cli.mjs status || true
+      - name: Fail when the critique failed
+        if: steps.critique.outcome != 'success'
+        run: |
+          echo "::error::critique failed (see the annotations above)"
+          exit 1

@@ -1,21 +1,36 @@
 // Creative briefs from approved facts, drafted by the Anthropic API (CI only: the key is a repository secret).
-// Usage: node studio/brief.mjs studio/fixtures/facts-iq-IQ030403SENK99.json [...]
+// Usage: node studio/brief.mjs --request studio/requests/current.txt   (one facts file per line)
+//    or: node studio/brief.mjs studio/fixtures/facts-iq-IQ030403SENK99.json [...]
 // Output: studio/briefs/<cc>/<sku>.json — a DRAFT: checked by lib/rules.mjs, then dialect-reviewed by a person.
-// Spend: every call's tokens are priced with deliberately high rates and added to studio/spend.json; the run stops
-// before a call that could take the total past YM_STUDIO_BUDGET_USD (default 40) or the run past 3 USD.
+// Spend: every call goes through the shared API ledger (tools/spend, docs/API-BUDGET.md): it reserves the most the
+// call could cost before sending, settles with the usage the API returns, and keeps the full reservation when the
+// outcome is unknown. Video work is scheduled last (review of 29 Oct): this script is kept working and tested, and is
+// not run until the storefront and language work are finished (docs/CONTENT-STUDIO.md).
 import fs from 'node:fs';
 import path from 'node:path';
 import { check, ANGLES } from './lib/rules.mjs';
+import { paidCall } from '../tools/spend/anthropic.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname));
-const MODEL = process.env.YM_STUDIO_MODEL || 'claude-sonnet-5-5';
-const RATE = { in: Number(process.env.YM_RATE_IN || 5), out: Number(process.env.YM_RATE_OUT || 25) }; // USD per 1M tokens, set above list price on purpose
-const BUDGET = Number(process.env.YM_STUDIO_BUDGET_USD || 40);
-const RUN_CAP = 3;
-const ledgerFile = path.join(ROOT, 'spend.json');
-const ledger = fs.existsSync(ledgerFile) ? JSON.parse(fs.readFileSync(ledgerFile, 'utf8')) : { cap_usd: BUDGET, rates_usd_per_mtok: RATE, calls: [] };
-const spent = () => ledger.calls.reduce((s, c) => s + c.usd, 0);
-let runSpent = 0;
+const REPO = path.resolve(ROOT, '..');
+const MODEL = 'claude-sonnet-5-5'; // priced in tools/spend/rates.json; never taken from the environment
+const MAX_TOKENS = 4500;
+const SCOPE = { EG: 'eg', IQ: 'iq', SA: 'gulf', AE: 'gulf', OM: 'gulf' };
+
+/** Facts files allowed as input: inside studio/fixtures or studio/facts, plain names only. */
+export function factsPaths(argv) {
+  let list = argv;
+  if (argv[0] === '--request') {
+    const req = argv[1] || '';
+    if (!/^studio\/requests\/[A-Za-z0-9._-]+\.txt$/.test(req)) throw new Error(`request file must be studio/requests/<name>.txt, got "${req}"`);
+    list = fs.readFileSync(path.join(REPO, req), 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+  }
+  if (!list.length || list.length > 10) throw new Error('give 1-10 facts files');
+  return list.map((f) => {
+    if (!/^studio\/(fixtures|facts)\/[A-Za-z0-9._-]+\.json$/.test(f)) throw new Error(`facts file must be studio/fixtures/<name>.json or studio/facts/<name>.json, got "${f.slice(0, 80)}"`);
+    return path.join(REPO, f);
+  });
+}
 
 const voice = (cc) => fs.readFileSync(path.join(ROOT, '..', 'docs/voice', `${cc.toUpperCase()}.md`), 'utf8');
 
@@ -43,23 +58,14 @@ function slim(f) {
 }
 
 async function call(f, extra) {
-  const est = (8000 * RATE.in + 3000 * RATE.out) / 1e6; // worst case for one call
-  if (spent() + est > BUDGET || runSpent + est > RUN_CAP) throw new Error(`budget: spent ${spent().toFixed(2)} of ${BUDGET} USD (run ${runSpent.toFixed(2)} of ${RUN_CAP})`);
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 4500, system: system(f), tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(`API ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
-  const usd = (body.usage.input_tokens * RATE.in + body.usage.output_tokens * RATE.out) / 1e6;
-  runSpent += usd;
-  ledger.calls.push({ at: new Date().toISOString(), model: MODEL, purpose: `brief ${f.country} ${f.sku}`, input_tokens: body.usage.input_tokens, output_tokens: body.usage.output_tokens, usd: Number(usd.toFixed(4)) });
-  fs.writeFileSync(ledgerFile, JSON.stringify(ledger, null, 1));
-  if (process.env.GITHUB_ACTIONS) console.log(`::notice title=studio spend::${f.country} ${f.sku}: ${body.usage.input_tokens} in / ${body.usage.output_tokens} out tokens, counted as ${usd.toFixed(4)} USD; ledger total ${spent().toFixed(4)} USD`);
-  const use = (body.content || []).find((c) => c.type === 'tool_use');
+  const scope = SCOPE[f.country];
+  if (!scope) throw new Error(`unknown country ${f.country}`);
+  const body = { model: MODEL, max_tokens: MAX_TOKENS, system: system(f), tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] };
+  const { json, entry } = await paidCall({ scope, purpose: `brief ${f.country} ${f.sku}`, body });
+  if (process.env.GITHUB_ACTIONS) console.log(`::notice title=API spend::${f.country} ${f.sku}: ${entry.input_tokens} in / ${entry.output_tokens} out tokens, ${entry.usd} USD counted (${entry.usd_list} at list price)`);
+  const use = (json.content || []).find((c) => c.type === 'tool_use');
   if (use) return use.input;
-  const text = (body.content || []).map((c) => c.text || '').join('');
+  const text = (json.content || []).map((c) => c.text || '').join('');
   try { return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)); } catch { throw new Error('the answer had no write_brief call and no readable JSON'); }
 }
 
@@ -80,20 +86,29 @@ const TOOL = {
 };
 
 const note = (m) => console.log(process.env.GITHUB_ACTIONS ? `::error title=studio brief::${String(m).replace(/\n/g, ' ').slice(0, 900)}` : m);
-if (!process.env.ANTHROPIC_API_KEY) { note('ANTHROPIC_API_KEY is empty in this run'); process.exit(1); }
-let failed = 0;
-for (const file of process.argv.slice(2)) {
-  const f = JSON.parse(fs.readFileSync(file, 'utf8'));
-  let brief, errors;
-  try {
-    brief = await call(f);
-    errors = check(brief, f);
-    if (errors.length) { brief = await call(f, errors); errors = check(brief, f); }
-  } catch (e) { note(`${f.country} ${f.sku}: ${e.message}`); failed++; continue; }
-  if (errors.length) note(`${f.country} ${f.sku}: ${errors.length} rule errors: ${errors.slice(0, 5).join(' | ')}`);
-  const out = path.join(ROOT, 'briefs', f.country.toLowerCase(), `${f.sku}.json`);
-  fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, JSON.stringify({ status: errors.length ? 'rejected_by_rules' : 'draft: rules passed, dialect review pending', errors, model: MODEL, facts_offer_version: f.offer_version, generated_at: new Date().toISOString(), angles_required: ANGLES, ...brief }, null, 1));
-  console.log(`${f.country} ${f.sku}: ${errors.length ? errors.length + ' rule errors' : 'ok'}; spent so far ${spent().toFixed(3)} USD`);
+
+async function main() {
+  const files = factsPaths(process.argv.slice(2));
+  let failed = 0;
+  for (const file of files) {
+    const f = JSON.parse(fs.readFileSync(file, 'utf8'));
+    let brief;
+    let errors;
+    try {
+      brief = await call(f);
+      errors = check(brief, f);
+      if (errors.length) { brief = await call(f, errors); errors = check(brief, f); }
+    } catch (e) { note(`${f.country} ${f.sku}: ${e.message}`); failed++; continue; }
+    if (errors.length) { note(`${f.country} ${f.sku}: ${errors.length} rule errors: ${errors.slice(0, 5).join(' | ')}`); failed++; }
+    const out = path.join(ROOT, 'briefs', f.country.toLowerCase(), `${f.sku}.json`);
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    // A rejected draft is kept for diagnosis, marked rejected; the run still fails.
+    fs.writeFileSync(out, JSON.stringify({ status: errors.length ? 'rejected_by_rules' : 'draft: rules passed, dialect review pending', errors, model: MODEL, facts_offer_version: f.offer_version, generated_at: new Date().toISOString(), angles_required: ANGLES, ...brief }, null, 1));
+    console.log(`${f.country} ${f.sku}: ${errors.length ? errors.length + ' rule errors' : 'ok'}`);
+  }
+  return failed;
 }
-if (failed) process.exit(1);
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().then((failed) => process.exit(failed ? 1 : 0), (e) => { note(e.message); process.exit(1); });
+}

@@ -10,6 +10,7 @@ import { renderMedia, renderStill, selectComposition } from '@remotion/renderer'
 import { check } from './lib/rules.mjs';
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
+if (process.env.GITHUB_ACTIONS === 'true') { console.error('render.mjs does not run in GitHub Actions (not a render farm); use the cloud worker'); process.exit(2); }
 const REPO = path.resolve(ROOT, '..');
 const TEMPLATE_VERSION = 'photo-motion@1';
 const [factsFile, briefFile] = process.argv.slice(2);
