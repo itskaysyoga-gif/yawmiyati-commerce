@@ -44,8 +44,13 @@ Purchase `value` is the products total **without** the delivery fee (the fee is 
 Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first dataLayer push).
 
 ## 4. Consent
-- Banner on first visit: "موافقة" or "الضروري بس", re-openable from the footer ("إعدادات الكوكيز").
-- Choice stored in the first-party cookie `ym_consent` (180 days).
+- Compact card on first visit (29 Oct): "موافقة", "الضروري بس" and "اختاري بنفسك", which opens two unticked choices:
+  usage measurement (analytics) and advertising measurement (Meta, Instagram, Snap). Re-openable from the footer
+  ("إعدادات الكوكيز"); never shown again after a choice. While open, the page reserves its height below the content so
+  it never covers a button or a field (tested at 390 px on the product page and checkout).
+- Choice stored in the first-party cookie `ym_consent` (180 days): `granted` (both), `analytics` (usage only: GTM
+  loads with ad_storage, ad_user_data and ad_personalization denied; no ad click IDs; no server ad events) or `denied`.
+  Email marketing is a separate permission (docs/EMAIL.md), never implied by any cookie choice.
 - Google Consent Mode v2 defaults are all denied. On accept: consent update to granted, then GTM loads. On "essentials
   only": GTM never loads, ad click IDs are not stored, and no server event is sent for orders placed in that state.
 - **Withdrawal** (choosing "essentials only" after accepting): consent update to denied for loaded Google tags,

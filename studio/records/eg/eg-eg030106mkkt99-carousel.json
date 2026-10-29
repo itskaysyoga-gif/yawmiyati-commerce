@@ -1,0 +1,131 @@
+{
+ "id": "eg-eg030106mkkt99-carousel",
+ "kind": "carousel",
+ "country": "EG",
+ "sku": "EG030106MKKT99",
+ "product": "طقم موكيت فائق الامتصاص",
+ "status": "qa_passed",
+ "template_version": "photo-motion@1",
+ "narration": "none (sound-off captions; narration only after dialect auditions)",
+ "music": "none (licensed music for paid use not yet chosen)",
+ "photo_based": true,
+ "demonstration": false,
+ "source_evidence": {
+  "facts_offer_version": "10564b4c557c",
+  "facts_exported_at": "2026-10-29T07:01:15+00:00",
+  "environment": "local",
+  "brief": "briefs/eg/EG030106MKKT99.json",
+  "brief_status": "draft: rules passed, dialect review pending",
+  "brief_model": "claude-sonnet-5-5"
+ },
+ "offer_version": "10564b4c557c",
+ "media": [
+  {
+   "id": 18,
+   "file": "eg-mats-1.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  },
+  {
+   "id": 19,
+   "file": "eg-mats-2.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  }
+ ],
+ "claims": [
+  {
+   "line": "طقم موكيت بيشرب المية بدل ما تفضل على الأرض",
+   "source": "carousel"
+  },
+  {
+   "line": "الطويلة قدّام الحوض والصغيرة على باب الحمام",
+   "source": "carousel"
+  },
+  {
+   "line": "لون رمادي بخطوط فاتحة، زي الصورة",
+   "source": "carousel"
+  },
+  {
+   "line": "اطلبي من الموقع في مصر، والدفع عند الاستلام",
+   "source": "carousel"
+  }
+ ],
+ "caption": "المية على الأرض بعد الحوض أو الحمام حاجة بتتكرر كل يوم. طقم الموكيت ده بيشرب المية بدل ما تفضل على الأرض. حطي الطويلة قدّام الحوض والصغيرة على باب الحمام. السعر ورسوم التوصيل على صفحة المنتج، والدفع عند الاستلام. اطلبي من الموقع في مصر.\n\nhttp://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-carousel",
+ "landing_url": "http://localhost:8081/product/absorbent-mats/",
+ "tagged_url": "http://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-carousel",
+ "campaign": {
+  "utm_source": "instagram",
+  "utm_medium": "organic",
+  "utm_campaign": "eg-eg030106mkkt99",
+  "utm_content": "eg-eg030106mkkt99-carousel"
+ },
+ "blocked": [
+  "media rights not approved for organic use (interim supplier photos)",
+  "dialect review pending",
+  "catalog gate: check_identity, check_specs, check_media, check_price, spec_missing, media_resolution, media_original, media_rejected, media_interim, media_unmatched, media_partial, media_count, media_coverage, stock_unverified"
+ ],
+ "approval": {
+  "status": "pending",
+  "batch": null,
+  "by": null,
+  "at": null
+ },
+ "schedule": null,
+ "platform_ids": {},
+ "attempts": [],
+ "results": null,
+ "qa": {
+  "at": "2026-10-29T07:24:47.896Z",
+  "automated": "passed",
+  "failures": [],
+  "person_checks": [
+   "Arabic reads naturally in the country voice (native reviewer)",
+   "photos show the exact item; nothing implies a demonstration",
+   "subtitles readable on a phone with sound off",
+   "offer card matches the store page today"
+  ]
+ },
+ "files": [
+  {
+   "role": "slide_1",
+   "path": "renders/eg/eg-eg030106mkkt99-carousel-1.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "f696208a037c473b24ad0f066bb6aa8f1eb0ba971fde7f47497f4bbcaf21320e"
+  },
+  {
+   "role": "slide_2",
+   "path": "renders/eg/eg-eg030106mkkt99-carousel-2.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "7a0885bd13efc5c003ba545f8da159c72412563b415f576df703dedfe2cbcc01"
+  },
+  {
+   "role": "slide_3",
+   "path": "renders/eg/eg-eg030106mkkt99-carousel-3.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "4520ae71c5fbeb7da2c860f39b909dccf90f2385d4afd7972a60b2e710aca61d"
+  },
+  {
+   "role": "slide_4",
+   "path": "renders/eg/eg-eg030106mkkt99-carousel-4.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "bf25a72076a013199fde995c9df1bd42a8f9a8f79dca4d476016256be7b818a9"
+  },
+  {
+   "role": "story_9x16",
+   "path": "renders/eg/eg-eg030106mkkt99-story.png",
+   "width": 1080,
+   "height": 1920,
+   "sha256": "218373bbd6cab977ac48fecacaaf98aa4176d822547ed61d0a5b8a9d617b4c95"
+  }
+ ],
+ "created_at": "2026-10-29T07:23:42.580Z"
+}

@@ -233,3 +233,16 @@ test('Retired product: permanently redirected to its category and gone from the 
     h.wpEval('eg', `wp_delete_post(${id}, true);`);
   }
 });
+
+test('Cart on a phone: lines as cards, no sideways scroll, delivery stated, and no "total due" that leaves delivery out', async () => {
+  const { ctx, page } = await h.context(browser);
+  await page.goto(h.BASE.iq + '/product/sink-rack/');
+  await Promise.all([page.waitForLoadState('networkidle'), page.locator('button[value="cart"]').click()]);
+  await page.goto(h.BASE.iq + '/cart/', { waitUntil: 'networkidle' });
+  assert.ok(await overflow(page) <= 0, 'cart overflows');
+  assert.equal(await page.locator('.cart_totals tr.order-total').isVisible(), false, 'the cart cannot know the governorate: no total without delivery');
+  assert.match(await page.locator('.cart_totals').innerText(), /7,000/);
+  const img = await page.locator('td.product-thumbnail img').first().boundingBox();
+  assert.ok(img.width <= 64.5, `thumbnail ${img.width}px`);
+  await ctx.close();
+});

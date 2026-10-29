@@ -13,6 +13,8 @@ for (const [w, f] of [[400, 'arabic-400'], [500, 'arabic-500'], [700, 'arabic-70
 }
 for (const [w, f] of [[400, 'latin-400'], [700, 'latin-700']]) loadFont({ family: FONT, url: staticFile(`fonts/readex-pro-${f}-normal.woff2`), weight: String(w), unicodeRange: 'U+0000-00FF' });
 
+// Stills (carousel, story) render frame 0: motion is switched off there so nothing is caught mid-fade.
+const StillCtx = React.createContext(false);
 const FPS = 30;
 const HOOK = 75; // 2.5 s
 const BEAT = 75;
@@ -34,7 +36,9 @@ const Logo = ({ top = 120 }) => <Img src={staticFile('logo.svg')} style={{ posit
 // One product photo in a white card, slowly moving (Ken Burns). Never cropped to change what the product is:
 // the card shows the whole photo (contain) and only the motion scales it a little.
 const Photo = ({ src, from = 0, dur, box }) => {
-  const f = useCurrentFrame() - from;
+  const still = React.useContext(StillCtx);
+  const cur = useCurrentFrame();
+  const f = still ? 8 : cur - from;
   const s = interpolate(f, [0, dur], [1, 1.06], { extrapolateRight: 'clamp' });
   const x = interpolate(f, [0, dur], [0, -12], { extrapolateRight: 'clamp' });
   const o = interpolate(f, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
@@ -46,9 +50,10 @@ const Photo = ({ src, from = 0, dur, box }) => {
 };
 
 const Rise = ({ children, delay = 0, style }) => {
+  const still = React.useContext(StillCtx);
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const v = spring({ frame: f - delay, fps, config: { damping: 200 } });
+  const v = still ? 1 : spring({ frame: f - delay, fps, config: { damping: 200 } });
   return <div style={{ ...style, opacity: v, transform: `translateY(${(1 - v) * 40}px)` }}>{children}</div>;
 };
 
@@ -132,7 +137,7 @@ export const Reel45 = (p) => {
 export const Slide = (p) => {
   const last = p.index === p.slides.length - 1;
   return (
-    <Base>
+    <StillCtx.Provider value={true}><Base>
       {last ? <Offer p={p} compact /> : (
         <>
           <Photo src={p.images[p.index % p.images.length]} dur={1} box={{ top: 90, right: 160, width: 760, height: 820 }} />
@@ -141,16 +146,16 @@ export const Slide = (p) => {
         </>
       )}
       <Draft show={p.draft} />
-    </Base>
+    </Base></StillCtx.Provider>
   );
 };
 
 export const Story = (p) => (
-  <Base>
+  <StillCtx.Provider value={true}><Base>
     <Logo />
     <Offer p={p} />
     <Draft show={p.draft} />
-  </Base>
+  </Base></StillCtx.Provider>
 );
 
 const Root = () => {

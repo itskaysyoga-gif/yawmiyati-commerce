@@ -31,6 +31,8 @@ jobs:
         run: dev/setup.sh
       - name: Start stores
         run: dev/serve.sh && sleep 2 && for p in 8081 8082 8083 8084 8085; do curl -fsS -o /dev/null http://localhost:$p/; done
+      - name: Content Studio checks (rules, publisher against a fake Graph API; no account, no render)
+        run: node --test studio/test/*.test.mjs
       - name: Integration checks
         run: |
           for cc in eg iq sa ae om; do dev/wp.sh $cc eval-file "$PWD/tests/integration/run.php"; done

@@ -37,6 +37,6 @@ const pages = [['EG home', 'http://localhost:8081/'], ['EG catalog', 'http://loc
     }
   }
   console.table(rows);
-  require('fs').writeFileSync('process.argv[2] || 'perf-lab.json'', JSON.stringify(rows, null, 1));
+  require('fs').writeFileSync(process.argv[2] || 'perf-lab.json', JSON.stringify(rows, null, 1));
   await b.close();
 })();

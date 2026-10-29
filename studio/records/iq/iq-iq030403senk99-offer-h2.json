@@ -1,0 +1,115 @@
+{
+ "id": "iq-iq030403senk99-offer-h2",
+ "kind": "reel",
+ "country": "IQ",
+ "sku": "IQ030403SENK99",
+ "product": "رف فوق السنك",
+ "status": "qa_passed",
+ "template_version": "photo-motion@1",
+ "narration": "none (sound-off captions; narration only after dialect auditions)",
+ "music": "none (licensed music for paid use not yet chosen)",
+ "photo_based": true,
+ "demonstration": false,
+ "source_evidence": {
+  "facts_offer_version": "48abab8ed6f7",
+  "facts_exported_at": "2026-10-29T07:01:16+00:00",
+  "environment": "local",
+  "brief": "briefs/iq/IQ030403SENK99.json",
+  "brief_status": "draft: rules passed, dialect review pending",
+  "brief_model": "claude-sonnet-5-5"
+ },
+ "offer_version": "48abab8ed6f7",
+ "media": [
+  {
+   "id": 18,
+   "file": "iq-sink-rack-1.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  },
+  {
+   "id": 19,
+   "file": "iq-sink-rack-2.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  }
+ ],
+ "claims": [
+  {
+   "line": "الرف لوحده لو مع الموكيت؟",
+   "source": "hook (no factual claim)"
+  },
+  {
+   "line": "رف فوق السنك: اختاري الرف لوحده",
+   "source": "name"
+  },
+  {
+   "line": "أو اختاري الرف مع طقم الموكيت",
+   "source": "name"
+  },
+  {
+   "line": "والصحون تنشف فوق السنك",
+   "source": "benefit"
+  },
+  {
+   "line": "اختاري عرضج من الموقع بالعراق",
+   "source": "cta"
+  }
+ ],
+ "caption": "رف فوق السنك بعرضين: الرف لوحده، أو الرف مع طقم الموكيت. اختاري اللي يناسبج. السعر وأجور التوصيل بصفحة المنتج، والدفع كاش للمندوب وقت الاستلام. اطلبي من الموقع داخل العراق.\n\nhttp://localhost:8082/product/sink-rack/?utm_source=instagram&utm_medium=organic&utm_campaign=iq-iq030403senk99&utm_content=iq-iq030403senk99-offer-h2",
+ "landing_url": "http://localhost:8082/product/sink-rack/",
+ "tagged_url": "http://localhost:8082/product/sink-rack/?utm_source=instagram&utm_medium=organic&utm_campaign=iq-iq030403senk99&utm_content=iq-iq030403senk99-offer-h2",
+ "campaign": {
+  "utm_source": "instagram",
+  "utm_medium": "organic",
+  "utm_campaign": "iq-iq030403senk99",
+  "utm_content": "iq-iq030403senk99-offer-h2"
+ },
+ "blocked": [
+  "media rights not approved for organic use (interim supplier photos)",
+  "dialect review pending",
+  "catalog gate: check_identity, check_specs, check_media, check_price, spec_missing, media_resolution, media_original, media_rejected, media_interim, media_unmatched, media_partial, media_count, media_coverage, stock_unverified"
+ ],
+ "approval": {
+  "status": "pending",
+  "batch": null,
+  "by": null,
+  "at": null
+ },
+ "schedule": null,
+ "platform_ids": {},
+ "attempts": [],
+ "results": null,
+ "qa": {
+  "at": "2026-10-29T07:24:48.917Z",
+  "automated": "passed",
+  "failures": [],
+  "person_checks": [
+   "Arabic reads naturally in the country voice (native reviewer)",
+   "photos show the exact item; nothing implies a demonstration",
+   "subtitles readable on a phone with sound off",
+   "offer card matches the store page today"
+  ]
+ },
+ "files": [
+  {
+   "role": "master_9x16",
+   "path": "renders/iq/iq-iq030403senk99-offer-h2-9x16.mp4",
+   "width": 1080,
+   "height": 1920,
+   "seconds": 15,
+   "sha256": "ff002f3ec9354e72e0a7e078d3dc0a1016812e66ae8eeef36acd00c9572e29b1"
+  },
+  {
+   "role": "thumbnail",
+   "path": "renders/iq/iq-iq030403senk99-offer-h2-thumb.jpg",
+   "sha256": "f571d49b5a9a263fc1e6bc5bd4830b27e2d14e2fcf778aa726f1efc425ce3885"
+  }
+ ],
+ "created_at": "2026-10-29T07:18:32.622Z",
+ "angle": "offer",
+ "hook_index": 2
+}

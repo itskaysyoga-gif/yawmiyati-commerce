@@ -38,6 +38,9 @@ final class YM_Checkout {
 		add_filter( 'woocommerce_get_privacy_policy_text', fn( $text, $type ) => 'checkout' === $type ? YM_Country::copy( 'privacy_note' ) : $text, 10, 2 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
 		add_action( 'woocommerce_thankyou', array( __CLASS__, 'next_steps' ), 5 );
+		// Cart: say what delivery costs here instead of "calculated during checkout".
+		add_filter( 'woocommerce_shipping_not_enabled_on_cart_html', array( __CLASS__, 'cart_delivery_line' ) );
+		add_filter( 'woocommerce_shipping_may_be_available_html', array( __CLASS__, 'cart_delivery_line' ) );
 		add_action( 'ym_cleanup_tokens', array( __CLASS__, 'cleanup_tokens' ) );
 		if ( ! wp_next_scheduled( 'ym_cleanup_tokens' ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'ym_cleanup_tokens' );
@@ -429,6 +432,12 @@ final class YM_Checkout {
 			echo '<li>' . esc_html( $st ) . '</li>';
 		}
 		echo '</ol></section>';
+	}
+
+	public static function cart_delivery_line() {
+		$fees = array_unique( array_map( fn( $g ) => (float) $g[1], YM_Country::rules()['governorates'] ) );
+		$txt  = count( $fees ) > 1 ? sprintf( YM_Country::copy( 'fee_range' ), YM_Country::number( min( $fees ) ), YM_Country::money( max( $fees ) ) ) : sprintf( YM_Country::copy( 'fee_flat' ), YM_Country::money( reset( $fees ) ) );
+		return esc_html( $txt . '. ' . YM_Country::copy( 'one_fee' ) );
 	}
 
 	/** A few WooCommerce strings that read wrong for a delivery-only shop. */

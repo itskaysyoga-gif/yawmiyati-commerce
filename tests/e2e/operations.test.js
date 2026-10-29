@@ -76,7 +76,8 @@ test('Ad platform failing: the event is retried with the same ID and time, then 
     const { ctx, page } = await h.context(browser, { consent: 'granted' });
     const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
     await ctx.close();
-    h.sendNow('eg', id, 'meta', 'purchase');
+    // Consent cookie set without a consent subject (no banner click): nothing to check across stores, sent at once.
+    h.wpEval('eg', `YM_Tracking::send(${id}, "meta", "purchase");`);
     const first = h.order('eg', id).capi_meta;
     assert.equal(first.status, 'error');
     assert.equal(first.tries, 1);

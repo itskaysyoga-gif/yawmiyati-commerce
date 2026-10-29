@@ -1,0 +1,123 @@
+{
+ "id": "eg-eg030106mkkt99-fit-h1",
+ "kind": "reel",
+ "country": "EG",
+ "sku": "EG030106MKKT99",
+ "product": "طقم موكيت فائق الامتصاص",
+ "status": "qa_passed",
+ "template_version": "photo-motion@1",
+ "narration": "none (sound-off captions; narration only after dialect auditions)",
+ "music": "none (licensed music for paid use not yet chosen)",
+ "photo_based": true,
+ "demonstration": false,
+ "source_evidence": {
+  "facts_offer_version": "10564b4c557c",
+  "facts_exported_at": "2026-10-29T07:01:15+00:00",
+  "environment": "local",
+  "brief": "briefs/eg/EG030106MKKT99.json",
+  "brief_status": "draft: rules passed, dialect review pending",
+  "brief_model": "claude-sonnet-5-5"
+ },
+ "offer_version": "10564b4c557c",
+ "media": [
+  {
+   "id": 18,
+   "file": "eg-mats-1.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  },
+  {
+   "id": 19,
+   "file": "eg-mats-2.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  }
+ ],
+ "claims": [
+  {
+   "line": "هتحطي كل قطعة فين؟",
+   "source": "hook (no factual claim)"
+  },
+  {
+   "line": "الطويلة قدّام الحوض والصغيرة على باب الحمام.",
+   "source": "diary"
+  },
+  {
+   "line": "طويلة للمطبخ أو الحوض، وصغيرة للحمام أو الغسالة.",
+   "source": "benefits.1"
+  },
+  {
+   "line": "لو المكان أضيق، الصغيرة تنفع لوحدها قدّام الغسالة.",
+   "source": "fit"
+  },
+  {
+   "line": "اطلبي من الموقع في مصر دلوقتي",
+   "source": "cta"
+  }
+ ],
+ "caption": "قبل ما تطلبي، فكري كل قطعة هتروح فين. الطويلة قدّام الحوض أو في المطبخ، والصغيرة على باب الحمام أو قدّام الغسالة. ولو المكان عندك أضيق، الصغيرة تنفع لوحدها قدّام الغسالة. السعر ورسوم التوصيل على صفحة المنتج. اطلبي من الموقع في مصر.\n\nhttp://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-fit-h1",
+ "landing_url": "http://localhost:8081/product/absorbent-mats/",
+ "tagged_url": "http://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-fit-h1",
+ "campaign": {
+  "utm_source": "instagram",
+  "utm_medium": "organic",
+  "utm_campaign": "eg-eg030106mkkt99",
+  "utm_content": "eg-eg030106mkkt99-fit-h1"
+ },
+ "blocked": [
+  "media rights not approved for organic use (interim supplier photos)",
+  "dialect review pending",
+  "catalog gate: check_identity, check_specs, check_media, check_price, spec_missing, media_resolution, media_original, media_rejected, media_interim, media_unmatched, media_partial, media_count, media_coverage, stock_unverified"
+ ],
+ "approval": {
+  "status": "pending",
+  "batch": null,
+  "by": null,
+  "at": null
+ },
+ "schedule": null,
+ "platform_ids": {},
+ "attempts": [],
+ "results": null,
+ "qa": {
+  "at": "2026-10-29T07:24:48.029Z",
+  "automated": "passed",
+  "failures": [],
+  "person_checks": [
+   "Arabic reads naturally in the country voice (native reviewer)",
+   "photos show the exact item; nothing implies a demonstration",
+   "subtitles readable on a phone with sound off",
+   "offer card matches the store page today"
+  ]
+ },
+ "files": [
+  {
+   "role": "master_9x16",
+   "path": "renders/eg/eg-eg030106mkkt99-fit-h1-9x16.mp4",
+   "width": 1080,
+   "height": 1920,
+   "seconds": 15,
+   "sha256": "867e5efac593b158736a2f3c321927db558b2c9cee8ee3f9ec6b92cc5f850cba"
+  },
+  {
+   "role": "thumbnail",
+   "path": "renders/eg/eg-eg030106mkkt99-fit-h1-thumb.jpg",
+   "sha256": "e0db47aa6bba0cd184549f5da7e2cc2a3e6da6f51d6db2605965d6fc21ca97fc"
+  },
+  {
+   "role": "feed_4x5",
+   "path": "renders/eg/eg-eg030106mkkt99-fit-h1-4x5.mp4",
+   "width": 1080,
+   "height": 1350,
+   "seconds": 15,
+   "sha256": "79a4c444863802cfbf047e22c0a5e8bb93070cfe536f6ea2b00caff6653bc5e1"
+  }
+ ],
+ "created_at": "2026-10-29T07:20:41.274Z",
+ "angle": "fit",
+ "hook_index": 1
+}

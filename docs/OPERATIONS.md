@@ -6,9 +6,10 @@ sent at most once an hour. Run any job by hand: `wp ym ops-run <job>`.
 
 | Job | When (store time) | What it does | Alerts when | Depends on Taager |
 | --- | --- | --- | --- | --- |
-| supplier_sweep | hourly at :07 | Re-checks processing orders from the last 3 days whose hand-off is pending or unconfirmed (looked up by meta directly; the earlier query matched every processing order); retries consent withdrawals that could not reach the shared ledger | an order turns unconfirmed or conflict | yes: needs the verified reference key |
+| consent_certify | every 5 min | Flushes this store's queued consent withdrawals to the shared ledger and, only when none remain, writes this store's certificate. Server ad events in **every** store wait until every store in `YM_CONSENT_STORES` has certified past the moment they were decided (docs/MEASUREMENT.md §4) | a withdrawal cannot reach the ledger (all stores then hold their events) | no |
+| supplier_sweep | hourly at :07 | Re-checks processing orders from the last 3 days whose hand-off is pending or unconfirmed (looked up by meta directly); also certifies consent | an order turns unconfirmed or conflict | yes: needs the verified reference key |
 | (per order) supplier check | 15, 60, 180 min after the order | Looks for the Taager reference; missing = unconfirmed, never "failed" | unconfirmed, conflict | yes |
-| stock_guard | daily 06:00 | Lists offers whose stock check is older than 48 h (they stop selling on staging/production) or expires within 12 h | any offer expired or expiring | yes: stock is checked by hand in Taager |
+| stock_guard | daily 06:00 | Lists offers whose stock check is older than 48 h (they stop selling on staging/production) or expires within 12 h; deletes newsletter signups never confirmed after 30 days | any offer expired or expiring | yes: stock is checked by hand in Taager |
 | daily_digest | daily 08:30 | Yesterday's orders by status, duplicate holds, unconfirmed / not found / conflict hand-offs, orders stuck over 72 h | anything needs attention | statuses: yes |
 | weekly_report | Monday 09:00 | Submitted-to-delivered funnel and contribution per product (docs/MEASUREMENT.md §8) | — (emailed) | delivered/refused stages: yes |
 | capi_send (per order) | queued after the order | Meta and Snap server events, 3 attempts | third failure | no |
@@ -21,7 +22,11 @@ One test order does not close them all: each country, the payout route, returns 
 2. Site Tools > Devs > Cron Jobs, one per store, every 5 minutes:
    `cd ~/www/yawmiyati.shop/public_html/eg && php wp-cron.php` (and `/iq`).
 3. Environment variables in wp-config.php: `YM_ALERT_WEBHOOK`, `YM_META_CAPI_TOKEN`, `YM_SNAP_CAPI_TOKEN`,
-   `YM_SHARED_DB` (the shared consent ledger database; create it once and grant every store's DB user on it),
+   `YM_SHARED_DB` (the shared database for the consent ledger, store certificates and email permissions; create it
+   once and grant every store's DB user on it), `YM_CONSENT_STORES` (the installed stores, e.g. `eg,iq`; a listed store
+   that never certifies holds every store's server events), `YM_MAIL_SECRET` (same value on every store: signed email
+   links), `YM_BREVO_KEY` / `YM_BREVO_WEBHOOK_KEY` (when email flows go live), `YM_STUDIO_KEY` (the Content Studio's
+   facts endpoint),
    `YM_TRUSTED_PROXIES` / `YM_CLIENT_IP_HEADER` only if a proxy sits in front of PHP (check on staging first)
    (read with getenv or set in SiteGround's PHP variables; never committed).
 4. Uptime monitor (UptimeRobot, free tier): one HTTP monitor per store on `/wp-json/ym/v1/health`. It returns 503 when
@@ -55,8 +60,11 @@ Lifecycle commands used daily: `wp ym outcome <order> <stage> --evidence=… [--
 `wp ym credit <order> <amount> --source=… [--line=SKU]` (docs/REPORTING.md).
 
 ## Weekly (Monday, about 45 minutes)
-Read the Monday email (last 7 days + the mature 4-week cohort). Per product: keep / improve / pause, judged on the
-mature cohort's delivered-and-kept rate and contribution, never on yesterday's undelivered orders. Check the
+Read the Monday email (last 7 days + the mature 4-week cohort). Per product: `wp ym gates` gives too_early /
+unknown / test / keep / pause from contribution per submitted order with an 80 % band (docs/ASSORTMENT-v1.md
+kill-gates); pause what it says, never on yesterday's undelivered orders. `wp ym reco-report --days=30` for items added
+from recommendations. Content: approve next week's studio batch (docs/CONTENT-STUDIO.md) and look at
+studio/state/alerts.log (invalidated or dead-letter posts). Check the
 shortlist (docs/PRODUCT-SELECTION.md) for the next candidate to research. Look at refusal reasons: operational causes
 go to Taager; customer causes feed the risk records automatically. Run the restore drill monthly.
 
@@ -82,9 +90,18 @@ restores after verifying checksums. **Restore drill:** `dev/restore-drill.sh` re
 store and compares orders, products, country, money ledger and media (passed 28 Oct 2026, locally). On hosting, run
 the same drill monthly on staging.
 
+## Daily and weekly at a glance (one operator)
+- Daily, 15-20 min per open country: ops board actions; held orders; unconfirmed hand-offs; outcomes; stock for
+  advertised offers; ad spend; review links. If a publish alert or `consent_certify_blocked` alert arrived: look first.
+- Weekly, 45-60 min: gates and reco report; approve the next content batch; read the alerts log; restore drill monthly.
+- Emergency switches: studio `node studio/publish.mjs --pause`; ads gate off by commit; Meta ads paused in Ads
+  Manager (Claude may pause and lower, never raise).
+
 ## Releases and rollback
 One repository, one release for every country store. A release is a git tag (`release-YYYYMMDD-N`) that passed CI.
 Deploy: pull the tag on staging, run `wp ym launch-check` and a test order per open country, then pull the same tag
 on production stores. Rollback: put the store in maintenance, check out the previous tag, `wp cache flush`, check
 `wp ym ops` and the health endpoint. The plugin keeps data in options and order meta only (no table migrations), so
-an older release reads newer data safely. If data itself is bad, restore the last backup (export newer orders first).
+an older release reads newer data safely. Tables added on 29 Oct (`{prefix}ym_consent_pending`; in the shared
+database `ym_consent_ledger`, `ym_consent_cert`, `ym_contacts`, `ym_mail_log`, `ym_mail_events`) are created with
+CREATE TABLE IF NOT EXISTS and ignored by older releases. If data itself is bad, restore the last backup (export newer orders first).

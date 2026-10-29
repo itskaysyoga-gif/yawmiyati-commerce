@@ -42,6 +42,26 @@ as the main image. Higgsfield or other generators are optional and not a launch 
 editing, captions and localised narration make strong ads from it. Generators are only for clearly separate creative,
 never as product images or as proof of performance.
 
+## Rights fields (29 Oct)
+`wp ym media <id> … --channels=site,organic,paid --editing=none|crop|retouch --expires=YYYY-MM-DD --approved
+[--fit=contain|cover --focal=x,y]`. Store pages need `site`; social posts need `organic` and the owner's approval date;
+ads need `paid` and approval. Expired rights block every channel. Supplier integration or a support chat is not
+written rights. Missing originals block that product, not the rest of the work.
+
+## Card derivatives (29 Oct)
+Equal CSS boxes do not make photography consistent, so every image gets a 4:5 card derivative made from the
+untouched original (`YM_Media`): cut-outs on a plain light background are trimmed to the product and padded with the
+same margin (same optical scale across the grid); photographs are never stretched, cropped to 4:5 only when the crop
+keeps at least 90 % (75 % with a person's `--fit=cover --focal`), otherwise shown whole on the same white card. A whole
+photo that fills less than 70 % of the card is **weak**: the gate asks for another authorised image instead of an
+enlarged crop (`media_card_weak`). Files: WebP and JPEG at 400 and 800 px wide (never upscaled), served with srcset,
+sizes and fixed dimensions; only the home's focal image is high priority. AVIF needs GD or Imagick with AVIF on the
+host (not available in the build container); add it when the host supports it. With `--editing=none` nothing is
+trimmed or cropped.
+
+Interim images today: Egypt blanket and mats detail, Iraq rack, window cleaner, organizer, heater and mats are weak
+(wide photos). They need other source images, not crops.
+
 ## Status today (28 Oct 2026)
 All 12 launch offers fail the media gate: the only images are 168-600 px crops of Taager listing thumbnails, and most
 show part of the product. Originals have been requested (docs/requests/taager-round-3.md).

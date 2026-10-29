@@ -1,86 +1,122 @@
 # Launch checklist
 
-_29 Oct 2026. **This is the one checklist**: owner actions, verification and launch steps all live here; other documents
-point to it instead of keeping their own lists. Ordered by what blocks what. `wp ym launch-check` on each store mirrors
-the items marked (auto). Status: open · in progress · done. Owner: R = Rashid, C = Claude, T = Taager (answer or test
-order). Countries open one at a time: Egypt and Iraq first. Saudi Arabia, UAE and Oman stay prepared and closed; their
-commercial recommendations are provisional until current supplier evidence exists (docs/MARKETS.md)._
+_29 Oct 2026 (completion and growth round, docs/reports/2026-10-29-completion-growth.md). **This is the one checklist**:
+owner actions, verification and launch steps all live here; other documents point to it. Ordered by what blocks what.
+`wp ym launch-check` on each store mirrors the items marked (auto). Status: open · in progress · done.
+Owner: R = Rashid, C = Claude, T = Taager (an answer or a test order). Egypt opens first, Iraq follows when its fees,
+stock and operational tests pass. Saudi Arabia, UAE and Oman stay prepared and closed (checkout, ads, indexing)._
 
-## Readiness levels (per country)
+## Evidence levels (used everywhere in this repo)
+| Level | Means |
+| --- | --- |
+| **Implemented** | Code in this repo runs on the local stores |
+| **Locally tested** | An automated check passes locally and in GitHub Actions (CI). No Taager, Meta or Brevo involved |
+| **Provider-tested** | Observed on the real service with a real account: Taager staging order, Meta test account post, Brevo send |
+| **Commercially approved** | Rashid's yes on facts, prices, media rights and spend |
+
+## Readiness per country
 | Level | Means | Egypt | Iraq | SA / AE / OM |
 | --- | --- | --- | --- | --- |
-| **Development complete** | Everything launch needs is implemented and passes locally and in CI; no known open defect | yes (see docs/PROJECT-STATE.md for the commit and CI run) | yes | yes (prepared, closed) |
-| **Staging verified** | P0 items 4-11 and 19-20 done on staging with that country's Taager store linked; supplier behaviour observed, not assumed | no | no | no |
-| **Commercially ready** | Staging verified + P0 items 12-18 (approved assortment, verified product records, policy facts, native review, payout test, production, gates) | no | no | no |
+| **Development complete** | Everything launch needs is implemented and locally tested; no known open defect | yes (PROJECT-STATE.md: commit and CI run) | yes | yes (prepared, closed) |
+| **Staging verified** | P0 4-11, 19-20 done on staging with that country's Taager store linked | no | no | no |
+| **Commercially ready** | Staging verified + P0 12-18 | no | no | no |
 | **Ready for ads** | Commercially ready + P1 | no | no | no |
+| **Growth tools live** | P3 (email, content publishing) each switched on only after its provider test | no | no | no |
 
-## Owner actions (Rashid), in order
-1. Make the GitHub repo private (#1).
-2. Yes on the design (#2) and on the first assortment, docs/ASSORTMENT-v1.md (#12).
-3. Buy yawmiyati.shop and SiteGround GrowBig (#3). Staging (#4 onwards) starts the same day.
-4. Send Taager rounds 3 and 4 (#5); ask for the Iraq refusal charge **in writing** (Iraq ads wait for it).
-5. Ask Taager for original media with written permission and the specs for the approved SKUs (#11).
-6. Link Taager to the Egypt, then the Iraq staging store, and place the test orders with Claude (#6-#9).
-7. Find one Egyptian and one Iraqi native reviewer (#15).
-8. Small test withdrawal to the intended account (#16).
-9. Later, before ads: GTM, GA4, Meta dataset + token, Snap (#21); real phones (#23); Meta spending limit (#26);
-   Turnstile keys (optional, #25); operator accounts and an alert webhook (#19).
+## Owner actions (Rashid): the one table
+Continue-while-waiting rule: Claude keeps building everything that does not depend on an open row and does not ask
+twice for the same approval.
+| # | Item | Exact action | Evidence needed | Capability blocked until done |
+| --- | --- | --- | --- | --- |
+| O1 | Repo private | GitHub → Settings → Danger zone → Change visibility → Private | Repo page shows "Private" | Nothing technical; exposure of business data |
+| O2 | Design yes | Look at the review screenshots (PDF from this round) and say yes or list changes | Your written yes | Staging content freeze |
+| O3 | Assortment yes | Approve docs/ASSORTMENT-v1.md rows (Egypt rack 689 is a proposal) | Rows marked approved with date | Publishing any product; content production for real |
+| O4 | Domain + hosting | Buy yawmiyati.shop and SiteGround GrowBig | Purchase receipt | Staging (P0 4+), Search Console, email domain |
+| O5 | Taager questions | Send rounds 3 and 4 (docs/requests/); ask the Iraq refusal charge **in writing** | Written answers | Iraq ads; Gulf economics |
+| O6 | Specs + original media | Ask Taager for sizes, materials, box contents and original photos with written permission for the approved SKUs (mats sizes and rack width are the first two) | Files + written permission | Catalog gate; fit pages; any content publication |
+| O7 | Taager link | Link Taager to Egypt staging, then Iraq; place test orders with Claude (P0 6-9) | Orders visible in Taager | Supplier verification |
+| O8 | Native reviewers | One Egyptian and one Iraqi reviewer for docs/LANGUAGE-REVIEW.md (includes this round's new keys) | Reviewer sign-off | Opening a country; publishing scripts |
+| O9 | Payout test | Small withdrawal to the intended account | Money received | Commercial readiness |
+| O10 | Server cron | On SiteGround: cron every 5 minutes for each store's wp-cron (consent certification runs every 5 min) | `wp ym ops` shows no overdue job | Server ad events in every store (held until all stores certify) |
+| O11 | Measurement accounts | GTM, GA4, Meta dataset + CAPI token, Snap (or decide no Snap) | IDs and tokens in the environment | Ads (P1 21-22) |
+| O12 | Meta publishing | Instagram professional account linked to the Yawmiyati Page; a private **test** IG account; a Meta app with instagram_content_publish and pages_manage_posts; a long-lived token in the studio's environment | `node studio/publish.mjs` token check passes; one test post published with its ID recorded | Organic publishing (P3 34-36) |
+| O13 | Studio facts key + upload user | YM_STUDIO_KEY on every store; a WordPress user that can only upload media, with an application password, for the publisher | Publisher preflight reads facts; upload works | Organic publishing |
+| O14 | Brevo | Brevo account; authenticate the sending domain (SPF, DKIM, DMARC); a monitored reply address; one list per country | Brevo shows the domain authenticated; test mail lands in Gmail and Outlook | Email flows (P3 30-33) |
+| O15 | Music | Choose a track licensed for paid social use, or decide silent | Licence text | Paid video ads with music |
+| O16 | Meta spending limit | Ads Manager → account spending limit | Limit visible | Any ad spend |
+| O17 | Egypt privacy and marketing rules | Confirm with a local adviser or the regulator's guidance what the operator must register or record before marketing to Egyptian customers | Written note | Switching on email marketing and advertising tags in Egypt |
+| O19 | Home photograph | Choose one licensed lifestyle photo of a believable home (a photo library with a commercial licence, or your own); never a generated scene. Claude records it with `wp ym media --channels=site --approved` and sets `ym_hero_image` | Licence text + file | The home shows the featured product as its focal image until then |
+| O18 | Operator accounts + alerts | Personal operator logins (no shared password), alert webhook, uptime monitor | Test alert received | P0 19 |
 
 ## P0: before the first real order (per country)
 | # | Item | Owner | Status | How we know it is done |
 | --- | --- | --- | --- | --- |
-| 1 | Make the GitHub repo private | R | open | GitHub shows Private (still public on 28 Oct, late) |
-| 2 | Approve the warm Yawmiyati design and the new catalog/search/review pages on the preview | R | open | Rashid's yes |
-| 3 | Buy yawmiyati.shop and SiteGround GrowBig | R | open | Approved spend; purchase done |
-| 4 | Staging stores on SiteGround from a CI-green release tag; server cron; env vars (incl. `YM_SHARED_DB` with every store's DB user granted on it); staging noindex | C | open | `wp ym launch-check` runs on staging; health endpoint 200; shared consent ledger ok (auto) |
-| 4a | Client IP source on the real host: compare `REMOTE_ADDR` and forwarding headers with a known IP; set `YM_TRUSTED_PROXIES` / `YM_CLIENT_IP_HEADER` only if a proxy sits in front | C | open | `ym_client_ip_checked` set (auto); a test submission records the right IP |
-| 5 | Send Taager round 3 and round 4 questions (docs/requests/) | R | open | Answers in COUNTRY-RULES as "Taager said" |
-| 6 | Link the Taager plugin to the **Egypt** staging store (the actual plugin version, recorded); one ordinary test order | R + C | open | Order reaches Taager; reference meta key found and set (`ym_supplier_ref_keys`, `ym_supplier_ref_keys_verified`) |
-| 7 | Read the Taager plugin's code for the hook and status check it uses; place one **deliberately held** test order | C + R | open | Held order does not appear in Taager until released (docs/RISK.md §5) |
-| 8 | From the Egypt orders: status names synced back, who called and what name they gave, parcel and invoice, delivery charge on a 2-item order and on the 2-set mats SKU | R + C | open | Each recorded with date; `ym_stage_map` set; `ym_status_sync_verified` set only after statuses arrive |
-| 8a | Duplicate handling at Taager: the same checkout retried (lost response) and a deliberate second order from the same phone | R + C | open | Exactly one Taager order for the retry; the second order held by us and visible to Taager only after release. Recorded as observed, not inferred from local tests |
-| 9 | Repeat 6-8 on the **Iraq** store | R + C | open | Same evidence for Iraq |
-| 10 | Governorate codes mapped to Taager's province names, per country | C + T | open | Mapping table in COUNTRY-RULES; test orders land in the right province |
-| 11 | Per SKU: identity, critical specs, media **coverage** (clean, detail, scale; ≥1000 px; exact SKU; source, rights, original), price ≥ Taager minimum, stock < 48 h | R + C | open | `wp ym gate` shows ready = yes (auto) |
-| 12 | Approve the first assortment: docs/ASSORTMENT-v1.md (Egypt 4 products / 5 offers, Iraq 4 / 5) | R | open | Rows set to "approved" with date |
-| 13 | Replace seed products with verified records (seed is refused on production) | C | open | No product with `_ym_dev_seed` (auto) |
-| 14 | Resolve every [ym_pending] line on the policy pages | C + T | open | launch-check "policy pages" ok (auto) |
-| 15 | Native review of copy and pages for each country that opens | R finds reviewers, C applies | open | LANGUAGE-REVIEW.md approved; `ym_language_reviewed_<CC>` set (auto) |
-| 16 | Payout: small test withdrawal to the intended account | R | open | Money received |
-| 17 | Production install, Search Console, domain-root files (deploy/root, open markets only) | C | open | SEO.md steps done; sitemaps submitted |
-| 18 | Market gates for that country set in config/markets.json by commit: catalog, then checkout | R decides, C commits | open | `wp ym market` shows them on |
-| 19 | Operator accounts (no shared passwords); alert webhook; uptime monitors | R + C | open | Test alert received |
-| 20 | Backups scheduled; restore drill passed on staging | C | open (local drill passed) | Drill output saved in docs/reports |
+| 1 | Make the GitHub repo private | R | open | GitHub shows Private |
+| 2 | Approve the design on the review screenshots of this round | R | open | Rashid's yes |
+| 3 | Buy yawmiyati.shop and SiteGround GrowBig | R | open | Purchase done |
+| 4 | Staging stores from a CI-green release; server cron every 5 min; env vars (`YM_SHARED_DB` with every store's DB user granted; `YM_CONSENT_STORES` = the installed stores; `YM_MAIL_SECRET`); staging noindex and protected | C | open | `wp ym launch-check` runs; health 200; consent ledger and certificates fresh for every store (auto) |
+| 4a | Client IP source on the real host (`YM_TRUSTED_PROXIES` only if a proxy sits in front) | C | open | `ym_client_ip_checked` set (auto) |
+| 5 | Taager round 3 and 4 questions | R | open | Answers in COUNTRY-RULES as "Taager said" |
+| 6 | Taager plugin on **Egypt** staging (version recorded); one ordinary test order | R + C | open | Reference meta key found (`ym_supplier_ref_keys_verified`) |
+| 7 | Read the Taager plugin's hook; one **deliberately held** test order | C + R | open | Held order absent from Taager until released |
+| 8 | From the Egypt orders: status names, caller identity, parcel and invoice, delivery charge on a 2-item order and on the 2-set mats SKU | R + C | open | `ym_stage_map` set; `ym_status_sync_verified` only after statuses arrive |
+| 8a | Duplicate handling at Taager: lost-response retry and a second order from the same phone | R + C | open | Exactly one Taager order for the retry; the second held by us |
+| 9 | Repeat 6-8 on **Iraq** | R + C | open | Same evidence for Iraq |
+| 10 | Governorate codes ↔ Taager province names | C + T | open | Mapping in COUNTRY-RULES; test orders land right |
+| 11 | Per SKU: identity, critical specs, media coverage and rights, card derivative not weak, price ≥ Taager minimum, stock < 48 h | R + C | open | `wp ym gate` ready = yes (auto) |
+| 12 | Approve the first assortment (ASSORTMENT-v1.md) | R | open | Rows approved with date |
+| 13 | Replace seed products with verified records | C | open | No `_ym_dev_seed` product (auto) |
+| 14 | Resolve every [ym_pending] line on the policy pages; confirm "delivery to every governorate" (today from Taager's published fee table, not observed) | C + T | open | launch-check "policy pages" ok (auto) |
+| 15 | Native review of copy, pages, emails and scripts per opening country | R finds, C applies | open | `ym_language_reviewed_<CC>` set (auto) |
+| 16 | Payout test | R | open | Money received |
+| 17 | Production install, Search Console, domain-root files (open markets only) | C | open | SEO.md steps done |
+| 18 | Market gates by commit: catalog, then checkout | R decides, C commits | open | `wp ym market` |
+| 19 | Operator accounts, alert webhook, uptime monitors | R + C | open | Test alert received |
+| 20 | Backups scheduled (each store's backup includes the shared consent ledger); restore drill on staging | C | open (local drill passed with the ledger) | Drill output in docs/reports |
 
 ## P1: before any ad spend in a country
 | # | Item | Owner | Status | How we know it is done |
 | --- | --- | --- | --- | --- |
-| 21 | GTM, GA4, Meta dataset + CAPI token, Snap pixel + token (or no Snap); GTM page_location = {{ym_page_location}} | R creates, C configures | open | IDs set; tokens in environment (auto) |
-| 22 | Live measurement checks L1-L12 (MEASUREMENT.md §9) for that country, with the real tags and final media | C | open | `ym_measurement_tested` set (auto) |
-| 23 | Real-device checks: Android Chrome, iPhone Safari, Instagram and Facebook in-app browsers; consent accepted and declined | R + C | open | Checklist in QA-CHECKLIST.md filled |
-| 24 | Real-host performance with final media and real tags: lab run on staging (tools/perf-lab.js) and a burst test (docs/reports) | C | open | Mobile LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 in lab; burst handled |
-| 25 | Turnstile keys (optional, recommended once orders flow) | R | open | `ym_turnstile_sitekey` + `YM_TURNSTILE_SECRET` |
-| 26 | Meta ad account spending limit; Meta Ads connection in approval-required mode | R | open | Limit visible in Ads Manager |
-| 27 | Stock confirmed within 48 h for every advertised offer | R | open | Gate green on the day |
-| 28 | "ads" gate on for that country by commit | R decides | open | `wp ym market` |
+| 21 | GTM, GA4, Meta dataset + CAPI token, Snap or no Snap | R creates, C configures | open | IDs set (auto) |
+| 22 | Live measurement checks L1-L12 (MEASUREMENT.md §9) incl. analytics-only consent, withdrawal across stores and a store unable to write the ledger | C | open | `ym_measurement_tested` (auto) |
+| 23 | Real devices: Android Chrome, iPhone Safari, Instagram and Facebook in-app browsers; consent card accepted, declined, analytics-only | R + C | open | QA-CHECKLIST.md filled |
+| 24 | Real-host performance with final media, tags, consent card and recommendations (lab now, field at P2) | C | open | Mobile LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 in lab |
+| 25 | Turnstile keys (optional) | R | open | Keys set |
+| 26 | Meta spending limit; Ads connection in approval-required mode | R | open | Limit visible |
+| 27 | Stock confirmed < 48 h for every advertised offer | R | open | Gate green that day |
+| 28 | "ads" gate on by commit | R decides | open | `wp ym market` |
 
-## P2: before scaling past the $150 test
+## P2: before scaling past the first test budget
 | # | Item | Owner | Status |
 | --- | --- | --- | --- |
-| 29 | Field Core Web Vitals (CrUX / Search Console) at the 75th percentile | C | open |
-| 30 | Delivered contribution from the mature cohort per product; ads judged on it | C | open |
-| 31 | OrderDelivered events arriving; consider optimising on them | C | open |
-| 32 | Weekly keep / improve / pause review per product (Claude scheduled task on the live store) | C | open |
-| 33 | Genuine reviews flowing (links after verified deliveries) | R | open |
+| 29 | Field Core Web Vitals at the 75th percentile | C | open |
+| 29a | Kill-gates on mature contribution with an 80 % band (`wp ym gates`), weekly | C | implemented, locally tested |
+| 29b | Genuine reviews flowing; OrderDelivered events arriving | R + C | open |
+
+## P3: growth tools, each switched on only after its provider test
+| # | Item | Owner | Status | How we know it is done |
+| --- | --- | --- | --- | --- |
+| 30 | Brevo domain authenticated (SPF, DKIM, DMARC aligned), reply address monitored | R | open | Brevo dashboard; reply received |
+| 31 | Arabic templates checked on mobile Gmail and Outlook (RTL, links, prices, plain text, unsubscribe) | R + C | open | Screenshots in docs/reports |
+| 32 | Provider test: confirm → welcome → one-click unsubscribe → suppressed in a second store; bounce webhook | C | open (locally tested) | Brevo logs + `ym_contacts` rows |
+| 33 | Switch on flows one at a time (`ym_email_flows`): transactional, newsletter, post_delivery, cross_sell | R decides | open | Option set with date |
+| 34 | Content: dialect review and media rights for the first product per country; re-render; QA | R + C | open (pipeline locally tested) | Records qa_passed with no blocks |
+| 35 | Publish one approved post to the **test** IG account; platform ID recorded; a forced retry does not duplicate | C | open (fake Graph server only) | Record shows platform ID; one post on the account |
+| 36 | First production batch (4 reels + 2 carousels a week) approved | R | open | Batch file with approver and date |
+| 37 | Comment and DM handling: Meta Business Suite automated replies + a person; Manychat revisited with real volumes | R + C | open | Reply times in the weekly review |
 
 ## Done (local and CI)
-29 Oct 2026, stabilization: order key removed by redirect before any tag; consent withdrawal shared by all five stores
-(fails closed); line-level returns, refunds and supplier credits with reconciliation; contradictory events held open
-until reviewed; trusted-proxy IP, atomic counters, strict Turnstile checks, concurrency tests; reviews after a return;
-supplier sweep lookup fixed; lockfile and `npm ci`.
+29 Oct 2026, completion and growth round (this checklist's companion report): consent withdrawal holds when a store can
+read but not write the shared ledger (two-phase server events, store certificates, atomic local queue, concurrency and
+backup/restore tests); analytics-only consent; compact consent card; home with focal image and one action; 4:5 card
+derivatives with weak-photo detection and media rights fields; honest next steps after ordering; recommendations v1;
+email permissions with double opt-in, cross-store suppression, caps, Brevo adapter and webhook (flows off); Content
+Studio pipeline (facts, API briefs with a spend cap, renders, QA, approval, publisher with reconciliation, pause and dead
+letter); kill-gates on contribution; one price source with stamped previews.
 
-28 Oct 2026:
-Product-to-order flow in five countries; duplicate-order race fixed; lifecycle reporting; market gates; COD controls
-with review queue and risk records; catalog, search, categories, quantity and totals; media coverage gate; reviews
-after delivery; operations board; backups with a passed local restore drill; measurement fixes. None of this is
-supplier-verified.
+29 Oct 2026, stabilization: order key redirect; shared consent ledger; line-level accounting; trusted-proxy IP, atomic
+counters, Turnstile checks; reviews after a return; lockfile.
+
+28 Oct 2026: product-to-order flow in five countries; duplicate-order race fixed; lifecycle reporting; market gates;
+COD controls; catalog, search, categories; media coverage gate; reviews; operations board; backups with a restore
+drill; measurement. None of this is supplier-verified.

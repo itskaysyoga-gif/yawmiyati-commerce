@@ -268,6 +268,30 @@ body:has(.ym-consent:not([hidden])) .ym-sticky { display: none; }
 .woocommerce-cart-form table.shop_table { width: 100%; border-collapse: collapse; background: var(--ym-paper); border: 1px solid var(--ym-rule); border-radius: var(--ym-radius); overflow: hidden; }
 .woocommerce-cart-form td, .woocommerce-cart-form th { padding: 10px; border-bottom: 1px solid var(--ym-rule); text-align: right; }
 .woocommerce-cart-form img { width: 56px; height: 70px; object-fit: contain; background: var(--ym-paper); }
+/* Phones: each cart line becomes a small card (thumbnail, name, remove; then price, quantity, subtotal with labels). */
+@media (max-width: 700px) {
+  .woocommerce-cart-form table.shop_table thead { display: none; }
+  .woocommerce-cart-form table.shop_table, .woocommerce-cart-form tbody { display: block; border: 0; background: none; }
+  .woocommerce-cart-form tr.cart_item { display: grid; grid-template-columns: 64px 1fr 32px; grid-template-areas: "img name x" "img price price" "img qty qty" "img sub sub"; gap: 4px 12px; margin: 0 0 10px; padding: 12px; background: var(--ym-paper); border: 1px solid var(--ym-rule); border-radius: var(--ym-radius); }
+  .woocommerce-cart-form tr.cart_item td { display: flex; justify-content: space-between; align-items: center; padding: 0; border: 0; min-width: 0; }
+  .woocommerce-cart-form td.product-thumbnail { grid-area: img; align-items: flex-start; }
+  .woocommerce-cart-form td.product-name { grid-area: name; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
+  .woocommerce-cart-form td.product-remove { grid-area: x; justify-content: flex-end; align-items: flex-start; }
+  .woocommerce-cart-form td.product-price { grid-area: price; }
+  .woocommerce-cart-form td.product-quantity { grid-area: qty; }
+  .woocommerce-cart-form td.product-subtotal { grid-area: sub; font-weight: 600; }
+  .woocommerce-cart-form td.product-price::before, .woocommerce-cart-form td.product-quantity::before, .woocommerce-cart-form td.product-subtotal::before { content: attr(data-title); color: var(--ym-muted); font-weight: 400; font-size: 14px; }
+  .woocommerce-cart-form tr:not(.cart_item) { display: block; }
+  .woocommerce-cart-form tr:not(.cart_item) td { display: block; border: 0; padding: 4px 0; }
+  .woocommerce-cart-form td.product-thumbnail a, .woocommerce-cart-form td.product-thumbnail img { display: block; width: 64px !important; height: 80px !important; max-width: none; object-fit: contain; }
+  .woocommerce .cart-collaterals .cart_totals, .woocommerce-page .cart-collaterals .cart_totals { width: 100%; float: none; }
+  .woocommerce .cart-collaterals .cart_totals table th { width: 40%; }
+  .woocommerce .wc-proceed-to-checkout { padding: 8px 0; }
+  .woocommerce .wc-proceed-to-checkout a.checkout-button { width: 100%; box-sizing: border-box; }
+}
+/* The cart cannot know the governorate yet, so its "total" would leave delivery out: show the subtotal and the delivery
+   line only; the full total appears at checkout as soon as she picks her governorate. */
+.woocommerce-cart .cart_totals tr.order-total { display: none; }
 .woocommerce .wc-proceed-to-checkout a.checkout-button { display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: var(--ym-radius); background: var(--ym-berry); color: #fff; font-weight: 600; text-decoration: none; }
 
 /* Order received */

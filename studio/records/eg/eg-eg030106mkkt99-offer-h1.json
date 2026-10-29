@@ -1,0 +1,123 @@
+{
+ "id": "eg-eg030106mkkt99-offer-h1",
+ "kind": "reel",
+ "country": "EG",
+ "sku": "EG030106MKKT99",
+ "product": "طقم موكيت فائق الامتصاص",
+ "status": "qa_passed",
+ "template_version": "photo-motion@1",
+ "narration": "none (sound-off captions; narration only after dialect auditions)",
+ "music": "none (licensed music for paid use not yet chosen)",
+ "photo_based": true,
+ "demonstration": false,
+ "source_evidence": {
+  "facts_offer_version": "10564b4c557c",
+  "facts_exported_at": "2026-10-29T07:01:15+00:00",
+  "environment": "local",
+  "brief": "briefs/eg/EG030106MKKT99.json",
+  "brief_status": "draft: rules passed, dialect review pending",
+  "brief_model": "claude-sonnet-5-5"
+ },
+ "offer_version": "10564b4c557c",
+ "media": [
+  {
+   "id": 18,
+   "file": "eg-mats-1.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  },
+  {
+   "id": 19,
+   "file": "eg-mats-2.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  }
+ ],
+ "claims": [
+  {
+   "line": "طقم واحد ولا طقمين؟",
+   "source": "hook (no factual claim)"
+  },
+  {
+   "line": "طقم واحد: طويلة وصغيرة في الطقم.",
+   "source": "benefit"
+  },
+  {
+   "line": "طقم واحد: طويلة للحوض وصغيرة للحمام.",
+   "source": "benefits.1"
+  },
+  {
+   "line": "طقمين لو عايزة تغطي أماكن أكتر.",
+   "source": "benefits.1"
+  },
+  {
+   "line": "اختاري عرضك من الموقع في مصر",
+   "source": "cta"
+  }
+ ],
+ "caption": "عندك اختيارين: طقم واحد أو طقمين. اختاري اللي يناسب أماكن البيت عندك. السعر ورسوم التوصيل على صفحة المنتج، والدفع عند الاستلام. اطلبي من الموقع في مصر.\n\nhttp://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-offer-h1",
+ "landing_url": "http://localhost:8081/product/absorbent-mats/",
+ "tagged_url": "http://localhost:8081/product/absorbent-mats/?utm_source=instagram&utm_medium=organic&utm_campaign=eg-eg030106mkkt99&utm_content=eg-eg030106mkkt99-offer-h1",
+ "campaign": {
+  "utm_source": "instagram",
+  "utm_medium": "organic",
+  "utm_campaign": "eg-eg030106mkkt99",
+  "utm_content": "eg-eg030106mkkt99-offer-h1"
+ },
+ "blocked": [
+  "media rights not approved for organic use (interim supplier photos)",
+  "dialect review pending",
+  "catalog gate: check_identity, check_specs, check_media, check_price, spec_missing, media_resolution, media_original, media_rejected, media_interim, media_unmatched, media_partial, media_count, media_coverage, stock_unverified"
+ ],
+ "approval": {
+  "status": "pending",
+  "batch": null,
+  "by": null,
+  "at": null
+ },
+ "schedule": null,
+ "platform_ids": {},
+ "attempts": [],
+ "results": null,
+ "qa": {
+  "at": "2026-10-29T07:24:48.226Z",
+  "automated": "passed",
+  "failures": [],
+  "person_checks": [
+   "Arabic reads naturally in the country voice (native reviewer)",
+   "photos show the exact item; nothing implies a demonstration",
+   "subtitles readable on a phone with sound off",
+   "offer card matches the store page today"
+  ]
+ },
+ "files": [
+  {
+   "role": "master_9x16",
+   "path": "renders/eg/eg-eg030106mkkt99-offer-h1-9x16.mp4",
+   "width": 1080,
+   "height": 1920,
+   "seconds": 15,
+   "sha256": "8ffa568085cfb4eba9a4442a924c2df27758c472eadb9c56ee5426512fb4e50f"
+  },
+  {
+   "role": "thumbnail",
+   "path": "renders/eg/eg-eg030106mkkt99-offer-h1-thumb.jpg",
+   "sha256": "18f071ac3ad5136b320271a7853392ec0d08abf705305697092f4755d771f9f4"
+  },
+  {
+   "role": "feed_4x5",
+   "path": "renders/eg/eg-eg030106mkkt99-offer-h1-4x5.mp4",
+   "width": 1080,
+   "height": 1350,
+   "seconds": 15,
+   "sha256": "49ce59f7f4f5286bb26b219fcadbff75aad0530933d5de149d9734878b32240d"
+  }
+ ],
+ "created_at": "2026-10-29T07:22:00.700Z",
+ "angle": "offer",
+ "hook_index": 1
+}

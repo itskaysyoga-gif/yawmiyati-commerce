@@ -1,0 +1,131 @@
+{
+ "id": "iq-iq030403senk99-carousel",
+ "kind": "carousel",
+ "country": "IQ",
+ "sku": "IQ030403SENK99",
+ "product": "رف فوق السنك",
+ "status": "qa_passed",
+ "template_version": "photo-motion@1",
+ "narration": "none (sound-off captions; narration only after dialect auditions)",
+ "music": "none (licensed music for paid use not yet chosen)",
+ "photo_based": true,
+ "demonstration": false,
+ "source_evidence": {
+  "facts_offer_version": "48abab8ed6f7",
+  "facts_exported_at": "2026-10-29T07:01:16+00:00",
+  "environment": "local",
+  "brief": "briefs/iq/IQ030403SENK99.json",
+  "brief_status": "draft: rules passed, dialect review pending",
+  "brief_model": "claude-sonnet-5-5"
+ },
+ "offer_version": "48abab8ed6f7",
+ "media": [
+  {
+   "id": 18,
+   "file": "iq-sink-rack-1.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  },
+  {
+   "id": 19,
+   "file": "iq-sink-rack-2.jpg",
+   "final": false,
+   "organic": false,
+   "paid": false,
+   "rights": "Taager support chat 2026-10-28: supplier images may be used (not written terms)"
+  }
+ ],
+ "claims": [
+  {
+   "line": "رف فوق السنك: الصحون تنشف فوق السنك",
+   "source": "carousel"
+  },
+  {
+   "line": "الكاونتر يبقى فاضي للشغل",
+   "source": "carousel"
+  },
+  {
+   "line": "قبل لا تطلبين، قيسي عرض السنك من الحافة للحافة",
+   "source": "carousel"
+  },
+  {
+   "line": "اختاري عرضج واطلبي من الموقع بالعراق",
+   "source": "carousel"
+  }
+ ],
+ "caption": "الصحون تنشف فوق السنك، والكاونتر يبقى فاضي للشغل. رف فوق السنك من يومياتي. السعر وأجور التوصيل تلكينهم بصفحة المنتج. الدفع كاش للمندوب وقت الاستلام. اطلبي من الموقع داخل العراق.\n\nhttp://localhost:8082/product/sink-rack/?utm_source=instagram&utm_medium=organic&utm_campaign=iq-iq030403senk99&utm_content=iq-iq030403senk99-carousel",
+ "landing_url": "http://localhost:8082/product/sink-rack/",
+ "tagged_url": "http://localhost:8082/product/sink-rack/?utm_source=instagram&utm_medium=organic&utm_campaign=iq-iq030403senk99&utm_content=iq-iq030403senk99-carousel",
+ "campaign": {
+  "utm_source": "instagram",
+  "utm_medium": "organic",
+  "utm_campaign": "iq-iq030403senk99",
+  "utm_content": "iq-iq030403senk99-carousel"
+ },
+ "blocked": [
+  "media rights not approved for organic use (interim supplier photos)",
+  "dialect review pending",
+  "catalog gate: check_identity, check_specs, check_media, check_price, spec_missing, media_resolution, media_original, media_rejected, media_interim, media_unmatched, media_partial, media_count, media_coverage, stock_unverified"
+ ],
+ "approval": {
+  "status": "pending",
+  "batch": null,
+  "by": null,
+  "at": null
+ },
+ "schedule": null,
+ "platform_ids": {},
+ "attempts": [],
+ "results": null,
+ "qa": {
+  "at": "2026-10-29T07:24:48.520Z",
+  "automated": "passed",
+  "failures": [],
+  "person_checks": [
+   "Arabic reads naturally in the country voice (native reviewer)",
+   "photos show the exact item; nothing implies a demonstration",
+   "subtitles readable on a phone with sound off",
+   "offer card matches the store page today"
+  ]
+ },
+ "files": [
+  {
+   "role": "slide_1",
+   "path": "renders/iq/iq-iq030403senk99-carousel-1.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "6812f80140fceddd3c62ec9e6bca4392c7914ebaa99c8d5bd60d66f4c41dc6d9"
+  },
+  {
+   "role": "slide_2",
+   "path": "renders/iq/iq-iq030403senk99-carousel-2.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "c163557190218622757f29fbd0523140503a74ee3a809d7cdd8ab063dc871615"
+  },
+  {
+   "role": "slide_3",
+   "path": "renders/iq/iq-iq030403senk99-carousel-3.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "9f3207bf0a56e837bc6eb84b005149ff32af5ea98d72621a09c951aecd7e447a"
+  },
+  {
+   "role": "slide_4",
+   "path": "renders/iq/iq-iq030403senk99-carousel-4.png",
+   "width": 1080,
+   "height": 1350,
+   "sha256": "59b807f63401aed3c3f3911e38b874ba57a2844e03f3d1460b8d5af1ee0df0b7"
+  },
+  {
+   "role": "story_9x16",
+   "path": "renders/iq/iq-iq030403senk99-story.png",
+   "width": 1080,
+   "height": 1920,
+   "sha256": "0bb38a3709fcedba81daac519fd0d3db8651e9c3c334f42815314a19ff916954"
+  }
+ ],
+ "created_at": "2026-10-29T07:23:35.649Z"
+}

@@ -119,6 +119,7 @@ function serverEvents(cc) {
   certifyAll();
   processQueue(cc);
 }
+// For orders with a consent subject (she chose in the banner). An order without one is sent on the first call.
 function sendNow(cc, id, platform, kind) {
   wpEval(cc, `YM_Tracking::send(${Number(id)}, "${platform}", "${kind}");`);
   sleep(3100);
