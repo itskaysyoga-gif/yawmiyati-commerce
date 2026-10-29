@@ -1,5 +1,5 @@
 {
-  "source": "research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
+  "source": "Prices: research/selection/first_wave.csv proposed_price where listed (docs/ASSORTMENT-v1.md, PROPOSED, awaiting owner approval); other fields research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
   "products": [
     {
       "sku": "IQ030403SENK99",

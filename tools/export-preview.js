@@ -7,6 +7,15 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.resolve(process.argv[2] || 'preview');
+const crypto = require('crypto');
+const { execSync } = require('child_process');
+const ROOT = path.resolve(__dirname, '..');
+// Every export says what it was made from: commit (with -dirty when files were uncommitted), when, and the data
+// revision (hash of the seed records and the assortment file the prices come from).
+const COMMIT = (() => { try { const c = execSync('git rev-parse --short HEAD', { cwd: ROOT }).toString().trim(); const dirty = execSync('git status --porcelain -- plugin theme research/selection', { cwd: ROOT }).toString().trim(); return c + (dirty ? '-dirty' : ''); } catch { return 'unknown'; } })();
+const GENERATED = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+const DATA_REV = crypto.createHash('sha256').update(['plugin/yawmiyati-commerce/seed/eg.json', 'plugin/yawmiyati-commerce/seed/iq.json', 'plugin/yawmiyati-commerce/seed/om.json', 'research/selection/first_wave.csv'].map((f) => fs.readFileSync(path.join(ROOT, f))).join('\n')).digest('hex').slice(0, 10);
+const STAMP = `PREVIEW ONLY · commit ${COMMIT} · generated ${GENERATED} · data ${DATA_REV}`;
 const STORES = {
   eg: { base: 'http://localhost:8081', name: 'مصر', products: ['absorbent-mats', 'double-clothes-rack', 'heater-2in1-remote', 'wearable-blanket'], buy: 'absorbent-mats', state: 'EGC', phone: '01000000000' },
   iq: { base: 'http://localhost:8082', name: 'العراق', products: ['sink-rack', 'absorbent-mats', 'heater-180', 'corner-clothes-organizer', 'magnetic-window-cleaner', 'double-clothes-rack'], buy: 'sink-rack', state: 'BG', phone: '07700000000' },
@@ -55,14 +64,14 @@ function relocate(html, base, depth, { stripScripts }) {
   return html;
 }
 
-const BANNER = (up) => `<div style="padding:8px 16px;background:#1F1D1E;color:#fff;font:14px/1.6 'Readex Pro',sans-serif;text-align:center">نسخة معاينة ثابتة من المتجر المحلي. الطلب معطّل هنا. <a href="${up}../index.html" style="color:#fff">كل الصفحات</a></div>`;
+const BANNER = (up) => `<div data-ym-preview-stamp style="padding:8px 16px;background:#1F1D1E;color:#fff;font:14px/1.6 'Readex Pro',sans-serif;text-align:center">معاينة ثابتة من المتجر المحلي، مش الموقع الحقيقي. الطلب معطّل. الأسعار مقترحة ولسه ما اتوافقش عليها. <a href="${up}../index.html" style="color:#fff">كل الصفحات</a><br><span dir="ltr" style="font:12px/1.5 ui-monospace,monospace;opacity:.85">${STAMP}</span></div>`;
 const PREVIEW_JS = `<script>document.addEventListener('submit',function(e){var f=e.target;if(f.matches('form.ym-buy, form.cart, form[data-ym]')||f.querySelector('[name=ym_offer]')){e.preventDefault();location.href=document.querySelector('meta[name=ym-preview-checkout]').content;}},true);</script>`;
 
 async function save(page, cc, base, rel, opts = {}) {
   const depth = rel.split('/').filter(Boolean).length;
   const up = depth ? '../'.repeat(depth) : './';
   let html = relocate(await page.content(), base, depth, opts);
-  html = html.replace('<head>', `<head><meta name="ym-preview-checkout" content="${up}checkout/index.html">`);
+  html = html.replace('<head>', `<head><meta name="ym-preview-checkout" content="${up}checkout/index.html"><meta name="robots" content="noindex,nofollow"><meta name="ym-preview" content="${STAMP}">`);
   html = html.replace(/<body([^>]*)>/, `<body$1>${BANNER(up)}`);
   if (!opts.stripScripts) html = html.replace('</body>', PREVIEW_JS + '</body>');
   const file = path.join(OUT, cc, rel, 'index.html');
@@ -146,6 +155,7 @@ async function save(page, cc, base, rel, opts = {}) {
 <style>:root{--ink:#1F1D1E;--nila:#2B3192;--rule:#E7E5E1;--muted:#5E5A57;--paper:#fff}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#F2F1EF;--nila:#AEB4F5;--rule:#3A3836;--muted:#B8B3AE;--paper:#161515}}
 body{margin:0;padding:24px 16px;background:var(--paper);color:var(--ink);font:16px/1.7 system-ui,sans-serif}main{max-width:720px;margin:0 auto}h1{font-size:24px;margin:0 0 4px}p{color:var(--muted);margin:0 0 20px}
 h2{font-size:18px;margin:20px 0 8px}ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}li{border-bottom:1px solid var(--rule)}a{display:block;padding:10px 0;color:var(--nila);text-decoration:none}</style></head>
-<body><main><h1>معاينة يومياتي</h1><p>صفحات حقيقية من متاجر WooCommerce المحلية، محفوظة يوم ${when}. الأسعار من ملف التشكيلة v2 (عُمان: منتج تجربة محلي فقط). الطلب والبحث معطّلان في المعاينة. الصور مؤقتة ومحجوبة عن البيع حتى تصل الأصلية.</p>${list}</main></body></html>`);
+<body><main><h1>معاينة يومياتي</h1><p>صفحات حقيقية من متاجر WooCommerce المحلية، محفوظة يوم ${when}. الأسعار من research/selection/first_wave.csv (مقترحة، بانتظار موافقة رشيد؛ عُمان: منتج تجربة محلي فقط). الطلب والبحث معطّلان في المعاينة. الصور مؤقتة ومحجوبة عن البيع حتى تصل الأصلية.</p><p dir="ltr" style="font-family:ui-monospace,monospace;font-size:13px">${STAMP}</p>${list}</main></body></html>`);
+  fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({ preview_only: true, commit: COMMIT, generated: GENERATED, data_revision: DATA_REV }, null, 1));
   console.log('saved', saved.size, 'assets to', OUT);
 })();

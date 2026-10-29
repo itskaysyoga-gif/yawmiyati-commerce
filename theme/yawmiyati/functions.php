@@ -57,11 +57,12 @@ function ym_shop_url() {
  * $eager: only the first visible row on a page is loaded eagerly; everything else waits until it is near the screen.
  */
 function ym_card( WC_Product $p, $eager = false, $priority = false ) {
-	$attrs = array( 'class' => 'ym-frame', 'alt' => $p->get_name(), 'loading' => $eager ? 'eager' : 'lazy', 'decoding' => 'async', 'sizes' => '(min-width: 960px) 260px, 46vw' );
+	$attrs = array( 'class' => 'ym-frame', 'loading' => $eager ? 'eager' : 'lazy', 'decoding' => 'async', 'sizes' => '(min-width: 960px) 260px, 46vw' );
 	if ( $priority ) {
 		$attrs['fetchpriority'] = 'high';
 	}
-	$img = $p->get_image_id() ? wp_get_attachment_image( $p->get_image_id(), 'woocommerce_single', false, $attrs ) : '<span class="ym-frame ym-frame--empty" aria-hidden="true"></span>';
+	// One 4:5 card derivative per product (YM_Media): same white card and optical scale for cut-outs, whole photos never stretched.
+	$img = class_exists( 'YM_Media' ) ? YM_Media::card_html( (int) $p->get_image_id(), $p->get_name(), $attrs ) : wp_get_attachment_image( $p->get_image_id(), 'woocommerce_single', false, array_merge( $attrs, array( 'alt' => $p->get_name() ) ) );
 	$out = '<li class="ym-card' . ( $p->is_in_stock() ? '' : ' is-out' ) . '">'
 		. '<a class="ym-card__img" href="' . esc_url( $p->get_permalink() ) . '" tabindex="-1" aria-hidden="true">' . $img . '</a>'
 		. '<a class="ym-card__name" href="' . esc_url( $p->get_permalink() ) . '">' . esc_html( $p->get_name() ) . '</a>'
@@ -137,6 +138,7 @@ add_shortcode( 'ym_footer', function () {
 		<img src="<?php echo esc_url( get_theme_file_uri( 'assets/img/logo.svg' ) ); ?>" alt="يومياتي" width="46" height="40">
 		<p><?php echo esc_html( ym_t( 'ask' ) ); ?></p>
 		<?php echo class_exists( 'YM_Social' ) ? YM_Social::links( 'footer' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside ?>
+		<?php echo class_exists( 'YM_Mail' ) ? YM_Mail::signup_form( 'footer' ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside; shown only once the newsletter flow is switched on ?>
 		<nav aria-label="<?php echo esc_attr( ym_t( 'nav_contact' ) ); ?>"><ul>
 			<?php foreach ( $links as $slug => $key ) : ?>
 				<?php $page = get_page_by_path( $slug ); ?>
@@ -150,45 +152,89 @@ add_shortcode( 'ym_footer', function () {
 } );
 
 /**
- * [ym_home]: hero, a curated selection (featured products, at most 6), category routes and a clear way into the
- * full catalog. The home page never lists the whole catalog.
+ * The home page's focal image. A licensed lifestyle photograph (option ym_hero_image: attachment ID whose media
+ * record says rights are cleared for the site) when one exists; otherwise the first featured product with complete
+ * media, shown whole and named. Never three unrelated thumbnails, never a generated "lifestyle" scene.
+ */
+function ym_hero_media() {
+	$id = (int) get_option( 'ym_hero_image' );
+	if ( $id ) {
+		$m = json_decode( (string) get_post_meta( $id, '_ym_media', true ), true );
+		if ( ! empty( $m['rights'] ) && in_array( 'site', (array) ( $m['channels'] ?? array( 'site' ) ), true ) ) {
+			return array( 'kind' => 'photo', 'html' => wp_get_attachment_image( $id, 'large', false, array( 'class' => 'ym-hero__photo', 'alt' => (string) ( $m['alt'] ?? '' ), 'loading' => 'eager', 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 960px) 560px, 100vw' ) ) );
+		}
+	}
+	return null;
+}
+
+/**
+ * [ym_home]: one focal image with a short editorial message and one clear action, then categories, a curated
+ * selection (at most 6), one practical home tip and how ordering works. The home page never lists the whole catalog.
  */
 add_shortcode( 'ym_home', function () {
 	if ( ! function_exists( 'wc_get_products' ) ) {
 		return '';
 	}
-	$pick = wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'featured' => true, 'limit' => 6, 'orderby' => 'menu_order', 'order' => 'ASC' ) );
+	// The curated selection shows only what she can order now, with a picture: no filler, no sold-out tiles.
+	$ready = fn( $list ) => array_values( array_filter( $list, fn( $p ) => $p->is_in_stock() && $p->get_image_id() ) );
+	$pick  = $ready( wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'featured' => true, 'limit' => 12, 'orderby' => 'menu_order', 'order' => 'ASC' ) ) );
 	if ( count( $pick ) < 4 ) {
-		$more = wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'limit' => 6, 'orderby' => 'menu_order', 'order' => 'ASC', 'exclude' => array_map( fn( $p ) => $p->get_id(), $pick ) ) );
-		$pick = array_slice( array_merge( $pick, $more ), 0, 6 );
+		$more = $ready( wc_get_products( array( 'status' => 'publish', 'visibility' => 'catalog', 'limit' => 12, 'orderby' => 'menu_order', 'order' => 'ASC', 'exclude' => array_map( fn( $p ) => $p->get_id(), $pick ) ) ) );
+		$pick = array_merge( $pick, $more );
 	}
+	$pick  = array_slice( $pick, 0, 6 );
 	$whole = array_values( array_filter( $pick, function ( $p ) {
 		$m = json_decode( (string) get_post_meta( $p->get_image_id(), '_ym_media', true ), true );
-		return ! empty( $m['complete'] );
+		return $p->is_in_stock() && ! empty( $m['complete'] );
 	} ) );
-	$hero  = array_slice( count( $whole ) >= 3 ? $whole : $pick, 0, 3 );
-	$total = array_sum( array_map( fn( $t ) => $t->count, (array) get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true ) ) ) );
+	$photo = ym_hero_media();
+	$focus = $photo ? null : ( $whole[0] ?? ( $pick[0] ?? null ) );
+	$cats  = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
+	$steps = array_filter( explode( '|', ym_t( 'home_steps' ) ) );
 	ob_start();
 	?>
 	<div class="ym-home">
-		<section class="ym-hero">
+		<section class="ym-hero<?php echo $photo ? ' ym-hero--photo' : ' ym-hero--product'; ?>">
 			<div class="ym-hero__text">
 				<h1><?php echo esc_html( ym_t( 'home_title' ) ); ?></h1>
 				<p><?php echo esc_html( ym_t( 'home_lede' ) ); ?></p>
+				<a class="ym-btn ym-btn--primary ym-hero__cta" href="<?php echo esc_url( ym_shop_url() ); ?>" data-ym-hero-cta><?php echo esc_html( ym_t( 'home_cta' ) ); ?></a>
 				<ul class="ym-trust"><?php foreach ( explode( '|', ym_t( 'home_trust' ) ) as $t ) : ?><li><?php echo esc_html( $t ); ?></li><?php endforeach; ?></ul>
 			</div>
-			<div class="ym-hero__shelf">
-				<?php foreach ( $hero as $i => $p ) : ?><a href="<?php echo esc_url( $p->get_permalink() ); ?>"><?php echo wp_get_attachment_image( $p->get_image_id(), 'woocommerce_single', false, array( 'class' => 'ym-frame', 'alt' => $p->get_name(), 'loading' => 'eager', 'fetchpriority' => 0 === $i ? 'high' : 'auto', 'sizes' => '(min-width: 960px) 170px, 30vw' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a><?php endforeach; ?>
-			</div>
+			<?php if ( $photo ) : ?>
+				<div class="ym-hero__media"><?php echo $photo['html']; // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
+			<?php elseif ( $focus ) : ?>
+				<a class="ym-hero__media ym-hero__product" href="<?php echo esc_url( $focus->get_permalink() ); ?>">
+					<?php echo YM_Media::card_html( (int) $focus->get_image_id(), $focus->get_name(), array( 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(min-width: 960px) 400px, 64vw' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<span class="ym-hero__caption"><small><?php echo esc_html( ym_t( 'home_featured' ) ); ?></small> <?php echo esc_html( $focus->get_name() ); ?></span>
+				</a>
+			<?php endif; ?>
 		</section>
+		<?php if ( ! is_wp_error( $cats ) && $cats ) : ?>
+		<section class="ym-band ym-cats" aria-labelledby="ym-cats-h">
+			<h2 id="ym-cats-h"><?php echo esc_html( ym_t( 'home_cats' ) ); ?></h2>
+			<ul class="ym-cats__list">
+				<?php foreach ( $cats as $t ) : ?><li><a href="<?php echo esc_url( get_term_link( $t ) ); ?>"><span><?php echo esc_html( $t->name ); ?></span> <small><?php echo esc_html( YM_Country::number( $t->count ) ); ?></small></a></li><?php endforeach; ?>
+			</ul>
+		</section>
+		<?php endif; ?>
 		<section class="ym-shop">
 			<div class="ym-shop__head"><h2><?php echo esc_html( ym_t( 'home_pick' ) ); ?></h2><a class="ym-more" href="<?php echo esc_url( ym_shop_url() ); ?>"><?php echo esc_html( ym_t( 'see_all' ) ); ?></a></div>
-			<?php echo ym_category_chips(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<ul class="ym-grid">
 				<?php foreach ( $pick as $p ) { echo ym_card( $p ); } // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			</ul>
 			<a class="ym-btn ym-btn--secondary ym-shop__all" href="<?php echo esc_url( ym_shop_url() ); ?>"><?php echo esc_html( ym_t( 'see_all' ) ); ?></a>
 		</section>
+		<div class="ym-band ym-home__pair">
+			<section class="ym-tip" aria-labelledby="ym-tip-h">
+				<h2 id="ym-tip-h"><?php echo esc_html( ym_t( 'home_tip_title' ) ); ?></h2>
+				<p><?php echo esc_html( ym_t( 'home_tip_body' ) ); ?></p>
+			</section>
+			<section class="ym-steps" aria-labelledby="ym-steps-h">
+				<h2 id="ym-steps-h"><?php echo esc_html( ym_t( 'home_steps_title' ) ); ?></h2>
+				<ol><?php foreach ( $steps as $st ) : ?><li><?php echo esc_html( $st ); ?></li><?php endforeach; ?></ol>
+			</section>
+		</div>
 	</div>
 	<?php
 	return preg_replace( '/\s*\n\s*/', ' ', ob_get_clean() );

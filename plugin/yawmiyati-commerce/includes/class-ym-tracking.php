@@ -64,7 +64,8 @@ final class YM_Tracking {
 
 	public static function consent() {
 		$c = isset( $_COOKIE['ym_consent'] ) ? sanitize_key( wp_unslash( $_COOKIE['ym_consent'] ) ) : '';
-		return in_array( $c, array( 'granted', 'denied' ), true ) ? $c : '';
+		// granted = analytics and advertising; analytics = analytics only (no ad tags, no server ad events); denied = essentials only.
+		return in_array( $c, array( 'granted', 'analytics', 'denied' ), true ) ? $c : '';
 	}
 
 	/* ---------- browser ---------- */
@@ -119,16 +120,18 @@ function gtag(){dataLayer.push(arguments);}
 gtag('consent', 'default', {ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied'});
 dataLayer.push(<?php echo wp_json_encode( $base ); ?>);
 window.ymGTM = <?php echo wp_json_encode( preg_match( '/^GTM-[A-Z0-9]+$/', $gtm ) ? $gtm : '' ); ?>;
-window.ymLoadGTM = function () {
+window.ymLoadGTM = function (adsToo) {
   if (!window.ymGTM || window.ymGTMLoaded) return;
   window.ymGTMLoaded = true;
-  gtag('consent', 'update', {ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted'});
+  var ads = adsToo === false ? 'denied' : 'granted';
+  gtag('consent', 'update', {ad_storage: ads, analytics_storage: 'granted', ad_user_data: ads, ad_personalization: ads});
   dataLayer.push({'gtm.start': Date.now(), event: 'gtm.js'});
   var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtm.js?id=' + window.ymGTM;
   s.onload = function () { if (window.ymOnGTMReady) window.ymOnGTMReady(); else window.ymGTMReady = true; };
   document.head.appendChild(s);
 };
-if (document.cookie.indexOf('ym_consent=granted') !== -1) { window.ymLoadGTM(); }
+if (document.cookie.indexOf('ym_consent=granted') !== -1) { window.ymLoadGTM(true); }
+else if (document.cookie.indexOf('ym_consent=analytics') !== -1) { window.ymLoadGTM(false); }
 <?php if ( YM_Env::test_hooks() ) : ?>
 // Local test hook: no network here, so the GTM container is replaced by a stub that "loads" at once.
 if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (window.ymGTMLoaded) return; window.ymGTMLoaded = true; gtag('consent', 'update', {ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted'}); dataLayer.push({event: 'gtm.js'}); setTimeout(function () { if (window.ymOnGTMReady) window.ymOnGTMReady(); else window.ymGTMReady = true; }, 50); }; if (document.cookie.indexOf('ym_consent=granted') !== -1) { window.ymGTMLoaded = false; window.ymLoadGTM(); } }
@@ -266,10 +269,18 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		$events = self::events();
 		?>
 <div class="ym-consent" data-ym-consent hidden role="region" aria-label="<?php echo esc_attr( YM_Country::copy( 'consent_change' ) ); ?>">
-	<p><?php echo esc_html( YM_Country::copy( 'consent_text' ) ); ?> <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>"><?php echo esc_html( YM_Country::copy( 'nav_privacy' ) ); ?></a></p>
+	<p><?php echo esc_html( YM_Country::copy( 'consent_short' ) ); ?> <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>"><?php echo esc_html( YM_Country::copy( 'nav_privacy' ) ); ?></a></p>
+	<fieldset class="ym-consent__prefs" data-ym-consent-prefs hidden>
+		<legend class="screen-reader-text"><?php echo esc_html( YM_Country::copy( 'consent_customize' ) ); ?></legend>
+		<label><input type="checkbox" checked disabled> <?php echo esc_html( YM_Country::copy( 'consent_essential' ) ); ?></label>
+		<label><input type="checkbox" data-ym-consent-analytics> <?php echo esc_html( YM_Country::copy( 'consent_analytics' ) ); ?></label>
+		<label><input type="checkbox" data-ym-consent-ads> <?php echo esc_html( YM_Country::copy( 'consent_ads' ) ); ?></label>
+		<button type="button" class="ym-btn ym-btn--secondary" data-ym-consent-save><?php echo esc_html( YM_Country::copy( 'consent_save' ) ); ?></button>
+	</fieldset>
 	<div class="ym-consent__actions">
 		<button type="button" class="ym-btn ym-btn--primary" data-ym-consent-yes><?php echo esc_html( YM_Country::copy( 'consent_yes' ) ); ?></button>
 		<button type="button" class="ym-btn ym-btn--secondary" data-ym-consent-no><?php echo esc_html( YM_Country::copy( 'consent_no' ) ); ?></button>
+		<button type="button" class="ym-consent__more" data-ym-consent-more aria-expanded="false"><?php echo esc_html( YM_Country::copy( 'consent_customize' ) ); ?></button>
 	</div>
 </div>
 <script>
@@ -313,10 +324,10 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
   // Consent banner.
   var box = document.querySelector('[data-ym-consent]');
   var MEASURE = /^(_ga|_gid|_gat|_gcl_|_fbp|_fbc|_scid|_sctr|_ttp|_uet)/;
-  function wipe() {
+  function wipe(which) {
     document.cookie.split('; ').forEach(function (c) {
       var n = c.split('=')[0];
-      if (!MEASURE.test(n)) return;
+      if (!(which || MEASURE).test(n)) return;
       var host = location.hostname.split('.');
       for (var i = 0; i < host.length - 1; i++) {
         var d = host.slice(i).join('.');
@@ -326,8 +337,11 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
       document.cookie = n + '=; max-age=0; path=/';
     });
   }
+  // Choices: granted (analytics + advertising), analytics (analytics only), denied (essentials only).
+  var ADS = /^(_fbp|_fbc|_scid|_sctr|_ttp|_uet|_gcl_)/;
+  function current() { return has('granted') ? 'granted' : (has('analytics') ? 'analytics' : (has('denied') ? 'denied' : '')); }
   function choose(v) {
-    var was = has('granted');
+    var was = current();
     document.cookie = 'ym_consent=' + v + '; max-age=15552000; path=/; SameSite=Lax';
     dataLayer.push({event: 'ym_consent', ym_consent: v});
     if (v === 'granted') {
@@ -337,29 +351,48 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
       }
       var h = held(); held(null);
       if (h && h.ids) { var a = read(); ['first', 'last'].forEach(function (t) { if (a[t] && a[t].at === h.at) Object.assign(a[t], h.ids); }); if (!a.last) { a.first = a.last = Object.assign({at: h.at, landing: location.pathname}, h.ids); } write(a); }
-      window.ymLoadGTM();
+      if (was === 'analytics' && window.ymGTMLoaded) { gtag('consent', 'update', {ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted'}); }
+      else { window.ymLoadGTM(true); }
       ackPurchases();
     } else {
       held(null);
       var b = read(); IDS.forEach(function (k) { ['first', 'last'].forEach(function (t) { if (b[t]) delete b[t][k]; }); }); write(b);
-      if (was) {
-        // Withdrawal: deny consent to loaded Google tags, delete measurement cookies, tell the server, and reload so
-        // nothing that already loaded keeps running.
-        gtag('consent', 'update', {ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied'});
-        window.ymGTM = '';
-        wipe();
+      if (v === 'analytics' && was !== 'granted') {
+        window.ymLoadGTM(false);
+        ackPurchases();
+      } else if (was === 'granted' || was === 'analytics') {
+        // Withdrawal (all, or advertising only): deny it to loaded Google tags, delete the affected cookies, tell the
+        // server (advertising withdrawn: server ad events stop in every store), and reload so nothing keeps running.
+        var adsOnly = v === 'analytics';
+        gtag('consent', 'update', adsOnly ? {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied'} : {ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied'});
+        if (!adsOnly) window.ymGTM = '';
+        wipe(adsOnly ? ADS : MEASURE);
         var done = function () { location.reload(); };
-        fetch(CONSENT, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({consent: 'denied'}), keepalive: true}).then(done, done);
+        if (was === 'granted') fetch(CONSENT, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({consent: 'denied'}), keepalive: true}).then(done, done);
+        else done();
       }
     }
     if (box) box.hidden = true;
+    fit();
   }
+  // Room under the page for the card while it is open, so it never covers a button or a field.
+  function fit() { document.documentElement.style.setProperty('--ym-consent-h', box && !box.hidden ? (box.offsetHeight + 16) + 'px' : '0px'); }
   if (box) {
+    var prefs = box.querySelector('[data-ym-consent-prefs]'), more = box.querySelector('[data-ym-consent-more]');
+    var cA = box.querySelector('[data-ym-consent-analytics]'), cD = box.querySelector('[data-ym-consent-ads]');
+    function sync() { var c = current(); cA.checked = c === 'granted' || c === 'analytics'; cD.checked = c === 'granted'; }
+    sync();
     if (document.cookie.indexOf('ym_consent=') === -1) box.hidden = false;
     box.querySelector('[data-ym-consent-yes]').addEventListener('click', function () { choose('granted'); });
     box.querySelector('[data-ym-consent-no]').addEventListener('click', function () { choose('denied'); });
+    more.addEventListener('click', function () { prefs.hidden = !prefs.hidden; more.setAttribute('aria-expanded', String(!prefs.hidden)); fit(); });
+    cD.addEventListener('change', function () { if (cD.checked) cA.checked = true; });
+    cA.addEventListener('change', function () { if (!cA.checked) cD.checked = false; });
+    box.querySelector('[data-ym-consent-save]').addEventListener('click', function () { choose(cD.checked ? 'granted' : (cA.checked ? 'analytics' : 'denied')); });
+    fit();
+    window.addEventListener('resize', fit);
   }
-  document.querySelectorAll('[data-ym-consent-open]').forEach(function (b) { b.addEventListener('click', function () { if (box) box.hidden = false; }); });
+  document.querySelectorAll('[data-ym-consent-open]').forEach(function (b) { b.addEventListener('click', function () { if (box) { box.hidden = false; fit(); } }); });
 })();
 </script>
 		<?php
@@ -595,23 +628,29 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 			return;
 		}
 		// Consent is checked when the event is sent, not only when it was queued (she may have withdrawn since, in
-		// this store or any other store of the domain).
+		// this store or any other store of the domain). Two-phase: the first attempt records the decision time and
+		// waits; a later attempt sends only when every store certified past that time (YM_Consent, invariant).
 		$skip    = '';
 		$subject = (string) $order->get_meta( '_ym_consent_subject' );
 		if ( 'granted' === $order->get_meta( '_ym_consent' ) && $subject ) {
-			$w = YM_Consent::withdrawn_at( $subject );
-			if ( null === $w ) {
-				// The shared ledger cannot be read: do not send on an unknown answer; try again later.
-				if ( function_exists( 'as_schedule_single_action' ) ) {
-					as_schedule_single_action( time() + 15 * MINUTE_IN_SECONDS, 'ym_capi_send', array( $order_id, $platform, $kind ), 'yawmiyati' );
-				}
-				YM_Ops::log( 'capi_waiting', array( 'order' => $order_id, 'platform' => $platform, 'kind' => $kind, 'reason' => 'consent_ledger_unavailable' ), 'warning' );
+			$dkey    = '_ym_capi_decided_' . $platform . '_' . $kind;
+			$decided = (int) $order->get_meta( $dkey );
+			if ( ! $decided || time() - $decided > YM_Consent::DECISION_TTL ) {
+				$order->update_meta_data( $dkey, time() );
+				$order->save_meta_data();
+				self::wait( $order_id, $platform, $kind, 'consent_clearance_started', 5 * MINUTE_IN_SECONDS );
 				return;
 			}
 			$placed = $order->get_date_created() ? $order->get_date_created()->getTimestamp() : 0;
-			if ( $w && $w >= $placed ) {
+			$c      = YM_Consent::clearance( $subject, $placed, $decided );
+			if ( 0 === strpos( $c, 'wait:' ) ) {
+				// Unknown or not yet certified everywhere: never send on an unknown answer; try again later.
+				self::wait( $order_id, $platform, $kind, substr( $c, 5 ), 'wait:consent_ledger_unavailable' === $c ? 15 * MINUTE_IN_SECONDS : 5 * MINUTE_IN_SECONDS );
+				return;
+			}
+			if ( 0 === strpos( $c, 'withdrawn:' ) ) {
 				$order->update_meta_data( '_ym_consent', 'withdrawn' );
-				$order->update_meta_data( '_ym_consent_withdrawn_at', $w );
+				$order->update_meta_data( '_ym_consent_withdrawn_at', (int) substr( $c, 10 ) );
 				$order->save_meta_data();
 				$skip = 'consent_withdrawn';
 			}
@@ -662,6 +701,15 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		$order->update_meta_data( $meta_key, wp_json_encode( $rec ) );
 		$order->save_meta_data();
 		YM_Ops::log( 'capi', array( 'order' => $order_id, 'platform' => $platform, 'kind' => $kind, 'status' => $rec['status'], 'code' => $rec['code'] ?? null ) );
+	}
+
+	/** Re-queue a server event that cannot be decided yet (once; an existing retry is kept). */
+	private static function wait( $order_id, $platform, $kind, $reason, $delay ) {
+		// Pending only: when this runs from the queue its own action is "running" and must not count as the retry.
+		if ( function_exists( 'as_get_scheduled_actions' ) && ! as_get_scheduled_actions( array( 'hook' => 'ym_capi_send', 'args' => array( $order_id, $platform, $kind ), 'group' => 'yawmiyati', 'status' => ActionScheduler_Store::STATUS_PENDING, 'per_page' => 1 ), 'ids' ) ) {
+			as_schedule_single_action( time() + $delay, 'ym_capi_send', array( $order_id, $platform, $kind ), 'yawmiyati' );
+		}
+		YM_Ops::log( 'capi_waiting', array( 'order' => $order_id, 'platform' => $platform, 'kind' => $kind, 'reason' => $reason ), 'consent_ledger_unavailable' === $reason ? 'warning' : 'info' );
 	}
 
 	/** For `wp ym launch-check`. */

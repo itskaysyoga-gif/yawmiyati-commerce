@@ -78,5 +78,5 @@ install_site om 8085
 for cc in eg iq sa ae om; do
   ( cd "$DEV/sites/$cc"
     $WP config set YM_SHARED_DB ym_shared --quiet
-    $WP eval 'YM_DB::install(); YM_Consent::install();' --quiet )
+    $WP eval 'YM_DB::install(); YM_Consent::install(); YM_Mail::install();' --quiet )
 done

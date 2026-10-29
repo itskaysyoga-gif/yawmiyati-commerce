@@ -58,16 +58,29 @@ Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first da
   shared ledger (`ym_consent_ledger` in the database named by `YM_SHARED_DB`, readable and writable by every store).
   Every store reads it immediately before sending any server event: an order whose subject withdrew at or after the
   order was placed is skipped (`consent_withdrawn`) and marked withdrawn, whichever store took it. An order placed
-  after she accepted again is sent. If the ledger cannot be written, the withdrawal is kept locally and retried hourly
-  (alert sent); if it cannot be read, server events wait and retry (nothing is sent on an unknown answer).
+  after she accepted again is sent. Partial failures (29 Oct): a withdrawal is queued in the store's own table first,
+  then written to the ledger; a store whose ledger writes fail cannot certify, and server events in **every** store
+  are two-phase (decide, wait until every store certified past the decision, re-read the ledger, send), so a
+  withdrawal stuck in Egypt holds Iraq's events instead of leaking. If the ledger cannot be read, events wait.
+  Residual window, stated plainly: a withdrawal whose ledger write fails in the minutes between another store
+  certifying and a send already decided before it (at most 10 minutes; decisions older than that are renewed).
   Tested: withdrawal in the Egypt store stops a queued Iraq event; another customer's event still goes out; a later
-  order after re-accepting is sent; an unreachable ledger holds the event and releases it once readable.
-- **Order key never reaches a tag.** The confirmation link carries `?key=wc_order_…`. The server keeps the key in her
-  session and redirects to the same address without it before anything renders, so no document with the key in its
-  address, history entry or referrer ever exists; the first inline script strips it as a second guard. Tested with a
-  returning visitor whose consent is already granted and a tag that runs the moment it loads: neither the tag, nor
-  any document start, nor any referrer sees the key. The review page (its link is a credential) loads no tags at all
-  and sends no referrer.
+  order after re-accepting is sent; an unreachable ledger holds the event and releases it once readable; Egypt's
+  write failing while Iraq reads fine holds her queued Iraq event (and everyone's) until Egypt flushes, then it is
+  skipped; a sending store that cannot write sends nothing; twelve simultaneous withdrawals with concurrent retries
+  lose none. Backup: `deploy/backup.sh` exports the ledger; restore merges it and can never shorten a withdrawal.
+- **Order key never reaches a tag, analytics or our logs.** The confirmation link carries `?key=wc_order_…`. The
+  server keeps the key in her session and redirects to the same address without it before anything renders, so no
+  page that can run a tag has the key in its address, history entry or referrer; the first inline script strips it
+  as a second guard. Tested with a returning visitor whose consent is already granted and a tag that runs the moment
+  it loads: neither the tag, nor any document start, nor any referrer sees the key, and the store's own logs never
+  contain it. The review page (its link is a credential) loads no tags at all and sends no referrer.
+  **Where the key still exists (29 Oct correction):** the link itself (in the confirmation message she was sent),
+  and the first request line before the redirect, which the host's web server, any CDN/WAF and PHP error logs can
+  record. Rules: no error reporting service receives request URLs with query strings (none is installed; any added
+  later must scrub `key`, `t`, `token` parameters); the host's access logs are kept no longer than the host default
+  and are never exported into analytics or AI prompts; the redirect answer is `no-store`. Customer details never go
+  into any URL.
 - **Late consent:** click IDs seen before any choice stay in that browser tab only (sessionStorage), are never sent,
   and are kept if she accepts during that visit; declining or closing the tab discards them. Campaign tags (UTM) are
   kept regardless, as before.

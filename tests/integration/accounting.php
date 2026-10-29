@@ -220,6 +220,44 @@ ym_check( 'consent ledger: never withdrawn = 0', 0 === YM_Consent::withdrawn_at(
 YM_Consent::record( $subj, 1000 );
 YM_Consent::record( $subj, 900 );
 ym_check( 'consent ledger: keeps the latest withdrawal', 1000 === YM_Consent::withdrawn_at( $subj ) );
+ym_check( 'consent: a written withdrawal leaves nothing queued here', ! isset( YM_Consent::pending()[ $subj ] ) );
+
+// Write fails while reads work (29 Oct brief §3): the withdrawal stays queued here, this store stops certifying,
+// and every other store waits for its certificate. Flushing restores both.
+update_option( 'ym_test_ledger_readonly', 1 );
+$s2 = bin2hex( random_bytes( 16 ) );
+ym_check( 'consent read-only: record reports failure', false === YM_Consent::record( $s2 ) );
+ym_check( 'consent read-only: still readable from the ledger', 0 === (int) $GLOBALS['wpdb']->get_var( $GLOBALS['wpdb']->prepare( 'SELECT COUNT(*) FROM ' . YM_Consent::table() . ' WHERE subject = %s', $s2 ) ) && null !== YM_Consent::withdrawn_at( $subj ) );
+ym_check( 'consent read-only: queued here, in force here', isset( YM_Consent::pending()[ $s2 ] ) && YM_Consent::withdrawn_at( $s2 ) > 0 );
+$before = YM_Consent::certificates()[ $cc ] ?? 0;
+ym_check( 'consent read-only: this store cannot certify', false === YM_Consent::certify() && ( YM_Consent::certificates()[ $cc ] ?? 0 ) === $before );
+ym_check( 'consent read-only: an event decided now must wait', 0 === strpos( YM_Consent::clearance( str_repeat( 'a', 32 ), time() - 60, time() ), 'wait:' ) );
+delete_option( 'ym_test_ledger_readonly' );
+ym_check( 'consent: certify flushes the queue, then certifies', YM_Consent::certify() && ! isset( YM_Consent::pending()[ $s2 ] ) && ( YM_Consent::certificates()[ $cc ] ?? 0 ) >= $before );
+ym_check( 'consent: the flushed withdrawal is in the ledger', YM_Consent::withdrawn_at( $s2 ) > 0 );
+// Queue updates are atomic upserts: the later time wins whatever order they arrive in.
+update_option( 'ym_test_ledger_readonly', 1 );
+$s3 = bin2hex( random_bytes( 16 ) );
+YM_Consent::record( $s3, 5000 );
+YM_Consent::record( $s3, 4000 );
+ym_check( 'consent queue keeps the latest time', 5000 === (int) ( YM_Consent::pending()[ $s3 ] ?? 0 ) );
+delete_option( 'ym_test_ledger_readonly' );
+YM_Consent::certify();
+// Backup and restore: an export merges back; an older backup never shortens or removes a withdrawal.
+$exp = YM_Consent::export();
+ym_check( 'consent export holds the ledger', is_array( $exp ) && in_array( $s3, wp_list_pluck( $exp['ledger'], 'subject' ), true ) );
+YM_Consent::record( $s3, 6000 );
+ym_check( 'consent import of an older backup keeps the newer withdrawal', false !== YM_Consent::import( $exp ) && 6000 === YM_Consent::withdrawn_at( $s3 ) );
+$GLOBALS['wpdb']->query( $GLOBALS['wpdb']->prepare( 'DELETE FROM ' . YM_Consent::table() . ' WHERE subject = %s', $s2 ) );
+ym_check( 'consent import restores a lost withdrawal', YM_Consent::import( $exp ) >= 1 && YM_Consent::withdrawn_at( $s2 ) > 0 );
+ym_check( 'consent import refuses other data', false === YM_Consent::import( array( 'ledger' => array() ) ) );
+// Migration: withdrawals queued by the previous version (an option) move into the table.
+$s4 = bin2hex( random_bytes( 16 ) );
+update_option( 'ym_consent_pending', array( $s4 => 1234 ), false );
+YM_Consent::install();
+ym_check( 'consent: old queued option migrated', 1234 === (int) ( YM_Consent::pending()[ $s4 ] ?? 0 ) && false === get_option( 'ym_consent_pending' ) );
+YM_Consent::certify();
+ym_check( 'consent: migrated withdrawal flushed to the ledger', YM_Consent::withdrawn_at( $s4 ) >= 1234 && ! isset( YM_Consent::pending()[ $s4 ] ) );
 
 // Supplier sweep looks only at hand-offs that are pending or unconfirmed (not every processing order).
 $sw = wc_create_order();

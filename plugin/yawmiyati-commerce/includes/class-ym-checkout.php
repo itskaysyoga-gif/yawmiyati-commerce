@@ -37,6 +37,7 @@ final class YM_Checkout {
 		add_filter( 'woocommerce_order_shipping_to_display_shipped_via', '__return_empty_string' );
 		add_filter( 'woocommerce_get_privacy_policy_text', fn( $text, $type ) => 'checkout' === $type ? YM_Country::copy( 'privacy_note' ) : $text, 10, 2 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
+		add_action( 'woocommerce_thankyou', array( __CLASS__, 'next_steps' ), 5 );
 		add_action( 'ym_cleanup_tokens', array( __CLASS__, 'cleanup_tokens' ) );
 		if ( ! wp_next_scheduled( 'ym_cleanup_tokens' ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'ym_cleanup_tokens' );
@@ -55,6 +56,11 @@ final class YM_Checkout {
 			'billing_address_2'  => array_merge( $fields['billing']['billing_address_2'], array( 'label' => YM_Country::copy( 'building_label' ), 'label_class' => array(), 'placeholder' => '', 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 60 ) ),
 			'ym_landmark'        => array( 'type' => 'text', 'label' => YM_Country::copy( 'landmark_label' ), 'description' => YM_Country::copy( 'landmark_help' ), 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 70 ),
 		);
+		// Email: optional and only offered when receipts are actually sent (transactional mail switched on). It is a
+		// receipt address, not a marketing consent; none is ever made up for a phone-only order.
+		if ( class_exists( 'YM_Mail' ) && YM_Mail::enabled( 'transactional' ) ) {
+			$billing['billing_email'] = array_merge( $fields['billing']['billing_email'] ?? array( 'type' => 'email', 'validate' => array( 'email' ) ), array( 'label' => YM_Country::copy( 'email_label' ), 'required' => false, 'class' => array( 'form-row-wide' ), 'priority' => 80, 'autocomplete' => 'email', 'custom_attributes' => array( 'dir' => 'ltr' ) ) );
+		}
 		$fields['billing'] = $billing;
 		$fields['shipping'] = array();
 		unset( $fields['account'], $fields['order']['order_comments'] );
@@ -407,6 +413,22 @@ final class YM_Checkout {
 			return $text;
 		}
 		return sprintf( YM_Country::copy( 'thanks_line' ), YM_Country::copy( 'thanks' ), $order->get_order_number() ) . ' ' . YM_Country::copy( 'confirm_call' );
+	}
+
+	/**
+	 * What happens next, in order. A COD order request is not confirmed and not paid on this page: the steps say so
+	 * (no "payment received", no "confirmed by the supplier").
+	 */
+	public static function next_steps( $order_id ) {
+		$steps = array_filter( explode( '|', YM_Country::copy( 'thanks_steps' ) ) );
+		if ( ! $order_id || ! $steps ) {
+			return;
+		}
+		echo '<section class="ym-next" data-ym-next><h2>' . esc_html( YM_Country::copy( 'thanks_next' ) ) . '</h2><ol>';
+		foreach ( $steps as $st ) {
+			echo '<li>' . esc_html( $st ) . '</li>';
+		}
+		echo '</ol></section>';
 	}
 
 	/** A few WooCommerce strings that read wrong for a delivery-only shop. */

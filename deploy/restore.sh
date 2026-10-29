@@ -10,4 +10,6 @@ gunzip -c "$PREFIX.sql.gz" | ( cd "$STORE" && $WP db import - --quiet )
 rm -rf "$STORE/wp-content/uploads.restore-old" && [ -d "$STORE/wp-content/uploads" ] && mv "$STORE/wp-content/uploads" "$STORE/wp-content/uploads.restore-old" || true
 tar -xzf "$PREFIX.uploads.tgz" -C "$STORE/wp-content"
 ( cd "$STORE" && $WP cache flush --quiet && $WP rewrite flush --quiet )
+# Shared consent ledger: merged (GREATEST per subject), never overwritten. Then this store re-certifies from its queue.
+if [ -f "$PREFIX.consent.json" ]; then ( cd "$STORE" && $WP ym consent import "$PREFIX.consent.json" --quiet && $WP ym consent certify --quiet || true ); fi
 echo "restored $PREFIX into $STORE"

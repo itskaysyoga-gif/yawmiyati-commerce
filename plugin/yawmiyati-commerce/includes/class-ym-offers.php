@@ -191,7 +191,10 @@ final class YM_Offers {
 			wp_safe_redirect( wc_get_checkout_url() );
 		} else {
 			wc_add_notice( YM_Country::copy( 'added' ), 'success' );
-			wp_safe_redirect( get_permalink( $page->get_id() ) );
+			// Added from a recommendation: back to where she was (the cart, or the product page she was reading).
+			$from = sanitize_key( wp_unslash( $_POST['ym_back'] ?? '' ) );
+			$src  = ctype_digit( $from ) ? wc_get_product( (int) $from ) : null;
+			wp_safe_redirect( 'cart' === $from ? wc_get_cart_url() : ( $src ? $src->get_permalink() : get_permalink( $page->get_id() ) ) );
 		}
 		exit;
 	}
@@ -369,6 +372,8 @@ final class YM_Offers {
 				<p><?php echo esc_html( YM_Country::copy( 'one_fee' ) . ' ' . YM_Country::copy( 'confirm_call' ) ); ?></p>
 				<p><?php echo esc_html( trim( YM_Country::copy( 'payment' ) . ' ' . YM_Country::copy( 'returns' ) ) ); ?></p>
 			</section>
+
+			<?php echo YM_Markets::accepts_orders() ? YM_Reco::render_page( $page ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped inside ?>
 
 			<?php if ( YM_Markets::accepts_orders() && $page->is_in_stock() ) : ?>
 			<div class="ym-sticky" data-ym-sticky>

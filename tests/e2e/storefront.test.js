@@ -26,14 +26,23 @@ test('Social: Facebook and Instagram in the footer and on the contact page, with
   await ctx.close();
 });
 
-test('Home: a curated selection (at most 6) with routes to the full catalog and categories; only the hero loads eagerly', async () => {
+test('Home: one focal image and one clear action, categories, a curated selection (at most 6), a tip and how ordering works; only the focal image loads eagerly', async () => {
   const { ctx, page } = await h.context(browser);
   await page.goto(h.BASE.iq + '/');
   const cards = await page.locator('.ym-shop .ym-card').count();
   assert.ok(cards > 0 && cards <= 6, `cards ${cards}`);
   assert.ok(await page.locator('a.ym-more, a.ym-shop__all').count() >= 1);
-  assert.ok(await page.locator('.ym-chips a').count() >= 2);
-  assert.equal(await page.locator('.ym-hero__shelf img[fetchpriority="high"]').count(), 1);
+  assert.ok(await page.locator('.ym-cats a').count() >= 2, 'category routes');
+  assert.equal(await page.locator('.ym-hero img').count(), 1, 'one focal image, not a row of thumbnails');
+  assert.equal(await page.locator('.ym-hero img[fetchpriority="high"]').count(), 1);
+  const cta = page.locator('[data-ym-hero-cta]');
+  assert.equal(await cta.isVisible(), true);
+  assert.match(await cta.getAttribute('href'), /\/shop\/$/);
+  const box = await cta.boundingBox();
+  assert.ok(box.y + box.height <= 844, 'the main action is visible without scrolling on a phone');
+  assert.equal(await page.locator('.ym-steps li').count(), 3);
+  assert.ok((await page.locator('.ym-tip p').innerText()).length > 20);
+  assert.equal(await page.locator('img[fetchpriority="high"]').count(), 1, 'only one image is prioritised');
   const gridLoading = await page.$$eval('.ym-grid img', (els) => els.map((e) => e.getAttribute('loading')));
   assert.ok(gridLoading.every((l) => l === 'lazy'), gridLoading.join());
   await ctx.close();

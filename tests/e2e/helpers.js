@@ -97,4 +97,33 @@ const phone = {
   om: () => '9' + String(++seq).padStart(7, '0').slice(-7),
 };
 
-module.exports = { BASE, ROOT, wp, wpEval, order, orderCount, buy, fillCheckout, waitIdle, CUSTOMER, context, phone };
+// Consent certificates (YM_Consent): every store flushes its queued withdrawals and certifies, in parallel, as the
+// 5-minute job does on hosting.
+const CCS = ['eg', 'iq', 'sa', 'ae', 'om'];
+function certifyAll() {
+  const script = CCS.map((cc) => `"${path.join(ROOT, 'dev/wp.sh')}" ${cc} eval 'YM_Consent::certify();' >/dev/null 2>&1 &`).join(' ') + ' wait';
+  execFileSync('bash', ['-c', script], { stdio: 'ignore' });
+}
+const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+// Run this store's queued server events now, whatever their scheduled time.
+function processQueue(cc) {
+  wpEval(cc, 'foreach ( as_get_scheduled_actions( array( "hook" => "ym_capi_send", "status" => ActionScheduler_Store::STATUS_PENDING, "per_page" => 200 ), "ids" ) as $a ) { ActionScheduler_QueueRunner::instance()->process_action( $a, "test" ); }');
+}
+
+// Server events are two-phase: the first run decides and waits, every store certifies past that moment, the next
+// run sends. This is the whole cycle, as it happens on hosting over two 5-minute rounds.
+function serverEvents(cc) {
+  processQueue(cc);
+  sleep(3100);
+  certifyAll();
+  processQueue(cc);
+}
+function sendNow(cc, id, platform, kind) {
+  wpEval(cc, `YM_Tracking::send(${Number(id)}, "${platform}", "${kind}");`);
+  sleep(3100);
+  certifyAll();
+  wpEval(cc, `YM_Tracking::send(${Number(id)}, "${platform}", "${kind}");`);
+}
+
+module.exports = { BASE, ROOT, wp, wpEval, order, orderCount, buy, fillCheckout, waitIdle, CUSTOMER, context, phone, certifyAll, processQueue, serverEvents, sendNow, sleep };

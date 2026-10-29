@@ -142,6 +142,11 @@ final class YM_Catalog {
 			if ( 0 === $i && ( empty( $m['complete'] ) || 'clean' !== ( $m['role'] ?? 'clean' ) ) ) {
 				$out['media_partial'] = 'main image must show the complete product cleanly';
 			}
+			$card = 0 === $i ? ( YM_Media::card( $id ) ?? YM_Media::derive( $id ) ) : null;
+			if ( is_array( $card ) && ! empty( $card['weak'] ) ) {
+				$out['media_card_weak'] = 'main image is too wide or tall for a strong 4:5 card: use another authorised source image (never an enlarged crop)';
+			}
+			$out = array_merge( $out, YM_Media::rights_problems( $id, 'site' ) );
 		}
 		if ( count( $ids ) < self::MIN_IMAGES ) {
 			$out['media_count'] = sprintf( '%d of at least %d images', count( $ids ), self::MIN_IMAGES );

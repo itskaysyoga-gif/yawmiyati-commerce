@@ -29,8 +29,8 @@ async function watchGTM(ctx) {
 }
 const dataLayer = (page) => page.evaluate(() => JSON.parse(JSON.stringify(window.dataLayer)));
 const events = (dl) => dl.filter((e) => e && e.event && !String(e.event).startsWith('gtm')).map((e) => e.event);
-// Run queued server events now. Filter by hook, not group: on a fresh install the group may not exist yet.
-const runQueue = (cc) => h.wp(cc, 'action-scheduler', 'run', '--hooks=ym_capi_send', '--batch-size=50');
+// Run queued server events through both phases (decide, every store certifies, send).
+const runQueue = (cc) => h.serverEvents(cc);
 
 test('Consent: banner shows on first visit and nothing measuring loads until she accepts', async () => {
   const { ctx, page } = await h.context(browser, { consent: null });
@@ -49,6 +49,40 @@ test('Consent: banner shows on first visit and nothing measuring loads until she
   assert.match(gtm[0], /id=GTM-TEST123/);
   const dl = await dataLayer(page);
   assert.ok(dl.some((e) => e && e[0] === 'consent' && e[1] === 'update' && e[2].ad_storage === 'granted'));
+  await ctx.close();
+});
+
+test('Consent card: compact on a phone; "choose myself" allows analytics without advertising: GTM loads with ad storage denied, no click IDs, no server ad events', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  const gtm = await watchGTM(ctx);
+  await page.goto(`${h.BASE.eg}/?utm_source=facebook&fbclid=ANALYTICSONLY1`, { waitUntil: 'networkidle' });
+  const card = page.locator('[data-ym-consent]');
+  const box = await card.boundingBox();
+  assert.ok(box.height <= 170, `card height ${box.height}`);
+  assert.equal(await page.locator('[data-ym-consent-prefs]').isVisible(), false, 'details only on request');
+  await page.locator('[data-ym-consent-more]').click();
+  assert.equal(await page.locator('[data-ym-consent-analytics]').isChecked(), false, 'nothing pre-ticked');
+  assert.equal(await page.locator('[data-ym-consent-ads]').isChecked(), false);
+  await page.locator('[data-ym-consent-analytics]').check();
+  await page.locator('[data-ym-consent-save]').click();
+  assert.equal(await card.isVisible(), false);
+  assert.ok((await ctx.cookies(h.BASE.eg)).some((c) => c.name === 'ym_consent' && c.value === 'analytics'));
+  await page.waitForTimeout(300);
+  assert.ok(gtm.length >= 1, 'analytics tags may load');
+  const upd = (await dataLayer(page)).filter((e) => e && e[0] === 'consent' && e[1] === 'update');
+  assert.equal(upd.at(-1)[2].analytics_storage, 'granted');
+  assert.equal(upd.at(-1)[2].ad_storage, 'denied');
+  assert.equal(upd.at(-1)[2].ad_user_data, 'denied');
+  // A later visit does not ask again.
+  await page.goto(`${h.BASE.eg}/shop/`, { waitUntil: 'networkidle' });
+  assert.equal(await card.isVisible(), false);
+  const id = await h.buy(page, 'eg', { slug: 'absorbent-mats', customer: { phone: h.phone.eg() } });
+  const o = h.order('eg', id);
+  assert.equal(o.consent, 'analytics');
+  assert.equal(o.attr.first.fbclid, undefined, 'no ad click ID without advertising consent');
+  assert.equal(o.attr.first.utm_source, 'facebook');
+  runQueue('eg');
+  assert.equal(h.order('eg', id).capi_meta, null, 'no server ad event');
   await ctx.close();
 });
 
@@ -289,6 +323,14 @@ test('Order key: a returning visitor with consent already granted never exposes 
   for (const r of rendered.filter((x) => /key=wc_order_/.test(x.url))) assert.equal(r.status, 302, `rendered ${r.url}`);
   assert.ok(rendered.some((x) => /key=wc_order_/.test(x.url)), 'the key URL was requested (and redirected)');
   assert.ok(!(await page.evaluate(() => performance.getEntriesByType('navigation').map((n) => n.name).join(' '))).includes('key='));
+  // Our own logs never record the key (the host's access log sees the first request line: docs/MEASUREMENT.md).
+  const fs = require('node:fs'); const path = require('node:path');
+  const logDir = path.join(h.ROOT, 'dev/sites/eg/wp-content/uploads/wc-logs');
+  const logs = fs.existsSync(logDir) ? fs.readdirSync(logDir).map((f) => fs.readFileSync(path.join(logDir, f), 'utf8')).join('\n') : '';
+  assert.ok(!logs.includes(key), 'order key in the store logs');
+  const redirect = await fetch(`${h.BASE.eg}/checkout/order-received/${id}/?key=${key}`, { redirect: 'manual' });
+  assert.equal(redirect.status, 302);
+  assert.match(redirect.headers.get('cache-control') || '', /no-store/, 'the key answer is never cached');
   // The review page (its link is a credential) loads no tag at all and sends no referrer.
   await page.goto(`${h.BASE.eg}/review/?o=1&t=${'0'.repeat(32)}`, { waitUntil: 'networkidle' });
   assert.equal((await page.evaluate(() => window.__tags || [])).length, 0, 'no tag on the review page');
@@ -345,12 +387,99 @@ test('Consent ledger unreachable: server events wait instead of sending, then go
   await ctx.close();
   h.wp('iq', 'option', 'update', 'ym_test_ledger_down', '1');
   try {
-    h.wpEval('iq', `YM_Tracking::send(${id}, "meta", "purchase");`);
+    h.sendNow('iq', id, 'meta', 'purchase');
     assert.equal(h.order('iq', id).capi_meta, null, 'nothing sent or recorded while consent cannot be checked');
     assert.equal(h.wpEval('iq', `echo as_has_scheduled_action("ym_capi_send", array(${id}, "meta", "purchase"), "yawmiyati") ? "yes" : "no";`), 'yes', 'retry scheduled');
   } finally {
     h.wp('iq', 'option', 'delete', 'ym_test_ledger_down');
   }
-  h.wpEval('iq', `YM_Tracking::send(${id}, "meta", "purchase");`);
+  h.sendNow('iq', id, 'meta', 'purchase');
   assert.equal(h.order('iq', id).capi_meta.status, 'dry_run');
+});
+
+// 29 Oct brief §3: the shared ledger can still be READ by every store while Egypt's WRITE fails (read-only
+// transaction, failed INSERT). Egypt keeps the withdrawal queued locally and cannot certify; Iraq must not send.
+test('Consent partial failure: Egypt cannot write the ledger, Iraq can read it; her queued Iraq event is never sent, then skipped once Egypt flushes', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  await watchGTM(ctx);
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-yes]').click();
+  const id = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  const subject = h.order('iq', id).consent_subject;
+  // Another Iraq customer who accepted: held too while any store cannot certify (fail closed), sent afterwards.
+  const other = await h.context(browser, { consent: null });
+  await watchGTM(other.ctx);
+  await other.page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await other.page.locator('[data-ym-consent-yes]').click();
+  const otherId = await h.buy(other.page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  await other.ctx.close();
+  h.wp('eg', 'option', 'update', 'ym_test_ledger_readonly', '1');
+  try {
+    await page.goto(`${h.BASE.eg}/`, { waitUntil: 'networkidle' });
+    await page.locator('[data-ym-consent-open]').first().click();
+    await Promise.all([page.waitForEvent('load'), page.locator('[data-ym-consent-no]').click()]);
+    await page.waitForLoadState('networkidle');
+    assert.equal(h.wpEval('iq', `echo YM_Consent::withdrawn_at("${subject}");`), '0', 'Iraq reads the ledger fine and sees no withdrawal');
+    assert.equal(h.wpEval('eg', `echo (int) ( YM_Consent::pending()["${subject}"] ?? 0 ) > 0 ? "queued" : "lost";`), 'queued');
+    h.serverEvents('iq'); // decide, every store certifies (Egypt cannot), try to send
+    h.serverEvents('iq'); // and once more
+    const held = h.order('iq', id);
+    assert.equal(held.capi_meta, null, `her event must not be dispatched: ${JSON.stringify(held.capi_meta)}`);
+    assert.equal(held.capi_snap, null);
+    assert.equal(h.order('iq', otherId).capi_meta, null, 'every store holds while Egypt cannot certify');
+    assert.equal(h.wpEval('iq', `echo as_get_scheduled_actions(array("hook"=>"ym_capi_send","args"=>array(${id},"meta","purchase"),"status"=>ActionScheduler_Store::STATUS_PENDING),"ids") ? "waiting" : "dropped";`), 'waiting', 'the event waits, it is not dropped');
+  } finally {
+    h.wp('eg', 'option', 'delete', 'ym_test_ledger_readonly');
+  }
+  // Egypt's write works again: its next certification flushes the withdrawal; Iraq skips her event, sends the other.
+  h.serverEvents('iq');
+  assert.equal(h.wpEval('eg', `echo isset( YM_Consent::pending()["${subject}"] ) ? "queued" : "flushed";`), 'flushed');
+  const after = h.order('iq', id);
+  assert.equal(after.capi_meta.status, 'skipped', JSON.stringify(after.capi_meta));
+  assert.equal(after.capi_meta.reason, 'consent_withdrawn');
+  assert.equal(after.consent, 'withdrawn');
+  assert.equal(h.order('iq', otherId).capi_meta.status, 'dry_run');
+  await ctx.close();
+});
+
+test('Consent partial failure: when the sending store itself cannot write the ledger, it sends nothing', async () => {
+  const { ctx, page } = await h.context(browser, { consent: null });
+  await watchGTM(ctx);
+  await page.goto(`${h.BASE.iq}/`, { waitUntil: 'networkidle' });
+  await page.locator('[data-ym-consent-yes]').click(); // a real choice: her consent subject is set
+  const id = await h.buy(page, 'iq', { slug: 'sink-rack', customer: { phone: h.phone.iq() } });
+  await ctx.close();
+  h.wp('iq', 'option', 'update', 'ym_test_ledger_readonly', '1');
+  try {
+    assert.ok(h.order('iq', id).consent_subject, 'the order carries her consent subject');
+    h.sendNow('iq', id, 'meta', 'purchase');
+    assert.equal(h.order('iq', id).capi_meta, null);
+  } finally {
+    h.wp('iq', 'option', 'delete', 'ym_test_ledger_readonly');
+  }
+  h.sendNow('iq', id, 'meta', 'purchase');
+  assert.equal(h.order('iq', id).capi_meta.status, 'dry_run');
+});
+
+test('Consent queue under concurrency: simultaneous withdrawals and retries in one store never lose a withdrawal', async () => {
+  const subjects = Array.from({ length: 12 }, () => require('node:crypto').randomBytes(16).toString('hex'));
+  const withdraw = (s) => fetch(`${h.BASE.eg}/wp-json/ym/v1/consent`, { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: `ym_cs=${s}` }, body: JSON.stringify({ consent: 'denied' }) }).then((r) => r.status);
+  const certify = () => new Promise((res) => require('node:child_process').execFile(require('node:path').join(h.ROOT, 'dev/wp.sh'), ['eg', 'eval', 'YM_Consent::certify();'], () => res()));
+  h.wp('eg', 'option', 'update', 'ym_test_ledger_readonly', '1');
+  try {
+    // Half while the ledger cannot be written, together with retries running at the same moment.
+    const codes = await Promise.all([...subjects.slice(0, 6).map(withdraw), certify(), certify()]);
+    assert.deepEqual(codes.slice(0, 6), [200, 200, 200, 200, 200, 200]);
+    const queued = JSON.parse(h.wpEval('eg', 'echo wp_json_encode( array_keys( YM_Consent::pending() ) );'));
+    for (const s of subjects.slice(0, 6)) assert.ok(queued.includes(s), `queued withdrawal lost: ${s}`);
+  } finally {
+    h.wp('eg', 'option', 'delete', 'ym_test_ledger_readonly');
+  }
+  // The other half while retries flush the queue at the same moment.
+  const codes = await Promise.all([...subjects.slice(6).map(withdraw), certify(), certify(), certify()]);
+  assert.deepEqual(codes.slice(0, 6), [200, 200, 200, 200, 200, 200]);
+  h.wpEval('eg', 'YM_Consent::certify();');
+  const missing = JSON.parse(h.wpEval('iq', `echo wp_json_encode( array_values( array_filter( json_decode('${JSON.stringify(subjects)}', true), fn( $s ) => ! YM_Consent::withdrawn_at( $s ) ) ) );`));
+  assert.deepEqual(missing, [], 'every withdrawal reached the shared ledger (read from Iraq)');
+  assert.equal(h.wpEval('eg', `echo count( array_intersect( array_keys( YM_Consent::pending() ), json_decode('${JSON.stringify(subjects)}', true) ) );`), '0', 'nothing left queued');
 });

@@ -29,6 +29,7 @@ class YM_CLI {
 		update_option( 'ym_country', $cc );
 		YM_DB::install();
 		YM_Consent::install();
+		YM_Mail::install();
 		$opts = array(
 			'woocommerce_currency'                    => $r['currency'],
 			'woocommerce_price_num_decimals'          => $r['decimals'],
@@ -816,6 +817,24 @@ class YM_CLI {
 	 *
 	 * [--final]
 	 * : Final quality (not interim).
+	 *
+	 * [--channels=<channels>]
+	 * : Where the rights allow it: comma list of site, organic, paid (default site).
+	 *
+	 * [--editing=<editing>]
+	 * : Editing the rights allow: none, crop or retouch (default crop).
+	 *
+	 * [--expires=<date>]
+	 * : Rights end date, YYYY-MM-DD.
+	 *
+	 * [--approved]
+	 * : The owner approved this picture (dated now). Required for organic and paid use.
+	 *
+	 * [--fit=<fit>]
+	 * : Card derivative: contain (never crop) or cover (crop to 4:5 around --focal; keeps at least 75 %).
+	 *
+	 * [--focal=<x,y>]
+	 * : Focal point for cover, fractions 0-1, e.g. 0.5,0.4.
 	 */
 	public function media( $args, $assoc ) {
 		$id = (int) $args[0];
@@ -834,9 +853,23 @@ class YM_CLI {
 		$m   = array_merge( is_array( $old ) ? $old : array(), array(
 			'role' => $assoc['role'], 'sku' => $assoc['sku'], 'variant' => $assoc['variant'] ?? '', 'source' => $assoc['source'], 'rights' => $assoc['rights'],
 			'original' => $assoc['original'], 'exact_item' => ! empty( $assoc['exact'] ), 'complete' => ! empty( $assoc['complete'] ), 'final' => ! empty( $assoc['final'] ),
+			'channels' => array_values( array_intersect( array( 'site', 'organic', 'paid' ), array_map( 'trim', explode( ',', (string) ( $assoc['channels'] ?? 'site' ) ) ) ) ),
+			'editing'  => in_array( $assoc['editing'] ?? 'crop', array( 'none', 'crop', 'retouch' ), true ) ? ( $assoc['editing'] ?? 'crop' ) : 'none',
+			'expires'  => preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $assoc['expires'] ?? '' ) ) ? $assoc['expires'] : '',
+			'approved' => ! empty( $assoc['approved'] ) ? gmdate( 'c' ) : ( $old['approved'] ?? '' ),
 			'recorded' => gmdate( 'c' ),
 		) );
+		if ( isset( $assoc['fit'] ) && in_array( $assoc['fit'], array( 'contain', 'cover' ), true ) ) {
+			$m['fit'] = 'none' === $m['editing'] ? 'contain' : $assoc['fit']; // no crop when the rights forbid editing
+		}
+		if ( isset( $assoc['focal'] ) && preg_match( '/^(0(\.\d+)?|1),(0(\.\d+)?|1)$/', $assoc['focal'] ) ) {
+			$m['focal'] = array_map( 'floatval', explode( ',', $assoc['focal'] ) );
+		}
 		update_post_meta( $id, '_ym_media', wp_json_encode( $m, JSON_UNESCAPED_UNICODE ) );
+		$card = YM_Media::derive( $id, true );
+		if ( $card && $card['weak'] ) {
+			WP_CLI::warning( 'Card derivative is weak (the photo fills ' . round( 100 * $card['fill'] ) . ' % of a 4:5 card): use another authorised image as the main picture.' );
+		}
 		WP_CLI::success( wp_json_encode( $m, JSON_UNESCAPED_UNICODE ) );
 	}
 
@@ -845,5 +878,55 @@ class YM_CLI {
 	 */
 	public function ops( $args, $assoc ) {
 		WP_CLI::log( wp_json_encode( YM_Board::data(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
+	}
+
+	/**
+	 * Shared consent ledger: status, certify now, export or import (backup and restore).
+	 *
+	 * <action>
+	 * : status | certify | export | import
+	 *
+	 * [<file>]
+	 * : JSON file for export (default: stdout) or import. Import merges: a withdrawal is never removed or shortened.
+	 */
+	public function consent( $args, $assoc ) {
+		switch ( $args[0] ?? 'status' ) {
+			case 'certify':
+				YM_Consent::certify() ? WP_CLI::success( 'certified' ) : WP_CLI::error( 'not certified: ' . count( YM_Consent::pending() ) . ' withdrawal(s) still queued, or the ledger cannot be written' );
+				break;
+			case 'export':
+				$d = YM_Consent::export();
+				if ( null === $d ) {
+					WP_CLI::error( 'shared ledger not configured or unreadable' );
+				}
+				$json = wp_json_encode( $d );
+				if ( ! empty( $args[1] ) ) {
+					file_put_contents( $args[1], $json ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+					WP_CLI::success( count( $d['ledger'] ) . ' withdrawal(s) exported' );
+				} else {
+					WP_CLI::line( $json );
+				}
+				break;
+			case 'import':
+				$d = json_decode( (string) file_get_contents( (string) ( $args[1] ?? '' ) ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$n = is_array( $d ) ? YM_Consent::import( $d ) : false;
+				false === $n ? WP_CLI::error( 'not a consent export' ) : WP_CLI::success( $n . ' withdrawal(s) merged' );
+				break;
+			default:
+				WP_CLI::log( wp_json_encode( array( 'configured' => YM_Consent::configured(), 'stores' => YM_Consent::stores(), 'certificates' => YM_Consent::certificates(), 'queued_here' => count( YM_Consent::pending() ) ), JSON_PRETTY_PRINT ) );
+		}
+	}
+
+	/**
+	 * Recommendations: what was added from them and what became of those orders (verified outcomes only).
+	 *
+	 * [--days=<days>]
+	 * : Orders placed in the last N days (default 60).
+	 *
+	 * @subcommand reco-report
+	 */
+	public function reco_report( $args, $assoc ) {
+		$rows = YM_Reco::report( time() - DAY_IN_SECONDS * max( 1, (int) ( $assoc['days'] ?? 60 ) ) );
+		WP_CLI::log( wp_json_encode( $rows ? $rows : new stdClass(), JSON_PRETTY_PRINT ) );
 	}
 }

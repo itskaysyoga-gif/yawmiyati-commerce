@@ -1,5 +1,5 @@
 {
-  "source": "research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
+  "source": "Prices: research/selection/first_wave.csv proposed_price (docs/ASSORTMENT-v1.md, PROPOSED, awaiting owner approval); other fields research/launch_assortment_v2.csv; Taager catalog export captured before 2026-10-28; NOT supplier-verified",
   "products": [
     {
       "sku": "EG030106MKKT99",
@@ -90,7 +90,7 @@
       "sku": "EG030106STPG99",
       "taager_product_id": 21300,
       "taager_cost": 445,
-      "price": 649,
+      "price": 689,
       "slug": "double-clothes-rack",
       "name": "ستاند ملابس زوجي بعجل",
       "benefit": "ماسورتين للتعليق ورف تحت للجزم أو الشنط، وبيتحرك على عجل.",

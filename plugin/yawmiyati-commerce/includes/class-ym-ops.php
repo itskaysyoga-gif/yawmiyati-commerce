@@ -6,6 +6,7 @@
  * every 5 minutes (see docs/OPERATIONS.md); /wp-json/ym/v1/health reports whether each job ran on time so an
  * external uptime monitor can alert when the queue stops.
  *
+ *   ym_job_consent_certify every 5 min  flush queued consent withdrawals and certify this store (YM_Consent)
  *   ym_job_supplier_sweep  hourly   re-check orders whose Taager hand-off is pending or unconfirmed
  *   ym_job_stock_guard     daily    list offers whose stock check expired or expires within 12 h (they stop selling)
  *   ym_job_daily_digest    daily    yesterday's orders, holds, unconfirmed hand-offs, stuck orders
@@ -25,6 +26,7 @@ defined( 'ABSPATH' ) || exit;
 final class YM_Ops {
 
 	const JOBS = array(
+		'ym_job_consent_certify' => array( '*/5 * * * *', 5 * MINUTE_IN_SECONDS ),
 		'ym_job_supplier_sweep' => array( '7 * * * *', HOUR_IN_SECONDS ),
 		'ym_job_stock_guard'    => array( '0 6 * * *', DAY_IN_SECONDS ),
 		'ym_job_daily_digest'   => array( '30 8 * * *', DAY_IN_SECONDS ),
@@ -93,7 +95,12 @@ final class YM_Ops {
 		}
 		$consent = YM_Consent::flush_pending();
 		$pruned  = YM_DB::prune();
-		self::ran( 'supplier_sweep', array( 'checked' => $checked, 'consent_withdrawals_flushed' => $consent, 'rate_rows_pruned' => $pruned ) );
+		self::ran( 'supplier_sweep', array( 'checked' => $checked, 'consent_withdrawals_queued' => $consent, 'rate_rows_pruned' => $pruned ) );
+	}
+
+	public static function run_consent_certify() {
+		$ok = YM_Consent::certify();
+		self::ran( 'consent_certify', array( 'certified' => $ok, 'queued' => count( YM_Consent::pending() ) ) );
 	}
 
 	/** Processing orders of the last 3 days, older than 20 min, whose hand-off is pending or unconfirmed (max 100). */
@@ -112,6 +119,7 @@ final class YM_Ops {
 	}
 
 	public static function run_stock_guard() {
+		YM_Mail::cleanup(); // daily: unconfirmed signups older than 30 days
 		$expired  = array();
 		$expiring = array();
 		foreach ( wc_get_products( array( 'status' => array( 'publish', 'draft' ), 'limit' => -1 ) ) as $p ) {

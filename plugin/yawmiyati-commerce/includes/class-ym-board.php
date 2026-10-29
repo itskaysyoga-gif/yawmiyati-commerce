@@ -110,6 +110,8 @@ final class YM_Board {
 		$d['tracking_failures'] = $fails;
 		$health                 = YM_Ops::health()->get_data();
 		$d['overdue_jobs']      = array_keys( array_filter( $health['jobs'], fn( $j ) => $j['stale'] ) );
+		$cl                     = YM_Consent::launch_check();
+		$d['consent_ledger']    = array( 'ok' => $cl[0], 'certificates' => YM_Consent::certificates(), 'queued_here' => count( YM_Consent::pending() ) );
 
 		// Contribution by product: mature orders (older than the maturity window) of the last 60 days.
 		$rep = YM_Report::build( $now - 60 * DAY_IN_SECONDS, $now - YM_Report::maturity_days() * DAY_IN_SECONDS );
@@ -139,6 +141,9 @@ final class YM_Board {
 		}
 		if ( $fails ) {
 			$act[] = 'Server events failing: check tokens and Meta/Snap event tools before spending more.';
+		}
+		if ( YM_Consent::configured() && ! $cl[0] ) {
+			$act[] = 'Server events are held in every store: a store has not certified its consent withdrawals (wp ym consent status).';
 		}
 		if ( $d['overdue_jobs'] ) {
 			$act[] = 'Scheduled jobs overdue (' . implode( ', ', $d['overdue_jobs'] ) . '): check the server cron.';

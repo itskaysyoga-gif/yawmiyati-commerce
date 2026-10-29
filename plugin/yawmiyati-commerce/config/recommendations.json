@@ -1,0 +1,64 @@
+{
+ "_about": "Curated recommendations v1 (29 Oct 2026). Per country: SKU -> list of {sku, type: complement|substitute}. Order = priority. 'bundles' lists the component SKUs of a bundle sold as one Taager SKU; 'exclude_with' lists pairs that must never be shown together (size, voltage, duplicate function). A pair is added only when the two items are genuinely used together (complement) or answer the same need (substitute); never because of margin alone. No 'frequently bought together' claim until order data shows it. A rule that would sell her separately what one of the page's own offers sells cheaper as a bundle is never shown (the engine excludes it: the Iraq rack page already offers rack + mats for less).",
+ "eg": {
+  "rules": {
+   "EG030301HAEE99": [
+    {
+     "sku": "EG030401GB99",
+     "type": "complement"
+    }
+   ],
+   "EG030401GB99": [
+    {
+     "sku": "EG030301HAEE99",
+     "type": "complement"
+    }
+   ]
+  },
+  "bundles": {
+   "EG030108BUND99": [
+    "EG030106MKKT99",
+    "EG030106MKKT99"
+   ]
+  },
+  "exclude_with": []
+ },
+ "iq": {
+  "rules": {
+   "IQ030106MONZ99": [
+    {
+     "sku": "IQ030104STAN99",
+     "type": "substitute"
+    }
+   ],
+   "IQ030104STAN99": [
+    {
+     "sku": "IQ030106MONZ99",
+     "type": "substitute"
+    }
+   ]
+  },
+  "bundles": {
+   "IQ030501SDMN99": [
+    "IQ030403SENK99",
+    "IQ030106MATT99"
+   ]
+  },
+  "exclude_with": []
+ },
+ "sa": {
+  "rules": {},
+  "bundles": {},
+  "exclude_with": []
+ },
+ "ae": {
+  "rules": {},
+  "bundles": {},
+  "exclude_with": []
+ },
+ "om": {
+  "rules": {},
+  "bundles": {},
+  "exclude_with": []
+ }
+}
