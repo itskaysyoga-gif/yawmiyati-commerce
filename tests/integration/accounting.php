@@ -271,3 +271,15 @@ ym_check( 'supplier sweep: candidates are only processing orders with a pending/
 YM_Ops::run_supplier_sweep();
 ym_check( 'supplier sweep: re-checks exactly the candidates', count( $cands ) === (int) ( get_option( 'ym_ops_runs' )['supplier_sweep']['summary']['checked'] ?? -1 ) );
 $sw->delete( true );
+
+// Kill-gates on contribution with an uncertainty band (not a bare kept-rate threshold).
+list( $wl, $wh ) = YM_Gates::wilson( 45, 100 );
+ym_check( 'gates: Wilson band around 45/100', $wl > 0.38 && $wl < 0.40 && $wh > 0.50 && $wh < 0.52 );
+ym_check( 'gates: too early under 15 orders', 'too_early' === YM_Gates::decide( 10, 2, 100.0, 50.0, 200, 5 )['decision'] );
+// 35 % kept on a high margin pays: a kept-rate rule would have stopped it.
+$hi = YM_Gates::decide( 40, 14, 14 * 400 - 26 * 5, 40 * 40, 400, 5 );
+ym_check( 'gates: 35 % kept but profitable is kept', 'keep' === $hi['decision'] );
+// 60 % kept on a thin margin with expensive ads loses.
+ym_check( 'gates: 60 % kept but losing is paused', 'pause' === YM_Gates::decide( 40, 24, 24 * 100 - 16 * 5, 40 * 90, 100, 5 )['decision'] );
+ym_check( 'gates: unknown spend is not a decision', 'unknown' === YM_Gates::decide( 40, 18, 1000.0, null, 200, 5 )['decision'] );
+ym_check( 'gates: band across zero keeps testing at the same budget', 'test' === YM_Gates::decide( 30, 12, 12 * 200 - 18 * 5, 30 * 75, 200, 5 )['decision'] );

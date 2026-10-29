@@ -945,4 +945,11 @@ class YM_CLI {
 		}
 		WP_CLI::line( wp_json_encode( $f, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 	}
+
+	/**
+	 * Kill-gate decisions per product on the mature cohort: too_early, unknown, test, keep or pause (docs/PRICING.md).
+	 */
+	public function gates( $args, $assoc ) {
+		WP_CLI::log( wp_json_encode( YM_Gates::all() ?: new stdClass(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) );
+	}
 }

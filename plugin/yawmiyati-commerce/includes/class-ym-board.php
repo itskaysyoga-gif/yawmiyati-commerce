@@ -117,6 +117,7 @@ final class YM_Board {
 		$rep = YM_Report::build( $now - 60 * DAY_IN_SECONDS, $now - YM_Report::maturity_days() * DAY_IN_SECONDS );
 		$d['contribution'] = array( 'basis' => $rep['rates_mature']['basis'], 'money' => $rep['money'], 'unknown' => $rep['unknown'], 'products' => array_map( fn( $p ) => array( 'name' => $p['name'], 'orders' => $p['orders'], 'delivered' => $p['orders_delivered'], 'contribution_before_ads' => $p['contribution_before_ads'] ), $rep['products'] ?? array() ) );
 		$d['markets'] = YM_Markets::matrix();
+		$d['gates']   = YM_Gates::all();
 
 		// The short list for Rashid: things only he can do, or that cost money if left.
 		$act = array();
@@ -144,6 +145,10 @@ final class YM_Board {
 		}
 		if ( YM_Consent::configured() && ! $cl[0] ) {
 			$act[] = 'Server events are held in every store: a store has not certified its consent withdrawals (wp ym consent status).';
+		}
+		$pause = array_keys( array_filter( $d['gates'], fn( $g ) => 'pause' === $g['decision'] ) );
+		if ( $pause ) {
+			$act[] = 'Kill-gate: pause ads for ' . implode( ', ', $pause ) . ' (wp ym gates).';
 		}
 		if ( $d['overdue_jobs'] ) {
 			$act[] = 'Scheduled jobs overdue (' . implode( ', ', $d['overdue_jobs'] ) . '): check the server cron.';

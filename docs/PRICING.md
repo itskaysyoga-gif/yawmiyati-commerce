@@ -23,6 +23,16 @@ Expected contribution per **submitted** order:
 
 E is measured at the Taager wallet. "Money actually paid out" = wallet − payout costs, and those costs are unknown.
 
+### What the model is and is not (29 Oct)
+- Break-even CPA is a **ceiling before omitted costs and profit**, never a recommended bid. Bids are set below it.
+- Modelled figures (scenarios) and observed figures (the store's report) are kept apart. The store's report
+  (docs/REPORTING.md, `YM_Report`) already separates cancellation before hand-off, refusal, delivered-and-kept,
+  partial and full return, refunds, supplier credits and order charges per line, and shows unknown money as unknown.
+  Delivery is never counted twice: the customer pays it to the courier and it is not part of the supplier margin.
+- Decisions use observed contribution with an 80 % band once 15 mature orders exist (`YM_Gates`, `wp ym gates`):
+  a bare kept-rate threshold is not used (it ignores margin). Small cohorts are directional.
+- Competitor comparisons use delivered prices and genuine SKU matches with their capture date (research/data).
+
 ### Rates are scenarios, not facts
 p_kept = **30 % / 45 % / 60 %** delivered-and-kept per submitted order. Every other order is treated as refused at the
 door, the costliest outcome with a known charge. There is **no order history** (0 orders, no date range). The workbook's

@@ -48,7 +48,7 @@ async function call(f, extra) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: system(f), tools: [TOOL], tool_choice: { type: 'tool', name: 'write_brief' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
+    body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: system(f), tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: `Facts (JSON):\n${JSON.stringify(slim(f), null, 1)}${extra ? `\n\nYour previous answer broke these rules; fix every one:\n- ${extra.join('\n- ')}` : ''}` }] }),
   });
   const body = await res.json();
   if (!res.ok) throw new Error(`API ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
@@ -58,8 +58,9 @@ async function call(f, extra) {
   fs.writeFileSync(ledgerFile, JSON.stringify(ledger, null, 1));
   if (process.env.GITHUB_ACTIONS) console.log(`::notice title=studio spend::${f.country} ${f.sku}: ${body.usage.input_tokens} in / ${body.usage.output_tokens} out tokens, counted as ${usd.toFixed(4)} USD; ledger total ${spent().toFixed(4)} USD`);
   const use = (body.content || []).find((c) => c.type === 'tool_use');
-  if (!use) throw new Error('no tool call in the answer');
-  return use.input;
+  if (use) return use.input;
+  const text = (body.content || []).map((c) => c.text || '').join('');
+  try { return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)); } catch { throw new Error('the answer had no write_brief call and no readable JSON'); }
 }
 
 const line = { type: 'string' };

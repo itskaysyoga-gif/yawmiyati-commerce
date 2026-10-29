@@ -51,10 +51,19 @@ order history. The scenarios are replaced by measured rates once 50 own orders p
 are thin: in Egypt the lead offer can afford about 177 EGP per submitted order at 45 % kept, the others about 87-107.
 The test answers whether real ad costs sit below that.
 
-## Kill-gates (per offer, per country)
-1. Pause the ad set when spend reaches 3 × its break-even cost (45 % column) with no order.
-2. Pause it when the cost per submitted order stays above break-even (45 %) after 20 orders.
-3. Pause the product when fewer than 35 % of its first 30 mature orders were delivered and kept.
+## Kill-gates (per offer, per country; revised 29 Oct)
+The break-even figures above are **ceilings before omitted costs and profit, not bids**, and the 30 / 45 / 60 % kept
+rates are scenarios, not measurements.
+1. Pause the ad set when spend reaches 3 × its break-even ceiling **at 30 % kept** (the cautious scenario) with no
+   submitted order.
+2. Pause it when the cost per submitted order stays above the 45 % ceiling after 20 submitted orders (directional:
+   20 orders do not prove a rate).
+3. Decide on money, not on a kept rate: from 15 mature orders, `wp ym gates` computes contribution per submitted
+   order after its own ad spend with an 80 % band from the kept rate. Whole band below zero: pause. Whole band above
+   zero: keep (more budget only with Rashid's yes). Band across zero: keep testing at the same budget; at 60 orders
+   pause if the middle is still below zero. Unknown money (cost, charge or spend not recorded) is not a decision:
+   record it first. (Replaces "pause below 35 % kept", which ignored margin: 35 % kept can pay on a high margin and
+   60 % can lose on a thin one.)
 4. Pause at once when Taager stock for the SKU is not confirmed within 48 hours (the store stops selling it anyway).
 
 ## Evidence and open checks per offer

@@ -88,9 +88,10 @@ def main():
         row['competitor_evidence'] = o['competitor_comparisons'].split(' || source')[0]
         row['evidence_source'] = 'research/data/benchmarks_%s_v2.csv (captured 2026-10-28)' % ('egy' if cc == 'EGY' else 'irq')
         row['open_checks'] = COMMON + ('; ' + extra if extra else '')
-        row['kill_gate'] = ('pause the ad set when spend reaches 3 x break-even CPA (45 %) with no order, or when cost per '
-                            'submitted order stays above break-even (45 %) after 20 orders; pause the product when the '
-                            'delivered-and-kept rate of its first 30 mature orders is below 35 %')
+        row['kill_gate'] = ('pause the ad set when spend reaches 3 x the break-even ceiling at 30 % kept with no order, or when '
+                            'cost per submitted order stays above the 45 % ceiling after 20 orders; from 15 mature orders '
+                            'decide on contribution per submitted order with an 80 % band (wp ym gates): pause when the '
+                            'whole band is below zero (docs/ASSORTMENT-v1.md)')
         rows.append(row)
     with open(OUT, 'w', newline='', encoding='utf-8') as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))

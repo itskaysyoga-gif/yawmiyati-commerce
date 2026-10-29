@@ -26,6 +26,7 @@ require_once YM_DIR . '/includes/class-ym-country.php';
 require_once YM_DIR . '/includes/class-ym-markets.php';
 require_once YM_DIR . '/includes/class-ym-lifecycle.php';
 require_once YM_DIR . '/includes/class-ym-report.php';
+require_once YM_DIR . '/includes/class-ym-gates.php';
 require_once YM_DIR . '/includes/class-ym-media.php';
 require_once YM_DIR . '/includes/class-ym-catalog.php';
 require_once YM_DIR . '/includes/class-ym-ops.php';
