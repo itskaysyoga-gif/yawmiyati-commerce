@@ -1,0 +1,422 @@
+{
+ "country": "sa",
+ "batch": "02-nav-home-product-1",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T11:17:31.615Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "70de7db138a0c6ef",
+ "usage": {
+  "input_tokens": 10061,
+  "output_tokens": 4122,
+  "usd_counted": 0.184026
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.buy",
+   "verdict": "ok",
+   "note": "Clear and accurate for COD."
+  },
+  {
+   "key": "copy.buy_short",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.add",
+   "verdict": "ok",
+   "note": "Standard label."
+  },
+  {
+   "key": "copy.place",
+   "verdict": "ok",
+   "note": "Says exactly what happens."
+  },
+  {
+   "key": "copy.choose",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks",
+   "verdict": "ok",
+   "note": "Unambiguous."
+  },
+  {
+   "key": "copy.fit_q",
+   "verdict": "ok",
+   "note": "Clear and neutral."
+  },
+  {
+   "key": "copy.why",
+   "verdict": "ok",
+   "note": "Neutral agreement works."
+  },
+  {
+   "key": "copy.specs_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.diary_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.zones_head",
+   "verdict": "ok",
+   "note": "Clear column headers."
+  },
+  {
+   "key": "copy.delivery_address",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.order_details",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.country_name",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.switch_country",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.ask",
+   "verdict": "ok",
+   "note": "Warm and natural; عندك is also correct standard Arabic."
+  },
+  {
+   "key": "copy.nav_delivery",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.nav_returns",
+   "verdict": "question",
+   "note": "This label promises both exchanges and returns. Confirm that the Saudi policy offers exchanges; if it covers returns only, use \"الإرجاع\".",
+   "resolution": "kept until the Saudi returns policy is confirmed (O5, P0-14)"
+  },
+  {
+   "key": "copy.nav_privacy",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.nav_contact",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.nav_faq",
+   "verdict": "ok",
+   "note": "Standard label."
+  },
+  {
+   "key": "copy.home_title",
+   "verdict": "ok",
+   "note": "Warm and natural."
+  },
+  {
+   "key": "copy.home_lede",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_word",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.categories",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.all_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_ph",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_pick",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.see_all",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.results",
+   "verdict": "ok",
+   "note": "Avoids plural agreement."
+  },
+  {
+   "key": "copy.prev",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.next",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.pages",
+   "verdict": "ok",
+   "note": "Fine for screen readers."
+  },
+  {
+   "key": "copy.no_results",
+   "verdict": "revise",
+   "note": "\"باسم\" implies an exact product name, which is odd for a search term; a plain no-results line is clearer.",
+   "suggestion": "لا توجد نتائج لـ \"%s\".",
+   "resolution": "accepted (also EG and IQ)"
+  },
+  {
+   "key": "copy.no_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.no_results_help",
+   "verdict": "ok",
+   "note": "Helpful and clear."
+  },
+  {
+   "key": "copy.qty_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.qty_less",
+   "verdict": "ok",
+   "note": "Clear label for screen readers."
+  },
+  {
+   "key": "copy.qty_more",
+   "verdict": "ok",
+   "note": "Clear label for screen readers."
+  },
+  {
+   "key": "copy.video_play",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reviews_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_verified",
+   "verdict": "ok",
+   "note": "Neutral and clear."
+  },
+  {
+   "key": "copy.review_form_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_rating",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_text",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_name",
+   "verdict": "ok",
+   "note": "Clear about where the name is shown."
+  },
+  {
+   "key": "copy.review_submit",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_thanks",
+   "verdict": "revise",
+   "note": "\"يظهر رأيك بعد مراجعته\" promises that every review will be published, but moderation may reject some; say it will be reviewed before publishing.",
+   "suggestion": "شكرًا! سنراجع رأيك قبل نشره.",
+   "resolution": "accepted: moderation may reject (also EG and IQ)"
+  },
+  {
+   "key": "copy.review_invalid",
+   "verdict": "ok",
+   "note": "Clear, with a way to get help."
+  },
+  {
+   "key": "copy.review_done",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_stars",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_word",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.breadcrumb",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_cta",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_cats",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps",
+   "verdict": "ok",
+   "note": "Accurate steps that match the button; no timing promise."
+  },
+  {
+   "key": "copy.home_tip_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_tip_body",
+   "verdict": "ok",
+   "note": "Natural and practical."
+  },
+  {
+   "key": "copy.home_featured",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks_next",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reco_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reco_complement",
+   "verdict": "ok",
+   "note": "Gender-neutral and clear."
+  },
+  {
+   "key": "copy.reco_substitute",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reco_add",
+   "verdict": "ok",
+   "note": "Matches the main button."
+  },
+  {
+   "key": "category.kitchen",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.bathroom",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.laundry",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.storage",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.comfort",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "category.cleaning",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.SA030104APZ499.name",
+   "verdict": "ok",
+   "note": "Clear product name."
+  },
+  {
+   "key": "product.SA030104APZ499.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.SA030104APZ499.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.SA030104APZ499.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_totals",
+   "verdict": "ok",
+   "note": "Short and clear."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

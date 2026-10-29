@@ -1,0 +1,257 @@
+{
+ "country": "sa",
+ "batch": "03-policy-pages",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T11:18:20.086Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "dd353b6f09f493b2",
+ "usage": {
+  "input_tokens": 9274,
+  "output_tokens": 3827,
+  "usd_counted": 0.170454
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "page.delivery.01",
+   "verdict": "ok",
+   "note": "Clear COD statement."
+  },
+  {
+   "key": "page.delivery.02",
+   "verdict": "ok",
+   "note": "Glossary term."
+  },
+  {
+   "key": "page.delivery.03",
+   "verdict": "ok",
+   "note": "Shortcode only."
+  },
+  {
+   "key": "page.delivery.04",
+   "verdict": "ok",
+   "note": "Pending note, no promise."
+  },
+  {
+   "key": "page.delivery.05",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.delivery.06",
+   "verdict": "ok",
+   "note": "Shortcode only."
+  },
+  {
+   "key": "page.delivery.07",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.delivery.08",
+   "verdict": "ok",
+   "note": "Shortcode only."
+  },
+  {
+   "key": "page.delivery.09",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.delivery.10",
+   "verdict": "ok",
+   "note": "Pending note."
+  },
+  {
+   "key": "page.returns.01",
+   "verdict": "revise",
+   "note": "The fixed word أيام is wrong for 11 or more (for example \"14 أيام\" should be 14 يومًا), \"حسب السياسة المنشورة\" is circular on the policy page itself, and the refund method is not something only the delivery partner decides.",
+   "suggestion": "[ym_pending]مدة الاستبدال والإرجاع (عدد الأيام: [ym_rule key=\"return_days\"])، وطريقة استرداد المبلغ، ومن يستلم المرتجع: نتأكد منها قبل الإطلاق.[/ym_pending]",
+   "resolution": "accepted"
+  },
+  {
+   "key": "page.returns.02",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.returns.03",
+   "verdict": "ok",
+   "note": "Clear instruction."
+  },
+  {
+   "key": "page.returns.04",
+   "verdict": "ok",
+   "note": "No timing promise."
+  },
+  {
+   "key": "page.privacy.01",
+   "verdict": "ok",
+   "note": "Fine; details follow below."
+  },
+  {
+   "key": "page.privacy.02",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.privacy.03",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.privacy.04",
+   "verdict": "ok",
+   "note": "Uses المنطقة per glossary."
+  },
+  {
+   "key": "page.privacy.05",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.privacy.06",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.privacy.07",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.privacy.08",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.privacy.09",
+   "verdict": "question",
+   "note": "It claims the record is stored encrypted and deleted \"after a set period\", but the retention period is still pending (privacy.18), so confirm encryption is real and add the actual period before launch.",
+   "resolution": "kept: risk records are stored as phone hashes and expire (YM_Risk); the retention period itself is a pending line"
+  },
+  {
+   "key": "page.privacy.10",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.privacy.11",
+   "verdict": "ok",
+   "note": "Matches the cookie section."
+  },
+  {
+   "key": "page.privacy.12",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.privacy.13",
+   "verdict": "ok",
+   "note": "Precise, matches the stated limit."
+  },
+  {
+   "key": "page.privacy.14",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.privacy.15",
+   "verdict": "ok",
+   "note": "Precise; check the option labels match the cookie banner."
+  },
+  {
+   "key": "page.privacy.16",
+   "verdict": "ok",
+   "note": "Fine heading."
+  },
+  {
+   "key": "page.privacy.17",
+   "verdict": "ok",
+   "note": "Clear, no timing promise."
+  },
+  {
+   "key": "page.privacy.18",
+   "verdict": "ok",
+   "note": "Pending note."
+  },
+  {
+   "key": "page.contact.01",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "page.contact.02",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "page.contact.03",
+   "verdict": "ok",
+   "note": "Pending note."
+  },
+  {
+   "key": "page.faq.01",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.faq.02",
+   "verdict": "ok",
+   "note": "Clear, gender-neutral about products."
+  },
+  {
+   "key": "page.faq.03",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.faq.04",
+   "verdict": "ok",
+   "note": "Pending note."
+  },
+  {
+   "key": "page.faq.05",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.faq.06",
+   "verdict": "ok",
+   "note": "Shortcode only."
+  },
+  {
+   "key": "page.faq.07",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.faq.08",
+   "verdict": "ok",
+   "note": "Shortcode only."
+  },
+  {
+   "key": "page.faq.09",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "page.faq.10",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "page.faq.11",
+   "verdict": "revise",
+   "note": "As a question, \"إذا وصل…؟\" reads like a fragment and needs \"ماذا لو\".",
+   "suggestion": "ماذا لو وصل المنتج وفيه عيب؟",
+   "resolution": "accepted"
+  },
+  {
+   "key": "page.faq.12",
+   "verdict": "ok",
+   "note": "Clear."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

@@ -76,7 +76,7 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 10 | `reviews_title` | other | آراء بعد الاستلام | ok | |
 | 11 | `review_verified` | reviews | تم الشراء والاستلام | revise | |
 | 12 | `review_form_title` | reviews | قوليلنا رأيك في المنتج | ok | |
-| 13 | `review_thanks` | reviews | شكرًا! رأيك هيظهر بعد ما نراجعه. | ok | |
+| 13 | `review_thanks` | reviews | شكرًا! هنراجع رأيك قبل ما ينزل. | ok | |
 | 14 | `review_invalid` | reviews | الرابط ده مش شغال. لو محتاجة مساعدة ابعتيلنا على إنستجرام. | revise | |
 | 15 | `review_done` | reviews | بعتتي رأيك في الطلب ده قبل كده. شكرًا! | ok | |
 | 16 | `home_cta` | home, product and order page | تسوّقي اختياراتنا | ok | |
@@ -120,12 +120,12 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 54 | `product.EG030401GB99.spec2.label` | product | الخامة | ok | |
 | 55 | `product.EG030401GB99.spec3.label` | product | الغسيل | ok | |
 | 56 | `cart_totals` | other | ملخص السلة | ok | |
-| 57 | `to_checkout` | other | متابعة الطلب | ok | |
+| 57 | `to_checkout` | other | إكمال الطلب | ok | |
 | 58 | `fix_these` | other | راجعي النقاط دي قبل ما تبعتي الطلب: | ok | |
 | 59 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
 
 ## Priority 2b: buttons, navigation, search (one glance)
-`buy_short`: اطلبي دلوقتي · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبك · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦رسوم التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: مصر · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والاسترجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: مش لاقيين حاجة باسم "%s". · `no_products`: مفيش منتجات هنا دلوقتي. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: الكمية · `qty_less`: تقليل الكمية · `qty_more`: زيادة الكمية · `video_play`: تشغيل الفيديو · `review_rating`: تقييمك · `review_text`: رأيك · `review_name`: اسمك الأول (هيظهر مع رأيك) · `review_submit`: إرسال رأيك · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف
+`buy_short`: اطلبي دلوقتي · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبك · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦رسوم التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: مصر · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والاسترجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: مفيش نتايج لـ "%s". · `no_products`: مفيش منتجات هنا دلوقتي. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: الكمية · `qty_less`: تقليل الكمية · `qty_more`: زيادة الكمية · `video_play`: تشغيل الفيديو · `review_rating`: تقييمك · `review_text`: رأيك · `review_name`: اسمك الأول (هيظهر مع رأيك) · `review_submit`: إرسال رأيك · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف
 
 ## Priority 3: emails and consent
 | # | Key | Where | Text | AI critique | OK? / your wording |
@@ -150,7 +150,7 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 18 | `news_confirmed` | newsletter consent | تمام، اتأكد اشتراكك. | ok | |
 | 19 | `news_unsubscribed` | newsletter consent | اتلغى اشتراكك ومش هتوصلك رسايل تسويقية تاني من يومياتي. | ok | |
 | 20 | `news_invalid` | newsletter consent | الرابط ده مش شغال أو انتهت صلاحيته. من فضلك افتحي آخر رسالة وصلتك من يومياتي وجرّبي الرابط اللي فيها. | revise | |
-| 21 | `mail_footer` | email | الرسالة دي من يومياتي. للرد اكتبي على نفس الإيميل. | ok | |
+| 21 | `mail_footer` | email | الرسالة دي من يومياتي. لو حابة تكلمينا، ردّي على الرسالة دي. | ok | |
 | 22 | `mail_unsub` | email | إلغاء الاشتراك | ok | |
 | 23 | `mail_confirm_subject` | email | أكّدي اشتراكك في رسايل يومياتي | ok | |
 | 24 | `mail_confirm_body` | email | اضغطي على الزرار علشان تأكدي إن الإيميل ده بتاعك وإنك عايزة رسايل يومياتي. لو مش إنتي اللي طلبتي، تجاهلي الرسالة. | ok | |
@@ -165,7 +165,7 @@ checked separately. House rules: docs/voice/EG.md. Generated from docs/language/
 | 33 | `mail_shipped_body` | email | طلبك خرج مع شركة الشحن. المبلغ المطلوب وقت الاستلام: %s. | question | |
 | 34 | `mail_cancelled_subject` | email | اتلغى طلبك %s | ok | |
 | 35 | `mail_cancelled_body` | email | الطلب ده اتلغى ومش هيتشحن. لو ده مش مقصود، ردّي على الرسالة دي. | ok | |
-| 36 | `mail_refund_subject` | email | استرداد لطلبك %s | ok | |
+| 36 | `mail_refund_subject` | email | بخصوص استرداد مبلغ طلبك %s | ok | |
 | 37 | `mail_refund_body` | email | سجّلنا استرداد %s لطلبك. | question | |
 | 38 | `mail_delivered_subject` | email | طلبك %s وصلك: قوليلنا رأيك | ok | |
 | 39 | `mail_delivered_body` | email | نتمنى طلبك يعجبك. لو حابة تكتبي رأيك، الرابط تحت. رأيك بيظهر زي ما هو بعد المراجعة، سواء كان كويس أو لأ. | ok | |

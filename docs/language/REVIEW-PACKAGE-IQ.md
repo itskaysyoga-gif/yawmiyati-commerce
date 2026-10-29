@@ -75,7 +75,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 10 | `reviews_title` | other | آراء بعد الاستلام | ok | |
 | 11 | `review_verified` | reviews | تم الشراء والاستلام | question | |
 | 12 | `review_form_title` | reviews | كوليلنا رأيج بالمنتج | ok | |
-| 13 | `review_thanks` | reviews | شكرًا! رأيج يطلع بعد ما نراجعه. | ok | |
+| 13 | `review_thanks` | reviews | شكرًا! راح نراجع رأيج قبل ما ينشر. | ok | |
 | 14 | `review_invalid` | reviews | هالرابط مو شغال. إذا تحتاجين مساعدة دزيلنا على إنستغرام. | ok | |
 | 15 | `review_done` | reviews | دزيتي رأيج بهالطلب قبل. شكرًا! | ok | |
 | 16 | `home_cta` | home, product and order page | تسوّقي اختياراتنا | ok | |
@@ -125,12 +125,12 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 60 | `product.IQ030104STAN99.spec1.label` | product | الارتفاع والعرض | ok | |
 | 61 | `product.IQ030104STAN99.spec2.label` | product | الخامة | ok | |
 | 62 | `cart_totals` | other | ملخص السلة | ok | |
-| 63 | `to_checkout` | other | متابعة الطلب | ok | |
+| 63 | `to_checkout` | other | إكمال الطلب | ok | |
 | 64 | `fix_these` | other | راجعي هالنقاط قبل لا تدزين الطلب: | ok | |
 | 65 | `skip_link` | other | الانتقال إلى المحتوى | ok | |
 
 ## Priority 2b: buttons, navigation, search (one glance)
-`buy_short`: اطلبي هسّه · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبج · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦أجور التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: العراق · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والإرجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: ما لكينا شي باسم "%s". · `no_products`: ماكو منتجات هنا هسّه. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: العدد · `qty_less`: تقليل العدد · `qty_more`: زيادة العدد · `video_play`: تشغيل الفيديو · `review_rating`: تقييمج · `review_text`: رأيج · `review_name`: اسمج الأول (يطلع ويا رأيج) · `review_submit`: إرسال رأيج · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف
+`buy_short`: اطلبي هسّه · `add`: إضافة إلى السلة · `place`: إرسال الطلب · `choose`: اختاري اللي يناسبج · `specs_title`: المواصفات · `delivery_title`: التوصيل والدفع · `zones_head`: المحافظات¦أجور التوصيل¦المدة · `delivery_address`: عنوان التوصيل · `order_details`: تفاصيل الطلب · `country_name`: العراق · `switch_country`: تغيير الدولة · `nav_delivery`: التوصيل والدفع · `nav_returns`: الاستبدال والإرجاع · `nav_privacy`: الخصوصية · `nav_contact`: تواصلي معنا · `nav_faq`: الأسئلة الشائعة · `delivery_word`: التوصيل · `categories`: الأقسام · `all_products`: كل المنتجات · `search_label`: بحث · `search_ph`: دوّري على منتج… · `cart_label`: السلة · `see_all`: شوفي كل المنتجات · `search_title`: نتائج البحث عن "%s" · `results`: عدد المنتجات: %d · `prev`: السابق · `next`: التالي · `pages`: صفحات المنتجات · `no_results`: ما لكينا نتائج لـ "%s". · `no_products`: ماكو منتجات هنا هسّه. · `no_results_help`: جرّبي كلمة أقصر أو اختاري قسم من فوق. · `qty_label`: العدد · `qty_less`: تقليل العدد · `qty_more`: زيادة العدد · `video_play`: تشغيل الفيديو · `review_rating`: تقييمج · `review_text`: رأيج · `review_name`: اسمج الأول (يطلع ويا رأيج) · `review_submit`: إرسال رأيج · `review_stars`: %d من 5 · `home_word`: الرئيسية · `breadcrumb`: مسار الصفحة · `reco_add`: إضافة إلى السلة · `category.kitchen`: المطبخ · `category.bathroom`: الحمّام · `category.laundry`: الغسيل والملابس · `category.storage`: الترتيب والتخزين · `category.comfort`: الدفء والراحة · `category.cleaning`: التنظيف
 
 ## Priority 3: emails and consent
 | # | Key | Where | Text | AI critique | OK? / your wording |
@@ -155,7 +155,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 18 | `news_confirmed` | newsletter consent | تمام، تأكد اشتراكج. | ok | |
 | 19 | `news_unsubscribed` | newsletter consent | انلغى اشتراكج وما راح توصلج رسائل تسويقية بعد من يومياتي. | ok | |
 | 20 | `news_invalid` | newsletter consent | هذا الرابط ما يشتغل أو انتهى. | ok | |
-| 21 | `mail_footer` | email | هذي الرسالة من يومياتي. للرد اكتبي على نفس الإيميل. | ok | |
+| 21 | `mail_footer` | email | هذي الرسالة من يومياتي. إذا تحبين تحجين ويانا، ردّي على هالرسالة. | ok | |
 | 22 | `mail_unsub` | email | إلغاء الاشتراك | ok | |
 | 23 | `mail_confirm_subject` | email | أكّدي اشتراكج برسائل يومياتي | ok | |
 | 24 | `mail_confirm_body` | email | اضغطي الزر حتى تأكدين هذا الإيميل مالج وتريدين رسائل يومياتي. إذا مو إنتِ اللي طلبتي، تجاهلي الرسالة. | ok | |
@@ -170,7 +170,7 @@ checked separately. House rules: docs/voice/IQ.md. Generated from docs/language/
 | 33 | `mail_shipped_body` | email | طلبج طلع ويا شركة الشحن. المبلغ المطلوب وقت الاستلام: %s. | ok | |
 | 34 | `mail_cancelled_subject` | email | انلغى طلبج %s | ok | |
 | 35 | `mail_cancelled_body` | email | هذا الطلب انلغى وما راح ينشحن. إذا مو مقصود، ردّي على هذي الرسالة. | ok | |
-| 36 | `mail_refund_subject` | email | استرجاع مبلغ لطلبج %s | ok | |
+| 36 | `mail_refund_subject` | email | بخصوص استرجاع مبلغ طلبج %s | ok | |
 | 37 | `mail_refund_body` | email | سجّلنا استرجاع %s لطلبج. | question | |
 | 38 | `mail_delivered_subject` | email | طلبج %s وصلج: كوليلنا رأيج | ok | |
 | 39 | `mail_delivered_body` | email | نتمنى طلبج يعجبج. إذا حابة تكتبين رأيج، الرابط جوّه. رأيج يطلع مثل ما هو بعد المراجعة، سواء عجبج لو لا. | ok | |
