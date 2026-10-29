@@ -1,0 +1,278 @@
+{
+ "country": "eg",
+ "batch": "04-email-consent",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:33:03.134Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "5569fa1b8d0d793c",
+ "usage": {
+  "input_tokens": 10504,
+  "output_tokens": 5330,
+  "usd_counted": 0.222924
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.consent_text",
+   "verdict": "revise",
+   "note": "It opens with 'we use' cookies for measurement and ads before she agrees, and 'ملفات تعريف' alone is not the familiar term; it should say that only the necessary cookies always run and the rest need her consent.",
+   "suggestion": "بنستخدم ملفات تعريف الارتباط (الكوكيز) الضرورية علشان الطلب يشتغل. ولو وافقتي، بنستخدم كمان كوكيز علشان نفهم الموقع بيتستخدم إزاي ونقيس نتايج الإعلانات. تقدري توافقي أو تكتفي بالضروري.",
+   "resolution": "accepted (wording adjusted: \"الموقع والطلب يشتغلوا\")"
+  },
+  {
+   "key": "copy.consent_yes",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_no",
+   "verdict": "ok",
+   "note": "Clear and short."
+  },
+  {
+   "key": "copy.consent_change",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.reviews_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.consent_short",
+   "verdict": "revise",
+   "note": "'بس' is ambiguous here: it can read as 'only for measurement and ads' rather than 'only if you agree'.",
+   "suggestion": "كوكيز القياس والإعلانات مش بنستخدمها غير لو وافقتي.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.consent_customize",
+   "verdict": "revise",
+   "note": "This is a button, and the house rule is verbal nouns on buttons, not imperatives.",
+   "suggestion": "تخصيص الاختيارات",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.consent_essential",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_analytics",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.consent_ads",
+   "verdict": "question",
+   "note": "Are tracking pixels actually installed for all three platforms (Facebook, Instagram, Snapchat)? Name only the ones in use; 'سناب' is also informal for a consent label (prefer 'سناب شات').",
+   "resolution": "revised: \"سناب شات\"; the platforms listed are those the consent covers (Snap may be dropped at O11, then removed here)"
+  },
+  {
+   "key": "copy.consent_save",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_title",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.news_body",
+   "verdict": "revise",
+   "note": "The fact is a cap of one a week, not a promise of exactly one; 'رسالة واحدة في الأسبوع' promises a fixed rhythm, and 'تلغي' needs an object.",
+   "suggestion": "رسالة واحدة في الأسبوع بالكتير، فيها فكرة مفيدة للبيت ومنتج من اختياراتنا. تقدري تلغي الاشتراك في أي وقت.",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.news_email",
+   "verdict": "ok",
+   "note": "Fine as a label."
+  },
+  {
+   "key": "copy.news_agree",
+   "verdict": "ok",
+   "note": "Clear consent wording."
+  },
+  {
+   "key": "copy.news_button",
+   "verdict": "revise",
+   "note": "Buttons use verbal nouns in the house style, not imperatives.",
+   "suggestion": "اشتراك",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.news_pending",
+   "verdict": "ok",
+   "note": "Clear next step."
+  },
+  {
+   "key": "copy.news_need_agree",
+   "verdict": "revise",
+   "note": "House rule for errors: use من فضلك and say what is missing; 'الموافقة' alone is vague about which box.",
+   "suggestion": "من فضلك علّمي على خانة الموافقة علشان نقدر نسجّل اشتراكك.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.news_confirmed",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.news_unsubscribed",
+   "verdict": "ok",
+   "note": "Clear and precise."
+  },
+  {
+   "key": "copy.news_invalid",
+   "verdict": "revise",
+   "note": "The error says what's wrong but not what she can do next, and 'انتهى' needs a subject.",
+   "suggestion": "الرابط ده مش شغال أو انتهت صلاحيته. من فضلك افتحي آخر رسالة وصلتك من يومياتي وجرّبي الرابط اللي فيها.",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.mail_footer",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_unsub",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirm_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirm_body",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_confirm_button",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_welcome_subject",
+   "verdict": "ok",
+   "note": "Warm."
+  },
+  {
+   "key": "copy.mail_welcome_body",
+   "verdict": "revise",
+   "note": "She will also get order emails, so 'one email a week at most' needs to say it means marketing emails.",
+   "suggestion": "يومياتي بتختار حاجات بسيطة ومفيدة للبيت، والطلب بالدفع عند الاستلام. هنبعتلك رسالة تسويقية واحدة في الأسبوع بالكتير.",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.mail_received_subject",
+   "verdict": "revise",
+   "note": "The voice guide flags 'وصلنا طلبك': without a shadda it can read as 'we delivered your order', and it hints the order is settled; use استلمنا.",
+   "suggestion": "استلمنا طلبك %s",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.mail_received_body",
+   "verdict": "ok",
+   "note": "Precise and follows the guide."
+  },
+  {
+   "key": "copy.mail_confirmed_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_confirmed_body",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.mail_shipped_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_shipped_body",
+   "verdict": "question",
+   "note": "Is it verified that the courier always calls before arriving? If not, drop that clause: 'طلبك خرج مع شركة الشحن. المبلغ المطلوب وقت الاستلام: %s.'",
+   "resolution": "accepted: courier-call clause removed until verified (all countries)"
+  },
+  {
+   "key": "copy.mail_cancelled_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_cancelled_body",
+   "verdict": "ok",
+   "note": "Clear next step."
+  },
+  {
+   "key": "copy.mail_refund_subject",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_refund_body",
+   "verdict": "question",
+   "note": "On a cash order she needs to know how and when the money reaches her, but the method and timing aren't in the facts; add one plain sentence once they are confirmed.",
+   "resolution": "open dependency: how and when a COD refund reaches her is unknown (P0-14); a sentence is added once confirmed"
+  },
+  {
+   "key": "copy.mail_delivered_subject",
+   "verdict": "ok",
+   "note": "Matches the content now."
+  },
+  {
+   "key": "copy.mail_delivered_body",
+   "verdict": "ok",
+   "note": "Honest and neutral about product gender."
+  },
+  {
+   "key": "copy.mail_review_button",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.mail_order_total",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.cart_totals",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.to_checkout",
+   "verdict": "ok",
+   "note": "Clear and neutral."
+  },
+  {
+   "key": "copy.fix_these",
+   "verdict": "ok",
+   "note": "Soft and actionable."
+  },
+  {
+   "key": "copy.skip_link",
+   "verdict": "ok",
+   "note": "Neutral."
+  },
+  {
+   "key": "copy.news_confirm_q",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.news_unsub_q",
+   "verdict": "ok",
+   "note": "Clear."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

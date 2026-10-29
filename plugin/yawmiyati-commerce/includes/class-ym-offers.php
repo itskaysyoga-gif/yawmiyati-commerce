@@ -416,9 +416,12 @@ final class YM_Offers {
 			return;
 		}
 		$head = explode( '|', YM_Country::copy( 'zones_head' ) );
-		echo '<table class="ym-fees"><thead><tr><th scope="col">' . esc_html( $head[0] ) . '</th><th scope="col">' . esc_html( $head[1] ) . '</th><th scope="col">' . esc_html( $head[2] ) . '</th></tr></thead><tbody>';
+		// Delivery times come from the supplier's publication ("Taager said"); they are shown only once observed on
+		// real orders in this country (option ym_delivery_days_verified, set at checklist P0-8/9).
+		$days = (bool) get_option( 'ym_delivery_days_verified' ) && array_filter( array_column( $zones, 2 ) );
+		echo '<table class="ym-fees"><thead><tr><th scope="col">' . esc_html( $head[0] ) . '</th><th scope="col">' . esc_html( $head[1] ) . '</th>' . ( $days ? '<th scope="col">' . esc_html( $head[2] ?? '' ) . '</th>' : '' ) . '</tr></thead><tbody>';
 		foreach ( $zones as $z ) {
-			echo '<tr><td>' . esc_html( $z[1] ) . '</td><td>' . esc_html( YM_Country::money( $z[0] ) ) . '</td><td>' . esc_html( $z[2] ) . '</td></tr>';
+			echo '<tr><td>' . esc_html( $z[1] ) . '</td><td>' . esc_html( YM_Country::money( $z[0] ) ) . '</td>' . ( $days ? '<td>' . esc_html( $z[2] ) . '</td>' : '' ) . '</tr>';
 		}
 		echo '</tbody></table>';
 	}

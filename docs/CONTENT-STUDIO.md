@@ -2,8 +2,19 @@
 
 _29 Oct 2026. Code: `studio/` (separate Node project) and `YM_Studio` in the plugin. Status words as in PROJECT-STATE.md._
 
+> **Scheduled last (review of 29 Oct 2026).** Video work resumes only after the storefront, language and reliability
+> work and real media exist. The code and its tests stay; no scripts are generated, no variants rendered and no API
+> credit is spent on video until then. The 14 records of 29 Oct are **technical samples, not approved for ads**:
+> automated QA proves dimensions, durations and file validity, not creative quality (photo slideshows with slight
+> motion, weak hooks, small end-card; the Egypt sample has no audio stream). Next phase, in order: licensed footage of
+> the actual SKU in use → one strong concept each for Egypt and Iraq → product, problem and result visible, clear in
+> the first two seconds → native-reviewed captions (narration auditioned if useful; not banned) → framing designed
+> for each platform → Rashid approves those two before any batch. No Higgsfield or other subscription yet.
+
 The studio turns one approved product into localized videos, a carousel, a story, captions and publishing records.
-It never runs on the WooCommerce host and never on a laptop: renders run in the build container or in CI.
+It never runs on the WooCommerce host and never on a laptop. Rendering and publishing run on a separate cloud worker,
+never in GitHub Actions (Actions builds and tests the repo; `render.mjs` and `publish.mjs` refuse to run there).
+Brief drafting may run in Actions as an on-demand development step, through the shared API ledger (docs/API-BUDGET.md).
 
 ## Flow
 1. **Facts.** `wp ym studio-facts <sku>` (CLI) or `GET /wp-json/ym/v1/studio-facts?sku=` with `X-YM-Studio-Key`
@@ -50,8 +61,8 @@ Renders themselves are git-ignored; records are committed (no customer data).
 | Platform | Account type | Format | API / permission | Automation here | Fallback | Tested |
 | --- | --- | --- | --- | --- | --- | --- |
 | Instagram | Professional (Business) linked to a Facebook Page | Reels (video_url container, status poll, media_publish) | Graph API, instagram_content_publish | adapter `studio/lib/meta.mjs`, reconciliation by tagged link | Meta Business Suite manual upload | **fake Graph server only** (studio/test). No real account connected |
-| Instagram | same | Carousel, Story | Graph API supports carousels; stories via API only for Business accounts | not wired yet (renders exist) | Meta Business Suite | not tested |
-| Facebook Page | Page | Video post (file_url) | Graph API, pages_manage_posts | adapter, reconciliation by description | Meta Business Suite | fake server only |
+| Instagram | same | Carousel, Story | Graph API supports carousels; stories via API only for Business accounts | **not built: manual exports** (renders exist; upload by hand in Meta Business Suite) until implemented and tested on the test account | Meta Business Suite | not tested |
+| Facebook Page | Page | Video post (file_url): a Page video, **not** a Facebook Reels publishing flow | Graph API, pages_manage_posts | adapter, reconciliation by description | Meta Business Suite | fake server only |
 | Snapchat | Public Profile + Ads Manager | Story, Spotlight, ads | Marketing API for ads; organic publishing API access not assumed | none (assets prepared: 9:16 masters) | Snapchat app / Ads Manager by hand | not tested |
 | TikTok | not in scope for launch | — | — | none | — | — |
 | Comments / DMs | Instagram + Page | keyword replies | Meta messaging windows apply | **deferred** (see corrections) | Meta Business Suite inbox, a person | — |

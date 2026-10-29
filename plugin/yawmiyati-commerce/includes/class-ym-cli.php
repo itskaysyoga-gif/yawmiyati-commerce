@@ -363,6 +363,7 @@ class YM_CLI {
 		$pending = YM_Pages::pending();
 		$add( 'policy pages', ! $pending, $pending ? count( $pending ) . ' unconfirmed fact(s): ' . implode( ' | ', wp_list_pluck( $pending, 'page' ) ) : 'ok' );
 		$copy = YM_Country::copy_all( YM_Country::code() );
+		$add( 'delivery times observed', (bool) get_option( 'ym_delivery_days_verified' ), 'delivery days per governorate seen on real orders (P0-8/9); until then the fee table shows fees only' );
 		$add( 'native language review', (bool) get_option( 'ym_language_reviewed_' . YM_Country::code() ), 'docs/LANGUAGE-REVIEW.md; set option ym_language_reviewed_' . YM_Country::code() . ' when signed off' );
 		foreach ( YM_Tracking::launch_checks() as $k => $v ) {
 			$add( 'measurement ' . $k, $v[0], $v[1] );

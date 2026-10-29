@@ -67,8 +67,20 @@ Every push also carries `ym_country`, `ym_currency`, `ym_env` (from the first da
   then written to the ledger; a store whose ledger writes fail cannot certify, and server events in **every** store
   are two-phase (decide, wait until every store certified past the decision, re-read the ledger, send), so a
   withdrawal stuck in Egypt holds Iraq's events instead of leaking. If the ledger cannot be read, events wait.
-  Residual window, stated plainly: a withdrawal whose ledger write fails in the minutes between another store
-  certifying and a send already decided before it (at most 10 minutes; decisions older than that are renewed).
+  **Invariant, exactly (29 Oct, review §6):** no server event is sent for an order whose consent subject withdrew in
+  any store **before the send was decided** (decision time d, recorded on the order), whether or not the
+  withdrawing store could write the shared ledger. **Not covered (the window, reproduced in
+  tests/e2e/reliability.test.js):** a withdrawal made *after* d, whose ledger write fails, in a store that had
+  already certified past d. The sender cannot see it until that store flushes; the window is at most the
+  decision-to-send time (10 minutes, then the decision is renewed). It cannot be closed while a store that cannot
+  write the shared database has no other channel to the others. **Overlap with a request in flight:** a request
+  already accepted by Meta or Snap cannot be retracted; withdrawal stops every request not yet sent.
+  **Decision: server-side ad events are OFF by default** (`YM_SERVER_EVENTS` must be `true`; tested). Browser tags
+  under consent are unaffected and orders never depend on any of this. Switching them on is Rashid's call at P1,
+  after reading this paragraph. **Participating stores are explicit:** `YM_CONSENT_STORES` has no default and must list
+  exactly the installed stores (this one included); otherwise events wait (`consent_stores_not_configured`,
+  `this_store_not_in_consent_stores`). A prepared but uninstalled market (SA, AE, OM today) must not be listed, or it
+  would hold every Egypt and Iraq event forever.
   Tested: withdrawal in the Egypt store stops a queued Iraq event; another customer's event still goes out; a later
   order after re-accepting is sent; an unreachable ledger holds the event and releases it once readable; Egypt's
   write failing while Iraq reads fine holds her queued Iraq event (and everyone's) until Egypt flushes, then it is

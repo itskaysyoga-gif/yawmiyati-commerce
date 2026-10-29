@@ -1,0 +1,201 @@
+{
+ "country": "eg",
+ "batch": "02-nav-home-product-2",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:31:18.709Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "1f836411a7a2f46d",
+ "usage": {
+  "input_tokens": 8900,
+  "output_tokens": 3923,
+  "usd_counted": 0.17109
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "product.EG030106MKKT99.benefit1.title",
+   "verdict": "ok",
+   "note": "Natural and makes no unproven claim."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit1.text",
+   "verdict": "ok",
+   "note": "Practical and clear."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit2.title",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit2.text",
+   "verdict": "ok",
+   "note": "Feminine agreement fits this product (دواسات)."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit3.title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit3.text",
+   "verdict": "ok",
+   "note": "'زي الصورة' ties the colour to the photo."
+  },
+  {
+   "key": "product.EG030106MKKT99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.spec4.label",
+   "verdict": "ok",
+   "note": "Clear enough next to its value."
+  },
+  {
+   "key": "product.EG030106MKKT99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.image2.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030108BUND99.name",
+   "verdict": "ok",
+   "note": "Clear, unproven claim removed."
+  },
+  {
+   "key": "product.EG030108BUND99.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030108BUND99.note",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030108BUND99.saving",
+   "verdict": "question",
+   "note": "'والتوصيل مرة واحدة' suggests buying two single sets means paying delivery twice; please confirm that's true, otherwise say what the 49 ج.م is saved against.",
+   "resolution": "revised: two single sets in one order also pay one fee, so the line now says what the 49 is saved against (\"عن طقمين منفصلين\")"
+  },
+  {
+   "key": "product.EG030108BUND99.image1.alt",
+   "verdict": "question",
+   "note": "The bundle has 4 pieces but this alt text says two; if the photo shows only one set, a screen reader user gets the wrong count.",
+   "resolution": "kept: the alt describes what the photo shows (one set, two pieces), not the offer"
+  },
+  {
+   "key": "product.EG030106STPG99.name",
+   "verdict": "revise",
+   "note": "'زوجي' usually means 'married' in Egypt and reads oddly for a clothes stand; naming the two rails is clearer.",
+   "suggestion": "ستاند ملابس بماسورتين وعجل",
+   "resolution": "accepted"
+  },
+  {
+   "key": "product.EG030106STPG99.benefit",
+   "verdict": "ok",
+   "note": "Clear and factual."
+  },
+  {
+   "key": "product.EG030106STPG99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106STPG99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106STPG99.spec3.label",
+   "verdict": "revise",
+   "note": "'أقصى وزن' could be read as the stand's own weight; 'حمل' makes clear it's the most it can hold.",
+   "suggestion": "أقصى حمل",
+   "resolution": "accepted"
+  },
+  {
+   "key": "product.EG030106STPG99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030301HAEE99.name",
+   "verdict": "question",
+   "note": "It's not clear what the two things in '2 في 1' are; keep it only if the product record says what they are, and say so in the benefit line.",
+   "resolution": "held: the heater is \"conditional\" (electrical specs and warranty in writing) and cannot be published; the name is fixed when its record is verified"
+  },
+  {
+   "key": "product.EG030301HAEE99.benefit",
+   "verdict": "question",
+   "note": "'صغيرة' (small) is a size claim; is there a verified size for it? If not, drop the word.",
+   "resolution": "accepted: \"صغيرة\" removed"
+  },
+  {
+   "key": "product.EG030301HAEE99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030301HAEE99.spec2.label",
+   "verdict": "question",
+   "note": "A warranty field claims there is a warranty, and the voice guide avoids warranty claims we can't prove; keep it only if a verified warranty exists for this product.",
+   "resolution": "kept: an unknown spec row is a field to verify, shown only on local/staging; production omits unknown specs"
+  },
+  {
+   "key": "product.EG030301HAEE99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030301HAEE99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030401GB99.name",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "product.EG030401GB99.benefit",
+   "verdict": "ok",
+   "note": "Natural, feminine address fits prose."
+  },
+  {
+   "key": "product.EG030401GB99.spec1.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030401GB99.spec2.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030401GB99.spec3.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030401GB99.image1.alt",
+   "verdict": "ok",
+   "note": "Fine."
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}

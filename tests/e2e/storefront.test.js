@@ -212,7 +212,7 @@ test('Reviews: only after a verified delivery, through a signed link; held for m
   h.wp('iq', 'ym', 'reviews', 'approve', rid);
   await page.goto(h.BASE.iq + '/product/sink-rack/');
   assert.match(await page.locator('.ym-reviews').innerText(), /مرتب ومضبوط/);
-  assert.match(await page.locator('.ym-reviews').innerText(), /اشترت واستلمت/);
+  assert.match(await page.locator('.ym-reviews').innerText(), /تم الشراء والاستلام/);
   const product = ld(await (await fetch(h.BASE.iq + '/product/sink-rack/')).text()).find((x) => x['@type'] === 'Product');
   assert.equal(product.aggregateRating, undefined, 'fewer than 3 approved reviews: no rating markup');
   await page.goto(link);

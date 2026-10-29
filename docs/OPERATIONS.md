@@ -23,8 +23,9 @@ One test order does not close them all: each country, the payout route, returns 
    `cd ~/www/yawmiyati.shop/public_html/eg && php wp-cron.php` (and `/iq`).
 3. Environment variables in wp-config.php: `YM_ALERT_WEBHOOK`, `YM_META_CAPI_TOKEN`, `YM_SNAP_CAPI_TOKEN`,
    `YM_SHARED_DB` (the shared database for the consent ledger, store certificates and email permissions; create it
-   once and grant every store's DB user on it), `YM_CONSENT_STORES` (the installed stores, e.g. `eg,iq`; a listed store
-   that never certifies holds every store's server events), `YM_MAIL_SECRET` (same value on every store: signed email
+   once and grant every store's DB user on it), `YM_CONSENT_STORES` (required, no default: exactly the installed stores,
+   e.g. `eg,iq`; a listed store that never certifies holds every store's server events), `YM_SERVER_EVENTS` (leave
+   unset: server-side ad events stay off until Rashid decides at P1, docs/MEASUREMENT.md §4), `YM_MAIL_SECRET` (same value on every store: signed email
    links), `YM_BREVO_KEY` / `YM_BREVO_WEBHOOK_KEY` (when email flows go live), `YM_STUDIO_KEY` (the Content Studio's
    facts endpoint),
    `YM_TRUSTED_PROXIES` / `YM_CLIENT_IP_HEADER` only if a proxy sits in front of PHP (check on staging first)
@@ -105,3 +106,11 @@ on production stores. Rollback: put the store in maintenance, check out the prev
 an older release reads newer data safely. Tables added on 29 Oct (`{prefix}ym_consent_pending`; in the shared
 database `ym_consent_ledger`, `ym_consent_cert`, `ym_contacts`, `ym_mail_log`, `ym_mail_events`) are created with
 CREATE TABLE IF NOT EXISTS and ignored by older releases. If data itself is bad, restore the last backup (export newer orders first).
+
+## Email operations (when flows are on; docs/EMAIL.md)
+- `wp ym mail unknown`: sends whose outcome is unknown (timeout or provider error after sending). Check the Brevo log,
+  then `wp ym mail resolve <id> accepted|failed --note="what you saw"`. Never resend an unknown by hand.
+- `wp ym mail unblock <email> --note="…"`: lift a bounce or complaint after checking; she must opt in again.
+- `wp ym mail newsletter <issue> --subject=… --body-file=… [--dry-run]`: the weekly newsletter for this country,
+  through the one-a-week cap. Never send campaigns from Brevo's campaign screen.
+- `wp ym hero <sku>` / `--clear`: the home page's featured product (a person's choice; conditional items are refused).

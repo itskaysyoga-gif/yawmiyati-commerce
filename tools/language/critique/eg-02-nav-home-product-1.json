@@ -1,0 +1,446 @@
+{
+ "country": "eg",
+ "batch": "02-nav-home-product-1",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:30:40.706Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "baa2708e9a2464cb",
+ "usage": {
+  "input_tokens": 12803,
+  "output_tokens": 7880,
+  "usd_counted": 0.313218
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.buy",
+   "verdict": "ok",
+   "note": "Natural and clear."
+  },
+  {
+   "key": "copy.buy_short",
+   "verdict": "ok",
+   "note": "Fine as a CTA."
+  },
+  {
+   "key": "copy.add",
+   "verdict": "ok",
+   "note": "Standard label."
+  },
+  {
+   "key": "copy.place",
+   "verdict": "ok",
+   "note": "Says what actually happens."
+  },
+  {
+   "key": "copy.choose",
+   "verdict": "question",
+   "note": "A bare 'اختاري' with no object is unclear on a phone screen, and a button should not force a gender; what is she choosing here (size, colour, governorate)?",
+   "suggestion": "اختيار",
+   "resolution": "revised: the offers legend now says what she chooses (\"اختاري اللي يناسبك\"); \"العرض\" avoided"
+  },
+  {
+   "key": "copy.thanks",
+   "verdict": "ok",
+   "note": "Clear and warm."
+  },
+  {
+   "key": "copy.fit_q",
+   "verdict": "ok",
+   "note": "Matches the guide."
+  },
+  {
+   "key": "copy.why",
+   "verdict": "ok",
+   "note": "Works for any product."
+  },
+  {
+   "key": "copy.specs_title",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.delivery_title",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.diary_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.zones_head",
+   "verdict": "question",
+   "note": "If the middle column shows a fee, 'رسوم التوصيل' is clearer than 'التوصيل'; the 'المدة' column is a timing promise and should only show if the durations come from COUNTRY-RULES or real orders, not from what Taager said.",
+   "suggestion": "المحافظات|رسوم التوصيل|المدة",
+   "resolution": "accepted: \"رسوم التوصيل\"; and the duration column is now hidden until delivery days are observed on real orders (ym_delivery_days_verified, launch-check item)"
+  },
+  {
+   "key": "copy.delivery_address",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.order_details",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.country_name",
+   "verdict": "ok",
+   "note": "Correct."
+  },
+  {
+   "key": "copy.switch_country",
+   "verdict": "revise",
+   "note": "This is a navigation label, so it should be a verbal noun like the other functional labels rather than a feminine imperative.",
+   "suggestion": "تغيير الدولة",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.ask",
+   "verdict": "ok",
+   "note": "Warm, and makes no promise about reply time."
+  },
+  {
+   "key": "copy.nav_delivery",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.nav_returns",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.nav_privacy",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.nav_contact",
+   "verdict": "ok",
+   "note": "Deliberate brand choice, documented."
+  },
+  {
+   "key": "copy.nav_faq",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.home_title",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.home_lede",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_word",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.categories",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.all_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_label",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.search_ph",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.cart_label",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.home_pick",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.see_all",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.search_title",
+   "verdict": "revise",
+   "note": "This is a functional heading, and 'نتايج' is the colloquial spelling; the standard 'نتائج' is what stores use.",
+   "suggestion": "نتائج البحث عن \"%s\"",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.results",
+   "verdict": "ok",
+   "note": "Avoids the plural problem."
+  },
+  {
+   "key": "copy.prev",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.next",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.pages",
+   "verdict": "ok",
+   "note": "Fine as an accessibility label."
+  },
+  {
+   "key": "copy.no_results",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.no_products",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.no_results_help",
+   "verdict": "ok",
+   "note": "Helpful."
+  },
+  {
+   "key": "copy.qty_label",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.qty_less",
+   "verdict": "revise",
+   "note": "For the − button and screen readers, 'أقل' on its own does not say what it does.",
+   "suggestion": "تقليل الكمية",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.qty_more",
+   "verdict": "revise",
+   "note": "For the + button and screen readers, 'أكتر' on its own is vague and colloquial.",
+   "suggestion": "زيادة الكمية",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.video_play",
+   "verdict": "revise",
+   "note": "Button or accessibility label: use a verbal noun so no gender is forced, as with the other buttons.",
+   "suggestion": "تشغيل الفيديو",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.review_verified",
+   "verdict": "revise",
+   "note": "'اشترت واستلمت' assumes every reviewer is a woman and reads oddly as a badge; neutral wording is safer.",
+   "suggestion": "تم الشراء والاستلام",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.review_form_title",
+   "verdict": "ok",
+   "note": "Warm and natural."
+  },
+  {
+   "key": "copy.review_rating",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_text",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_name",
+   "verdict": "ok",
+   "note": "Clear about what is shown."
+  },
+  {
+   "key": "copy.review_submit",
+   "verdict": "revise",
+   "note": "Submit button: use a verbal noun like 'إرسال الطلب' so the buttons stay consistent.",
+   "suggestion": "إرسال رأيك",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.review_thanks",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_invalid",
+   "verdict": "revise",
+   "note": "The spelling 'إنستغرام' does not match 'إنستجرام' in copy.ask; use the Egyptian spelling in both.",
+   "suggestion": "الرابط ده مش شغال. لو محتاجة مساعدة ابعتيلنا على إنستجرام.",
+   "resolution": "accepted (Egyptian spelling إنستجرام)"
+  },
+  {
+   "key": "copy.review_done",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.review_stars",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_word",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "copy.breadcrumb",
+   "verdict": "ok",
+   "note": "Good accessibility label."
+  },
+  {
+   "key": "copy.home_cta",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_cats",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_steps",
+   "verdict": "revise",
+   "note": "The third step 'تدفعي كاش…' starts with a bare second-person verb and no subject, so it reads as a sentence fragment; the guide's own wording 'الدفع كاش للمندوب وقت الاستلام' reads cleanly.",
+   "suggestion": "اختاري المنتج وابعتي الطلب من الموقع|هيوصلك اتصال لتأكيد الطلب والعنوان|الدفع كاش للمندوب وقت الاستلام",
+   "resolution": "accepted (all countries)"
+  },
+  {
+   "key": "copy.home_tip_title",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_tip_body",
+   "verdict": "ok",
+   "note": "Practical and warm."
+  },
+  {
+   "key": "copy.home_featured",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks_next",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.reco_title",
+   "verdict": "ok",
+   "note": "Soft, no pressure."
+  },
+  {
+   "key": "copy.reco_complement",
+   "verdict": "revise",
+   "note": "'يكمّل معاه' forces masculine agreement onto both the suggested item and the main product (for a بطانية it would be معاها), and it is vague; make it agree with the noun 'حاجة' instead.",
+   "suggestion": "حاجة تكمّل المنتج ده",
+   "resolution": "accepted"
+  },
+  {
+   "key": "copy.reco_substitute",
+   "verdict": "ok",
+   "note": "Agrees with the noun بديل."
+  },
+  {
+   "key": "copy.reco_add",
+   "verdict": "ok",
+   "note": "Consistent."
+  },
+  {
+   "key": "category.kitchen",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "category.bathroom",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "category.laundry",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "category.storage",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "category.comfort",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "category.cleaning",
+   "verdict": "ok",
+   "note": "Standard."
+  },
+  {
+   "key": "product.EG030106MKKT99.name",
+   "verdict": "question",
+   "note": "The material is listed as unverified (O6), yet 'موكيت' names a material, and 'والمطبخ' is a use the other copy never mentions; are both confirmed by the product record?",
+   "suggestion": "طقم دواسات للحمام",
+   "resolution": "accepted in spirit: \"طقم دواسات قطعتين\" (no material word until O6)"
+  },
+  {
+   "key": "product.EG030106MKKT99.label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "product.EG030106MKKT99.note",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "product.EG030106MKKT99.benefit",
+   "verdict": "revise",
+   "note": "Without the shadda, 'بتتبل' can be read as 'gets seasoned'; add the shadda or make the water explicit.",
+   "suggestion": "قطعتين في الطقم: واحدة طويلة وواحدة صغيرة، للأماكن اللي بتتبلّ بالمية قدّام الحوض أو الغسالة أو باب الحمام.",
+   "resolution": "accepted (shadda and \"بالمية\")"
+  },
+  {
+   "key": "product.EG030106MKKT99.diary",
+   "verdict": "ok",
+   "note": "Practical, and makes no claim."
+  },
+  {
+   "key": "product.EG030106MKKT99.fit",
+   "verdict": "question",
+   "note": "It points to sizes in the specs, but the sizes are unknown (O6); is this line hidden until real dimensions exist, like copy.fit_q?",
+   "resolution": "resolved: fit text removed until real sizes exist (O6); the section is hidden when empty"
+  }
+ ],
+ "resolved_by": "Claude, 29 Oct 2026 (this session); not native review"
+}
