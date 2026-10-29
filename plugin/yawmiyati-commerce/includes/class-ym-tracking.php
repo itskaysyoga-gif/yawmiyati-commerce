@@ -627,6 +627,14 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		if ( is_array( $done ) && 'sent' === ( $done['status'] ?? '' ) ) {
 			return;
 		}
+		// Server-side ad events are optional and OFF unless YM_SERVER_EVENTS is true (review of 29 Oct): the
+		// cross-store consent design leaves one stated window (docs/MEASUREMENT.md §4). Browser tags under consent
+		// are unaffected, and orders never depend on any of this.
+		if ( ! self::server_events_on() ) {
+			$order->update_meta_data( $meta_key, wp_json_encode( array( 'at' => time(), 'status' => 'skipped', 'reason' => 'server_events_off' ) ) );
+			$order->save_meta_data();
+			return;
+		}
 		// Consent is checked when the event is sent, not only when it was queued (she may have withdrawn since, in
 		// this store or any other store of the domain). Two-phase: the first attempt records the decision time and
 		// waits; a later attempt sends only when every store certified past that time (YM_Consent, invariant).
@@ -712,9 +720,14 @@ if (window.ymGTM === 'GTM-TESTSTUB') { window.ymLoadGTM = function () { if (wind
 		YM_Ops::log( 'capi_waiting', array( 'order' => $order_id, 'platform' => $platform, 'kind' => $kind, 'reason' => $reason ), 'consent_ledger_unavailable' === $reason ? 'warning' : 'info' );
 	}
 
+	public static function server_events_on() {
+		return defined( 'YM_SERVER_EVENTS' ) && true === YM_SERVER_EVENTS;
+	}
+
 	/** For `wp ym launch-check`. */
 	public static function launch_checks() {
 		return array(
+			'server events' => array( true, self::server_events_on() ? 'ON (YM_SERVER_EVENTS): only with Rashid\'s yes after reading docs/MEASUREMENT.md §4' : 'off (default): browser tags under consent only; see docs/MEASUREMENT.md §4 before switching on' ),
 			'GTM container' => array( (bool) preg_match( '/^GTM-[A-Z0-9]+$/', (string) get_option( 'ym_gtm_id' ) ), 'option ym_gtm_id' ),
 			'GA4 property'  => array( (bool) preg_match( '/^G-[A-Z0-9]+$/', (string) get_option( 'ym_ga4_id' ) ), 'option ym_ga4_id (tag configured in GTM)' ),
 			'Meta pixel'    => array( (bool) get_option( 'ym_meta_pixel_id' ) && defined( 'YM_META_CAPI_TOKEN' ) && YM_META_CAPI_TOKEN, 'option ym_meta_pixel_id + YM_META_CAPI_TOKEN in the environment' ),

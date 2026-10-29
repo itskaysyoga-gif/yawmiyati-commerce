@@ -34,6 +34,9 @@ final class YM_Checkout {
 		add_action( 'woocommerce_before_checkout_process', array( __CLASS__, 'early_replay' ), 1 );
 		add_action( 'template_redirect', array( __CLASS__, 'guard_received' ) );
 		add_filter( 'gettext', array( __CLASS__, 'strings' ), 10, 3 );
+		// Before a governorate is chosen there is no delivery fee yet: show the products' subtotal and say delivery
+		// comes next, never an amount labelled as what she pays on delivery (review of 29 Oct).
+		add_filter( 'woocommerce_cart_totals_order_total_html', array( __CLASS__, 'order_total_html' ), 20 );
 		add_filter( 'woocommerce_order_shipping_to_display_shipped_via', '__return_empty_string' );
 		add_filter( 'woocommerce_get_privacy_policy_text', fn( $text, $type ) => 'checkout' === $type ? YM_Country::copy( 'privacy_note' ) : $text, 10, 2 );
 		add_filter( 'woocommerce_thankyou_order_received_text', array( __CLASS__, 'thanks' ), 10, 2 );
@@ -443,6 +446,30 @@ final class YM_Checkout {
 		return esc_html( $txt . '. ' . YM_Country::copy( 'one_fee' ) );
 	}
 
+	/** True on checkout while the delivery fee is not known yet (no governorate, so no shipping rate). */
+	public static function delivery_unresolved() {
+		if ( ! function_exists( 'WC' ) || ! WC()->cart || ! is_checkout() || ! WC()->cart->needs_shipping() ) {
+			return false;
+		}
+		$packages = WC()->shipping()->get_packages();
+		if ( ! $packages ) {
+			return true;
+		}
+		foreach ( $packages as $pkg ) {
+			if ( empty( $pkg['rates'] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static function order_total_html( $html ) {
+		if ( ! self::delivery_unresolved() ) {
+			return $html;
+		}
+		return '<span data-ym-total-pending>' . wc_price( WC()->cart->get_subtotal() + WC()->cart->get_subtotal_tax() ) . '</span> <small class="ym-total-note">' . esc_html( YM_Country::copy( 'delivery_after_gov' ) ) . '</small>';
+	}
+
 	/** A few WooCommerce strings that read wrong for a delivery-only shop. */
 	public static function strings( $translation, $text, $domain ) {
 		if ( 'woocommerce' !== $domain ) {
@@ -455,6 +482,9 @@ final class YM_Checkout {
 			'Order details'    => YM_Country::copy( 'order_details' ),
 			'Total'            => YM_Country::copy( 'pay_total' ),
 		);
+		if ( 'Total' === $text && self::delivery_unresolved() ) {
+			return YM_Country::copy( 'subtotal_label' );
+		}
 		return $map[ $text ] ?? $translation;
 	}
 

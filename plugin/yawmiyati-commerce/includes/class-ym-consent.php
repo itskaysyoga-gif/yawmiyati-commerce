@@ -69,11 +69,24 @@ final class YM_Consent {
 		return '' !== self::table();
 	}
 
-	/** Stores that must certify before any store sends: YM_CONSENT_STORES ("eg,iq"), default every configured country. */
+	/**
+	 * Stores that must certify before any store sends: YM_CONSENT_STORES ("eg,iq"), the stores actually installed.
+	 * There is no default: a store that is configured in the code but not installed (Saudi Arabia, UAE and Oman
+	 * today) never certifies, and listing it would hold every Egypt and Iraq event forever (review of 29 Oct).
+	 */
 	public static function stores() {
 		$list = defined( 'YM_CONSENT_STORES' ) ? (string) YM_CONSENT_STORES : '';
-		$out  = $list ? array_map( 'strtoupper', array_filter( array_map( 'trim', explode( ',', $list ) ) ) ) : array_keys( YM_Country::all() );
-		return array_values( array_filter( $out, fn( $c ) => (bool) preg_match( '/^[A-Z]{2}$/', $c ) ) );
+		$out  = array_map( 'strtoupper', array_filter( array_map( 'trim', explode( ',', $list ) ) ) );
+		return array_values( array_unique( array_filter( $out, fn( $c ) => (bool) preg_match( '/^[A-Z]{2}$/', $c ) && isset( YM_Country::all()[ $c ] ) ) ) );
+	}
+
+	/** '' when the participating stores are configured and include this store, otherwise the reason. */
+	public static function stores_problem() {
+		$s = self::stores();
+		if ( ! $s ) {
+			return 'consent_stores_not_configured';
+		}
+		return in_array( YM_Country::code(), $s, true ) ? '' : 'this_store_not_in_consent_stores';
 	}
 
 	public static function install() {
@@ -300,6 +313,10 @@ final class YM_Consent {
 			$w = self::withdrawn_at( $subject );
 			return $w && $w >= $placed ? 'withdrawn:' . $w : 'clear'; // single store without a ledger (not production)
 		}
+		$problem = self::stores_problem();
+		if ( $problem ) {
+			return 'wait:' . $problem;
+		}
 		if ( ! self::certify() ) {
 			return 'wait:own_store_cannot_certify';
 		}
@@ -372,6 +389,7 @@ final class YM_Consent {
 				$stale[] = $s;
 			}
 		}
-		return array( $ok && is_array( $certs ) && ! $stale, 'YM_SHARED_DB set on every store (same database, DB users granted); YM_CONSENT_STORES lists the installed stores; every listed store certified within 30 min' . ( $stale ? ' (stale: ' . implode( ', ', $stale ) . ')' : '' ) );
+		$problem = self::stores_problem();
+		return array( $ok && ! $problem && is_array( $certs ) && ! $stale, 'YM_SHARED_DB set on every store (same database, DB users granted); YM_CONSENT_STORES lists exactly the installed stores, this one included; every listed store certified within 30 min' . ( $problem ? ' (' . $problem . ')' : '' ) . ( $stale ? ' (stale: ' . implode( ', ', $stale ) . ')' : '' ) );
 	}
 }

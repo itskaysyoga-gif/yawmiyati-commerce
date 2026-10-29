@@ -78,5 +78,9 @@ install_site om 8085
 for cc in eg iq sa ae om; do
   ( cd "$DEV/sites/$cc"
     $WP config set YM_SHARED_DB ym_shared --quiet
+    # Every participating store is listed explicitly (no default: an uninstalled store would hold everyone's events).
+    $WP config set YM_CONSENT_STORES eg,iq,sa,ae,om --quiet
+    # Server-side ad events are off by default (docs/MEASUREMENT.md §4); the local stores switch them on to test them.
+    $WP config set YM_SERVER_EVENTS true --raw --quiet
     $WP eval 'YM_DB::install(); YM_Consent::install(); YM_Mail::install();' --quiet )
 done

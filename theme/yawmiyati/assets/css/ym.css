@@ -241,6 +241,7 @@ body:has(.ym-consent:not([hidden])) .ym-sticky { display: none; }
 .woocommerce-checkout-review-order-table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .woocommerce-checkout-review-order-table th, .woocommerce-checkout-review-order-table td { text-align: right; padding: 8px 0; border-bottom: 1px solid var(--ym-rule); }
 .woocommerce-checkout-review-order-table .order-total th, .woocommerce-checkout-review-order-table .order-total td { font-size: 18px; font-weight: 700; border-bottom: 0; }
+.ym-total-note { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; line-height: 1.5; color: var(--ym-muted, #6E6268); }
 .woocommerce-checkout #payment { margin-top: 12px; background: none; border-radius: 0; }
 .woocommerce-checkout #payment ul.payment_methods { list-style: none; margin: 0 0 12px; padding: 12px 14px; border: 0; border-radius: var(--ym-radius-sm); background: var(--ym-sage); color: var(--ym-sage-ink); }
 .woocommerce-checkout #payment ul.payment_methods li { line-height: 1.6; }
