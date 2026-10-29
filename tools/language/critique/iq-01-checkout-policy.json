@@ -1,0 +1,277 @@
+{
+ "country": "iq",
+ "batch": "01-checkout-policy",
+ "model": "claude-opus-5-5",
+ "at": "2026-10-29T10:27:37.677Z",
+ "status": "AI critique, not native-speaker review",
+ "ledger_entry": "c11ff8f3e2fd98ec",
+ "usage": {
+  "input_tokens": 10933,
+  "output_tokens": 5290,
+  "usd_counted": 0.224298
+ },
+ "missing": [],
+ "items": [
+  {
+   "key": "copy.confirm_call",
+   "verdict": "ok",
+   "note": "Clear, no timing promise."
+  },
+  {
+   "key": "copy.payment",
+   "verdict": "question",
+   "note": "'والفاتورة داخلها' says the invoice is inside the box, but the listed facts only cover opening the box after paying."
+  },
+  {
+   "key": "copy.one_fee",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.thanks_line",
+   "verdict": "question",
+   "note": "Only %2$s is used; check that %1$s (maybe a name or thank-you) wasn't dropped by mistake from the source string."
+  },
+  {
+   "key": "copy.pick_gov",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.fee_range",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.fee_flat",
+   "verdict": "question",
+   "note": "'لكل المحافظات' relies on the same unconfirmed coverage fact as home_trust (supplier fee table only)."
+  },
+  {
+   "key": "copy.unverified",
+   "verdict": "ok",
+   "note": "Neutral."
+  },
+  {
+   "key": "copy.expired",
+   "verdict": "ok",
+   "note": "Natural."
+  },
+  {
+   "key": "copy.offer_na",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.added",
+   "verdict": "revise",
+   "note": "'انضاف' is masculine and doesn't fit feminine products (بطانية); a verbal-noun form avoids gender.",
+   "suggestion": "تمت الإضافة إلى السلة."
+  },
+  {
+   "key": "copy.max_qty",
+   "verdict": "ok",
+   "note": "Avoids number agreement."
+  },
+  {
+   "key": "copy.sold_out_tag",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.sold_out",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_ph",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.name_err",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.phone_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.phone_err",
+   "verdict": "revise",
+   "note": "Error messages should start with رجاءً, as the house rules say and the other form errors do.",
+   "suggestion": "رجاءً اكتبي رقم موبايل عراقي من 11 رقم يبدأ بـ 07."
+  },
+  {
+   "key": "copy.phone2",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.phone2_help",
+   "verdict": "revise",
+   "note": "'نوصلج' can be read as 'we deliver to you'; 'call you' is clearer.",
+   "suggestion": "إذا رقمج الأول مسدود، نكدر نتصل بيج على هذا الرقم."
+  },
+  {
+   "key": "copy.phone2_err",
+   "verdict": "ok",
+   "note": "Prefix, trailing space kept."
+  },
+  {
+   "key": "copy.gov_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.gov_ph",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.gov_err",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.area_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.area_err",
+   "verdict": "question",
+   "note": "The label asks for area, mahalla and street, but the error says 'or street'; make it match whatever the form actually checks."
+  },
+  {
+   "key": "copy.building_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.landmark_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.landmark_help",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.wrong_country",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.refresh",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.dup",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.in_flight",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_saved",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.home_trust",
+   "verdict": "question",
+   "note": "'التوصيل لكل المحافظات' rests only on the supplier's fee table, not on delivered orders (checklist #14)."
+  },
+  {
+   "key": "copy.privacy_note",
+   "verdict": "ok",
+   "note": "Accurate and clear."
+  },
+  {
+   "key": "copy.market_closed",
+   "verdict": "question",
+   "note": "'قريبًا' (soon) promises timing; keep it only if a launch is actually planned."
+  },
+  {
+   "key": "copy.try_again",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.rate_limited",
+   "verdict": "revise",
+   "note": "'طلبات' reads as many orders placed; 'محاولات' (attempts) is accurate and doesn't blame her.",
+   "suggestion": "صارت محاولات هواية بوقت قصير. رجاءً انتظري كم دقيقة وجرّبي مرة ثانية."
+  },
+  {
+   "key": "copy.bot_check",
+   "verdict": "revise",
+   "note": "House spelling keeps ق for words that are the same in standard Arabic: فوق, not فوك.",
+   "suggestion": "نحتاج نتأكد إنج مو برنامج آلي. كمّلي خطوة التأكيد اللي فوق زر الطلب وجرّبي مرة ثانية."
+  },
+  {
+   "key": "copy.plus_delivery",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.cart_stays",
+   "verdict": "ok",
+   "note": "Clear."
+  },
+  {
+   "key": "copy.total_line",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.total_range",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.pay_total",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.thanks_steps",
+   "verdict": "ok",
+   "note": "Clear sequence, no timing."
+  },
+  {
+   "key": "copy.email_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.email_err",
+   "verdict": "revise",
+   "note": "Add رجاءً, as the house rules ask for errors.",
+   "suggestion": "رجاءً اكتبي إيميل صحيح أو خلّي الخانة فارغة."
+  },
+  {
+   "key": "copy.subtotal_label",
+   "verdict": "ok",
+   "note": "Fine."
+  },
+  {
+   "key": "copy.delivery_after_gov",
+   "verdict": "ok",
+   "note": "Natural Iraqi."
+  }
+ ]
+}
