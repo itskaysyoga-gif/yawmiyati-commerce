@@ -168,6 +168,28 @@ function ym_hero_media() {
 }
 
 /**
+ * Why the curated hero product (option ym_hero_sku, set by a person: `wp ym hero <sku>`) cannot be shown, or ''.
+ * Never chosen automatically (review of 29 Oct): an item with open safety or specification questions (meta
+ * _ym_conditional), out of stock, unpublished or without a picture is not the commercial lead.
+ */
+function ym_hero_product_problem( $sku ) {
+	if ( '' === (string) $sku ) {
+		return 'no hero chosen';
+	}
+	$p = wc_get_product( wc_get_product_id_by_sku( (string) $sku ) );
+	if ( ! $p || 'publish' !== $p->get_status() ) {
+		return 'not published';
+	}
+	if ( '' !== (string) $p->get_meta( '_ym_conditional' ) ) {
+		return 'conditional: ' . $p->get_meta( '_ym_conditional' );
+	}
+	if ( ! $p->is_in_stock() ) {
+		return 'out of stock';
+	}
+	return $p->get_image_id() ? '' : 'no picture';
+}
+
+/**
  * [ym_home]: one focal image with a short editorial message and one clear action, then categories, a curated
  * selection (at most 6), one practical home tip and how ordering works. The home page never lists the whole catalog.
  */
@@ -183,18 +205,15 @@ add_shortcode( 'ym_home', function () {
 		$pick = array_merge( $pick, $more );
 	}
 	$pick  = array_slice( $pick, 0, 6 );
-	$whole = array_values( array_filter( $pick, function ( $p ) {
-		$m = json_decode( (string) get_post_meta( $p->get_image_id(), '_ym_media', true ), true );
-		return $p->is_in_stock() && ! empty( $m['complete'] );
-	} ) );
 	$photo = ym_hero_media();
-	$focus = $photo ? null : ( $whole[0] ?? ( $pick[0] ?? null ) );
+	$sku   = (string) get_option( 'ym_hero_sku' );
+	$focus = $photo || '' !== ym_hero_product_problem( $sku ) ? null : YM_Offers::primary( wc_get_product( wc_get_product_id_by_sku( $sku ) ) );
 	$cats  = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
 	$steps = array_filter( explode( '|', ym_t( 'home_steps' ) ) );
 	ob_start();
 	?>
 	<div class="ym-home">
-		<section class="ym-hero<?php echo $photo ? ' ym-hero--photo' : ' ym-hero--product'; ?>">
+		<section class="ym-hero<?php echo $photo ? ' ym-hero--photo' : ( $focus ? ' ym-hero--product' : ' ym-hero--text' ); ?>">
 			<div class="ym-hero__text">
 				<h1><?php echo esc_html( ym_t( 'home_title' ) ); ?></h1>
 				<p><?php echo esc_html( ym_t( 'home_lede' ) ); ?></p>
@@ -205,7 +224,7 @@ add_shortcode( 'ym_home', function () {
 				<div class="ym-hero__media"><?php echo $photo['html']; // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
 			<?php elseif ( $focus ) : ?>
 				<a class="ym-hero__media ym-hero__product" href="<?php echo esc_url( $focus->get_permalink() ); ?>">
-					<?php echo YM_Media::card_html( (int) $focus->get_image_id(), $focus->get_name(), array( 'loading' => 'eager', 'fetchpriority' => 'high', 'sizes' => '(min-width: 960px) 400px, 64vw' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<span class="ym-hero__frame"><?php echo wp_get_attachment_image( (int) $focus->get_image_id(), 'large', false, array( 'class' => 'ym-hero__img', 'alt' => $focus->get_name(), 'loading' => 'eager', 'fetchpriority' => 'high', 'decoding' => 'async', 'sizes' => '(min-width: 960px) 460px, 86vw' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
 					<span class="ym-hero__caption"><small><?php echo esc_html( ym_t( 'home_featured' ) ); ?></small> <?php echo esc_html( $focus->get_name() ); ?></span>
 				</a>
 			<?php endif; ?>

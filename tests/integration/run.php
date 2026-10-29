@@ -113,6 +113,21 @@ foreach ( $texts as $where => $text ) {
 }
 ym_check( 'customer text free of banned phrases and supplier name (' . count( $texts ) . ' texts): ' . implode( ', ', $hits ), ! $hits );
 
+// A saving line states money: it must equal the parts bought separately minus the bundle (seed field saving_parts).
+$bad = array();
+foreach ( json_decode( file_get_contents( YM_DIR . '/seed/' . strtolower( $cc ) . '.json' ), true )['products'] as $row ) {
+	if ( empty( $row['saving'] ) ) {
+		continue;
+	}
+	$price = array_column( json_decode( file_get_contents( YM_DIR . '/seed/' . strtolower( $cc ) . '.json' ), true )['products'], 'price', 'sku' );
+	$parts = array_sum( array_map( fn( $s ) => (float) ( $price[ $s ] ?? NAN ), (array) ( $row['saving_parts'] ?? array() ) ) );
+	preg_match( '/[\d,]+/', $row['saving'], $m );
+	if ( ! $m || (float) str_replace( ',', '', $m[0] ) !== $parts - (float) $row['price'] ) {
+		$bad[] = $row['sku'];
+	}
+}
+ym_check( 'saving lines match the price of their parts: ' . implode( ', ', $bad ), ! $bad );
+
 // Catalog gate: seeded (unverified) products are blocked from sale once the gate is enforced.
 $first = json_decode( file_get_contents( YM_DIR . '/seed/' . strtolower( $cc ) . '.json' ), true )['products'][0]['sku'];
 $p     = wc_get_product( wc_get_product_id_by_sku( $first ) );

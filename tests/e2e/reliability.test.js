@@ -223,3 +223,21 @@ test('Stated consent window (docs/MEASUREMENT.md §4), reproduced: a withdrawal 
   h.wpEval('eg', 'YM_Consent::certify();');
   assert.match(h.wpEval('iq', `echo YM_Consent::clearance("${subject}", ${placed}, ${decided});`), /^withdrawn:/, 'closed once Egypt flushes');
 });
+
+test('Home hero is curated, never picked automatically: Iraq shows the rack; a conditional or unchosen product leaves the hero without a product picture', async () => {
+  const { ctx, page } = await h.context(browser);
+  const hero = async () => { await page.goto(`${h.BASE.iq}/`); return page.locator('.ym-hero__caption').count().then(async (n) => (n ? page.locator('.ym-hero__caption').innerText() : '')); };
+  assert.equal(h.wp('iq', 'option', 'get', 'ym_hero_sku'), 'IQ030403SENK99');
+  assert.match(await hero(), /رف فوق السنك/);
+  try {
+    h.wp('iq', 'ym', 'hero', 'IQ030301SOBA99');
+    assert.match(h.wp('iq', 'ym', 'hero'), /"shown":false.*conditional/, 'the heater has open electrical questions');
+    assert.equal(await hero(), '', 'no automatic substitute');
+    assert.equal(await page.locator('.ym-hero--text [data-ym-hero-cta]').count(), 1, 'message and one action remain');
+    h.wp('iq', 'ym', 'hero', '--clear');
+    assert.equal(await hero(), '');
+  } finally {
+    h.wp('iq', 'ym', 'hero', 'IQ030403SENK99');
+  }
+  await ctx.close();
+});

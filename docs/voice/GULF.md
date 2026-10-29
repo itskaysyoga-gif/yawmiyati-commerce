@@ -1,11 +1,24 @@
-# Voice: Saudi Arabia, UAE, Oman (shared Gulf file + country overrides)
+# Voice: Saudi Arabia, UAE, Oman (shared neutral base + one guide per country)
 
-Files: `copy/gulf.json` (shared) and `copy/sa.json`, `copy/ae.json`, `copy/om.json` (what differs: phone rule,
-region word, country name, delivery line). Policy pages: `content/gulf/`, country facts through shortcodes.
+Status: draft by Claude, 28 Oct 2026; revised 29 Oct after the language review. AI-reviewed only. All three markets
+are prepared and closed; **each country needs its own native reviewer before it opens** (docs/LANGUAGE-REVIEW.md).
 
-- Restrained register close to standard Arabic, warm and polite, addressed to a woman. Light Gulf flavour only where
-  it reads naturally to all three countries; no forced slang in every sentence.
-- Words: جوال (SA, AE) / هاتف (OM); المنطقة (SA), الإمارة (AE), المحافظة (OM); "اطلبي الآن", "تأكيد الطلب".
-- Facts in plain standard Arabic; never invent a delivery time that is not published.
-- Draft by Claude, 28 Oct 2026. Must be reviewed by a native speaker per country before that market opens; automated
-  wording checks cannot certify natural Saudi, Emirati or Omani Arabic.
+Files: `copy/gulf.json` (shared base) and `copy/sa.json`, `copy/ae.json`, `copy/om.json` (what differs per country),
+policy pages in `content/gulf/` with country facts from shortcodes. Country guides: docs/voice/SA.md, AE.md, OM.md.
+
+## Decision: polished neutral Arabic, not "a Gulf dialect"
+Saudi, Emirati and Omani speech are not interchangeable, and no single "Gulf voice" is native to all three. Until a
+native reviewer per country writes local touches, the shared base is clear, warm, modern standard Arabic addressed
+to a woman (اطلبي، يمكنك، طلبك). It contains **no dialect words**; that is safer than invented local slang. The
+evidence (docs/language/evidence/SA.md, AE.md, OM.md) shows retailers in all three markets use formal standard Arabic
+for interface and policy text.
+
+## Three layers (as in EG.md and IQ.md)
+1. Functional: standard interface wording ("إضافة إلى السلة", "إرسال الطلب", "الأسئلة الشائعة", "الدفع عند الاستلام").
+2. Brand: warm standard Arabic, short sentences, no slang.
+3. Policies and money: precise about when payment, confirmation, shipping and refunds happen; no timing promises
+   until verified.
+
+## What differs per country (overrides only)
+Phone word (جوال SA/AE, هاتف OM), region word (المنطقة SA, الإمارة AE, المحافظة OM), phone format, country name,
+delivery and fee lines. Everything else comes from the shared base.

@@ -70,7 +70,7 @@ test('Receipts on: email is optional; a phone-only order still works with no add
   assert.equal(mails[0].kind, 'order_received');
   assert.equal(mails[0].marketing, false);
   assert.match(mails[0].subject, new RegExp(`EG-${id}`), 'country-prefixed order reference');
-  assert.match(mails[0].text, /مش متأكد/);
+  assert.match(mails[0].text, /ما اتأكدش/);
   assert.match(mails[0].html, /dir="rtl"/);
   assert.ok(!/List-Unsubscribe/.test(JSON.stringify(mails[0].headers)), 'transactional mail is not marketing');
   assert.equal(contact('eg', email), null, 'ordering is not a newsletter signup');

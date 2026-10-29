@@ -1,7 +1,8 @@
 // Independent AI critique of a small batch of customer strings for one country (review of 29 Oct, §3).
 // Runs in CI only (the API key is a repository secret): push a branch language-run/<name> carrying
 // tools/language/requests/current.json:
-//   { "country": "eg", "batch": "01-checkout", "keys": ["copy.place", "copy.phone_err", ...] }   (at most 80 keys)
+//   { "batches": [ { "country": "eg", "batch": "01-checkout", "keys": ["copy.place", ...] }, ... ] }
+//   (at most 6 batches per run, at most 80 keys per batch; each batch is one API call)
 // Output: tools/language/critique/<cc>-<batch>.json — an AI critique, NOT native-speaker review. Claude resolves each
 // "revise" or "question" item and records the resolution in the same file; tools/language/ledger.mjs shows both.
 // Spend goes through the shared ledger (tools/spend, docs/API-BUDGET.md). Exits 1 on any failure.
@@ -14,13 +15,19 @@ const MODEL = 'claude-opus-5-5';
 const SCOPE = { eg: 'eg', iq: 'iq', sa: 'gulf', ae: 'gulf', om: 'gulf' };
 const DIALECT = { eg: 'Egyptian Arabic', iq: 'Iraqi (Baghdadi) Arabic', sa: 'neutral Arabic for Saudi customers', ae: 'neutral Arabic for Emirati customers', om: 'neutral Arabic for Omani customers' };
 
-export function readRequest(rel = 'tools/language/requests/current.json') {
-  if (!/^tools\/language\/requests\/[A-Za-z0-9._-]+\.json$/.test(rel)) throw new Error('request must be tools/language/requests/<name>.json');
-  const r = JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
+function checkBatch(r) {
   if (!SCOPE[r.country]) throw new Error('country must be eg, iq, sa, ae or om');
   if (!/^[a-z0-9-]{1,40}$/.test(r.batch || '')) throw new Error('batch: lowercase letters, digits and dashes');
   if (!Array.isArray(r.keys) || !r.keys.length || r.keys.length > 80 || r.keys.some((k) => !/^[A-Za-z0-9_.-]{1,80}$/.test(k))) throw new Error('keys: 1-80 ledger keys');
   return r;
+}
+
+export function readRequest(rel = 'tools/language/requests/current.json') {
+  if (!/^tools\/language\/requests\/[A-Za-z0-9._-]+\.json$/.test(rel)) throw new Error('request must be tools/language/requests/<name>.json');
+  const r = JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
+  const list = Array.isArray(r.batches) ? r.batches : [r];
+  if (!list.length || list.length > 6) throw new Error('1-6 batches per run');
+  return list.map(checkBatch);
 }
 
 function ledgerRows(cc) {
@@ -66,15 +73,14 @@ export function prompt(r, rows, evidence, voice) {
   return { system, user: `Strings (JSON):\n${JSON.stringify(items, null, 1)}` };
 }
 
-async function main() {
-  const r = readRequest(process.argv[2]);
+async function one(r) {
   const cc = r.country;
   const guide = ['sa', 'ae', 'om'].includes(cc) ? `${fs.readFileSync(path.join(ROOT, 'docs/voice/GULF.md'), 'utf8')}\n${fs.readFileSync(path.join(ROOT, `docs/voice/${cc.toUpperCase()}.md`), 'utf8')}` : fs.readFileSync(path.join(ROOT, `docs/voice/${cc.toUpperCase()}.md`), 'utf8');
   const evidence = fs.readFileSync(path.join(ROOT, `docs/language/evidence/${cc.toUpperCase()}.md`), 'utf8');
   const { system, user } = prompt(r, ledgerRows(cc), evidence, guide);
   const { json, entry } = await paidCall({ scope: SCOPE[cc], purpose: `language critique ${cc} ${r.batch}`, body: { model: MODEL, max_tokens: 8000, system, tools: [TOOL], tool_choice: { type: 'auto' }, messages: [{ role: 'user', content: user }] } });
   const use = (json.content || []).find((c) => c.type === 'tool_use');
-  if (!use) throw new Error('no write_critique call in the answer');
+  if (!use) throw new Error(`${cc} ${r.batch}: no write_critique call in the answer`);
   const items = use.input.items || [];
   const missing = r.keys.filter((k) => !items.some((i) => i.key === k));
   const out = { country: cc, batch: r.batch, model: MODEL, at: new Date().toISOString(), status: 'AI critique, not native-speaker review', ledger_entry: entry.id, usage: { input_tokens: entry.input_tokens, output_tokens: entry.output_tokens, usd_counted: entry.usd }, missing, items };
@@ -82,9 +88,17 @@ async function main() {
   fs.writeFileSync(path.join(ROOT, `tools/language/critique/${cc}-${r.batch}.json`), JSON.stringify(out, null, 1) + '\n');
   const counts = items.reduce((a, i) => ({ ...a, [i.verdict]: (a[i.verdict] || 0) + 1 }), {});
   console.log(`${cc} ${r.batch}: ${JSON.stringify(counts)}; ${entry.input_tokens} in / ${entry.output_tokens} out tokens, ${entry.usd} USD counted`);
-  if (missing.length) throw new Error(`critique skipped ${missing.length} keys: ${missing.slice(0, 5).join(', ')}`);
+  if (missing.length) throw new Error(`${cc} ${r.batch}: critique skipped ${missing.length} keys: ${missing.slice(0, 5).join(', ')}`);
+}
+
+async function main() {
+  let failed = 0;
+  for (const r of readRequest(process.argv[2])) {
+    try { await one(r); } catch (e) { failed++; console.log(process.env.GITHUB_ACTIONS ? `::error title=language critique::${String(e.message).slice(0, 900)}` : e.message); if (e.name === 'BudgetError') break; }
+  }
+  return failed;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((e) => { console.log(process.env.GITHUB_ACTIONS ? `::error title=language critique::${String(e.message).slice(0, 900)}` : e.message); process.exit(1); });
+  main().then((failed) => process.exit(failed ? 1 : 0), (e) => { console.log(process.env.GITHUB_ACTIONS ? `::error title=language critique::${String(e.message).slice(0, 900)}` : e.message); process.exit(1); });
 }

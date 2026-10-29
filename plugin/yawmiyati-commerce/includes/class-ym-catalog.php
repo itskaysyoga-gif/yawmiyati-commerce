@@ -42,13 +42,17 @@ final class YM_Catalog {
 
 	/** Shop categories: Latin slugs, names in this store's voice (config/categories.json). Created on first use. */
 	public static function category_id( $slug ) {
-		$term = get_term_by( 'slug', $slug, 'product_cat' );
-		if ( $term ) {
-			return (int) $term->term_id;
-		}
 		$names = (array) json_decode( (string) file_get_contents( YM_DIR . '/config/categories.json' ), true );
 		$voice = YM_Country::rules()['voice'];
-		$made  = wp_insert_term( $names[ $voice ][ $slug ] ?? $slug, 'product_cat', array( 'slug' => $slug ) );
+		$name  = $names[ $voice ][ $slug ] ?? $slug;
+		$term  = get_term_by( 'slug', $slug, 'product_cat' );
+		if ( $term ) {
+			if ( $term->name !== $name ) {
+				wp_update_term( (int) $term->term_id, 'product_cat', array( 'name' => $name ) ); // config/categories.json is the source
+			}
+			return (int) $term->term_id;
+		}
+		$made  = wp_insert_term( $name, 'product_cat', array( 'slug' => $slug ) );
 		return is_wp_error( $made ) ? 0 : (int) $made['term_id'];
 	}
 

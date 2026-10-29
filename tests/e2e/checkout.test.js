@@ -31,7 +31,7 @@ test('Egypt: 2-set offer to order, server price + Cairo delivery, COD, snapshot'
   assert.equal(o.snapshot.policy_version, '2026-10-28');
   assert.equal(o.snapshot.items[0].unit_price, 749);
   assert.equal(o.supplier, 'pending');
-  assert.match(await page.locator('body').innerText(), /وصلنا طلبك/);
+  assert.match(await page.locator("body").innerText(), /استلمنا طلبك/);
   await ctx.close();
 });
 

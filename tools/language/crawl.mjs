@@ -27,6 +27,13 @@ function owned(cc) {
 }
 
 const norm = (s) => s.replace(/\s+/g, ' ').replace(/[‎‏]/g, '').trim();
+// Text composed at runtime from our parts (prices, fee table rows, counts, labels joined): every Arabic word in it is
+// found in our files or in the country configuration.
+function composed(str, corpus) {
+  const words = norm(str).match(/[\u0600-\u06FF]+/g) || [];
+  return words.length > 0 && words.every((w) => corpus.has(w));
+}
+
 function match(str, own) {
   const s = norm(str);
   for (const [k, t] of own) {
@@ -64,6 +71,9 @@ async function grab(page) {
 for (const cc of list) {
   const base = `http://localhost:${BASE[cc]}`;
   const own = owned(cc);
+  const { execFileSync } = await import('node:child_process');
+  const config = execFileSync(path.join(ROOT, 'dev/wp.sh'), [cc, 'eval', 'echo wp_json_encode( array( YM_Country::rules(), get_bloginfo("name") ), JSON_UNESCAPED_UNICODE );'], { encoding: 'utf8' });
+  const corpus = new Set(((own.map(([, t]) => t).join(' ') + ' ' + config).match(/[\u0600-\u06FF]+/g) || []));
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ locale: 'ar', viewport: { width: 390, height: 844 } });
   const page = await ctx.newPage();
@@ -92,7 +102,7 @@ for (const cc of list) {
   if (prod) {
     await visit('product', new URL(prod).pathname);
     await visit('cart with an item', null, async () => {
-      const add = page.locator('button[value="add"], button[name="add-to-cart"], .single_add_to_cart_button').first();
+      const add = page.locator('button[name="ym_intent"][value="cart"]').first();
       if (await add.count()) { await add.click(); await page.waitForLoadState('load'); }
       await page.goto(base + '/cart/');
     });
@@ -107,7 +117,7 @@ for (const cc of list) {
   let mine = 0;
   let theirs = 0;
   for (const { v, kind, pages } of [...seen.values()].sort((a, b) => a.v.localeCompare(b.v))) {
-    const k = match(v, own);
+    const k = match(v, own) || (composed(v, corpus) ? 'ours, composed at runtime (prices, fees, counts, names)' : '');
     k ? mine++ : theirs++;
     rows.push([v, kind, [...pages].join(' / '), k || 'not ours: WooCommerce, WordPress or theme'].map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','));
   }

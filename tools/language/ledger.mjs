@@ -52,7 +52,7 @@ function products(cc, read) {
   const out = {};
   for (const p of seed.products || []) {
     const put = (field, text) => { if (text) out[`product.${p.sku}.${field}`] = { text, source: `seed/${cc}.json` }; };
-    for (const f of ['name', 'label', 'note', 'benefit', 'diary', 'fit']) put(f, p[f]);
+    for (const f of ['name', 'label', 'note', 'saving', 'benefit', 'diary', 'fit']) put(f, p[f]);
     (p.benefits || []).forEach((b, i) => { put(`benefit${i + 1}.title`, b[0]); put(`benefit${i + 1}.text`, b[1]); });
     (p.specs || []).forEach((s, i) => put(`spec${i + 1}.label`, s[0]));
     (p.images || []).forEach((im, i) => put(`image${i + 1}.alt`, im.alt));
@@ -66,7 +66,7 @@ const collect = (cc, read) => ({ ...copyDict(cc, read), ...pages(cc, read), ...c
 const RULES = [
   [/^page\./, 'policy', 'policy page'],
   [/^category\./, 'functional', 'navigation'],
-  [/^product\..*\.(name|label|note)$/, 'brand', 'product'],
+  [/^product\..*\.(name|label|note|saving)$/, 'brand', 'product'],
   [/^product\..*spec\d+\.label$/, 'functional', 'product specs'],
   [/^product\..*image\d+\.alt$/, 'functional', 'accessibility'],
   [/^product\./, 'brand', 'product'],

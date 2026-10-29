@@ -172,6 +172,7 @@ class YM_CLI {
 				'_ym_taager_cost'      => $row['taager_cost'],
 				'_ym_taager_min'       => $row['taager_min'] ?? '',
 				'_ym_source'           => $data['source'],
+				'_ym_conditional'      => $row['conditional'] ?? '',
 				'_ym_dev_seed'         => 'yes',
 			);
 			foreach ( $meta as $k => $v ) {
@@ -181,6 +182,8 @@ class YM_CLI {
 			WP_CLI::log( sprintf( '%s %s %s', $row['sku'], $row['price'], $row['name'] ) );
 		}
 		update_option( 'show_on_front', 'posts' );
+		$hero = array_values( array_filter( $data['products'], fn( $r ) => ! empty( $r['hero'] ) ) );
+		$hero ? update_option( 'ym_hero_sku', $hero[0]['sku'] ) : delete_option( 'ym_hero_sku' );
 		WP_CLI::success( 'Seeded ' . count( $data['products'] ) . " offers for $cc." );
 	}
 
@@ -915,6 +918,31 @@ class YM_CLI {
 			default:
 				WP_CLI::log( wp_json_encode( array( 'configured' => YM_Consent::configured(), 'stores' => YM_Consent::stores(), 'certificates' => YM_Consent::certificates(), 'queued_here' => count( YM_Consent::pending() ) ), JSON_PRETTY_PRINT ) );
 		}
+	}
+
+	/**
+	 * The home page's featured product, chosen by a person (never picked automatically).
+	 *
+	 * [<sku>]
+	 * : The offer's SKU. Without it: show the current choice and whether it can be shown.
+	 *
+	 * [--clear]
+	 * : No featured product: the home shows its message and action without a product image.
+	 */
+	public function hero( $args, $assoc ) {
+		if ( isset( $assoc['clear'] ) ) {
+			delete_option( 'ym_hero_sku' );
+			WP_CLI::success( 'cleared' );
+			return;
+		}
+		if ( ! empty( $args[0] ) ) {
+			if ( ! wc_get_product_id_by_sku( (string) $args[0] ) ) {
+				WP_CLI::error( 'Unknown SKU' );
+			}
+			update_option( 'ym_hero_sku', (string) $args[0] );
+		}
+		$why = function_exists( 'ym_hero_product_problem' ) ? ym_hero_product_problem( (string) get_option( 'ym_hero_sku' ) ) : '';
+		WP_CLI::log( wp_json_encode( array( 'sku' => (string) get_option( 'ym_hero_sku' ), 'shown' => '' === $why, 'why_not' => $why ) ) );
 	}
 
 	/**

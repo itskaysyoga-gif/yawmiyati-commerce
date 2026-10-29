@@ -472,10 +472,18 @@ final class YM_Checkout {
 
 	/** A few WooCommerce strings that read wrong for a delivery-only shop. */
 	public static function strings( $translation, $text, $domain ) {
+		if ( 'default' === $domain && 'Skip to content' === $text ) {
+			return YM_Country::copy( 'skip_link' ); // core's wording addresses a man; a neutral noun instead
+		}
 		if ( 'woocommerce' !== $domain ) {
 			return $translation;
 		}
+		// Customer-facing WooCommerce strings found by the rendered-page inventory (docs/language/rendered-<cc>.csv).
 		$map = array(
+			'Cart totals'                        => YM_Country::copy( 'cart_totals' ),
+			'Proceed to checkout'                => YM_Country::copy( 'to_checkout' ),
+			'The following problems were found:' => YM_Country::copy( 'fix_these' ),
+			'Select an option&hellip;'           => YM_Country::copy( 'gov_ph' ),
 			'Billing address'  => YM_Country::copy( 'delivery_address' ),
 			'Shipping'         => YM_Country::copy( 'delivery_word' ),
 			'Shipping:'        => YM_Country::copy( 'delivery_word' ) . ':',
