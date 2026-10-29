@@ -432,12 +432,14 @@
    "purpose": "language critique sa 02-nav-home-product-2",
    "model": "claude-opus-5-5",
    "run": "40864152435",
-   "state": "reserved",
+   "state": "settled",
    "max_input_tokens": 13073,
    "max_output_tokens": 8000,
    "reserved_usd": 0.318438,
-   "usd": null,
-   "usd_list": null
+   "usd": 0.053628,
+   "usd_list": 0.035752,
+   "input_tokens": 4433,
+   "output_tokens": 901
   }
  ]
 }
