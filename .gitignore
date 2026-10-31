@@ -19,3 +19,7 @@ dev/db-data/
 preview/
 studio/video/public/media/
 .claude/skills/remotion-*/
+
+# Python research runtime
+__pycache__/
+*.pyc

@@ -221,3 +221,36 @@ test('Release commit: only a main commit with green tests on main', () => {
   assert.match(check(onMain, 0).stderr, /no successful 'tests' run on main/);
   assert.match(check(offMain, 1).stderr, /not on main/);
 });
+
+test('Five-market release validates every destination and deploys each independent store', () => {
+  const stores = ['eg', 'iq', 'sa', 'ae', 'om'];
+  const h = host({ stores });
+  const r = run(h, ['release'], { STORES: stores.join(' ') });
+  assert.equal(r.code, 0, r.out);
+  for (const cc of stores) {
+    assert.equal(live(h, cc), SHA);
+    assert.equal(live(h, cc, 'themes/yawmiyati'), SHA);
+    assert.match(state(h, cc), /phase=done/);
+  }
+});
+
+test('A wrong fifth destination blocks changes to all five stores', () => {
+  const stores = ['eg', 'iq', 'sa', 'ae', 'om'];
+  const h = host({ stores });
+  h.fake('om', 'home', 'https://staging.example.shop/ae/');
+  const r = run(h, ['release'], { STORES: stores.join(' ') });
+  assert.equal(r.code, 1, r.out);
+  for (const cc of stores) {
+    assert.equal(live(h, cc), 'old');
+    assert.deepEqual(backups(h, cc), []);
+  }
+});
+
+test('Duplicate and whitespace-only store lists are refused before deployment', () => {
+  for (const stores of ['eg eg', '   ']) {
+    const h = host();
+    const r = run(h, ['release'], { STORES: stores });
+    assert.equal(r.code, 1, r.out);
+    assert.equal(live(h, 'eg'), 'old');
+  }
+});

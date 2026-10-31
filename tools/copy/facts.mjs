@@ -1,14 +1,16 @@
 // Build the fact sheet the copy drafts may use: only facts we have, never placeholders.
-// Usage: node tools/copy/facts.mjs <eg|iq>  → tools/copy/facts/<cc>.json
+// Usage: node tools/copy/facts.mjs <eg|iq|sa|ae|om>  → tools/copy/facts/<cc>.json
 import fs from 'node:fs';
 import path from 'node:path';
+import { market } from './markets.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const cc = (process.argv[2] || '').toLowerCase();
-if (!['eg', 'iq'].includes(cc)) { console.error('usage: facts.mjs <eg|iq>'); process.exit(2); }
+const config = market(cc);
 const seed = JSON.parse(fs.readFileSync(path.join(root, `plugin/yawmiyati-commerce/seed/${cc}.json`), 'utf8'));
-const copy = JSON.parse(fs.readFileSync(path.join(root, `plugin/yawmiyati-commerce/copy/${cc}.json`), 'utf8'));
-const currency = cc === 'eg' ? 'ج.م' : 'د.ع';
+const readCopy = (name) => JSON.parse(fs.readFileSync(path.join(root, `plugin/yawmiyati-commerce/copy/${name}.json`), 'utf8'));
+const copy = { ...(config.scope === 'gulf' ? readCopy('gulf') : {}), ...readCopy(cc) };
+const currency = config.currency;
 
 const groups = {};
 for (const p of seed.products) {

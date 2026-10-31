@@ -1,10 +1,8 @@
 # Staging: from hosting to a verified real order
 
-_29 Oct 2026 (tightened the same night: deployment checks, rollback, order classes; docs/reports/2026-10-29-staging-tightening.md).
-Goal: Egypt, then Iraq, each with the real Taager plugin linked and real test orders observed end to end. Status words as
-in docs/LAUNCH-CHECKLIST.md. Nothing here is done yet; each step names who does it (R = Rashid, C = Claude, T = Taager)
-and the evidence that closes it. Photos do not block any step (docs/PHOTOGRAPHY.md). **Development is frozen**: from
-here on only staging work, fixes for defects found on staging, and changes a verified launch blocker needs._
+_Updated 31 October 2026: target is all five markets at launch, each with an independent WooCommerce install and
+Taager link. Run verification sequentially, but do not treat an Egypt result as evidence for any other country.
+The previous development freeze is superseded by Rashid's implementation instruction. No store is supplier-tested yet._
 
 ## 0. Before starting (R)
 | | Action | Evidence |
@@ -16,14 +14,13 @@ here on only staging work, fixes for defects found on staging, and changes a ver
 | O22 | Test-order people: for each country, a mobile number in that country that someone answers during the test week (for the confirmation call), and **one person at a real address who agrees to receive and pay for one delivered order** (class D below) | Names and governorates (kept off git); their yes |
 
 ## 1. Layout on the host (C writes the steps, R clicks where a panel is needed)
-- Production later: `yawmiyati.shop/` = the country chooser (deploy/root), `/eg/` and `/iq/` = two separate
-  WordPress installs (DECISIONS: one install per country, no Multisite). Saudi Arabia, UAE and Oman are **not
-  installed** for now.
-- **Staging now**: `staging.yawmiyati.shop/eg/` and `/iq/`, two installs, **password-protected** (Site Tools >
-  Security > Protected URLs, the whole `staging.` site including `wp-login.php` and the REST API), noindex everywhere
-  (any environment other than production).
+- Production target: `yawmiyati.shop/` is the country chooser; `/eg/`, `/iq/`, `/sa/`, `/ae/`, `/om/` are five
+  separate WordPress installs (not Multisite), each with its own database, country and Taager connection.
+- Staging: the same five paths under `staging.yawmiyati.shop`, all password-protected (including login and REST)
+  and noindex. Provision all five before a default release. `STAGING_STORES` may explicitly name an installed subset
+  during setup; that is not evidence that the other markets are ready.
 - Deploy area outside the web root: `~/ym-deploy` (releases, backups, journal); created by the first release.
-- One extra database `ym_shared` (consent ledger, store certificates, email permissions), with both stores' database
+- One extra database `ym_shared` (consent ledger, store certificates, email permissions), with all installed stores' database
   users granted on it.
 - Versions as tested: WordPress 7.1.3, WooCommerce 11.2.1, PHP 8.3 (dev/versions.env). Record SiteGround's database
   version (verification task 10).
@@ -33,10 +30,10 @@ here on only staging work, fixes for defects found on staging, and changes a ver
    `https://staging.yawmiyati.shop/eg/` (the deploy refuses any other URL).
 2. wp-config constants (values in the host panel and the password manager, never in git or chat):
    `WP_ENVIRONMENT_TYPE=staging` (the deploy refuses `production`, and refuses `local`), `DISABLE_WP_CRON=true`,
-   `YM_SHARED_DB=<shared db name>`, `YM_CONSENT_STORES=eg,iq` (exactly the installed stores), `YM_MAIL_SECRET`
-   (same on both), `YM_ALERT_WEBHOOK`. Leave `YM_SERVER_EVENTS` unset (O21) and every email flow off (email dormant
+   `YM_SHARED_DB=<shared db name>`, `YM_CONSENT_STORES=eg,iq,sa,ae,om` (exactly the installed stores), `YM_MAIL_SECRET`
+   (same on all installed stores), `YM_ALERT_WEBHOOK`. Leave `YM_SERVER_EVENTS` unset (O21) and every email flow off (email dormant
    at launch). Set the environment type **only** in wp-config.php: the order-test window switches it there.
-3. First release (step 3), then activate the plugin and theme, then `wp ym setup --country=EG` (or IQ): currency,
+3. First release (step 3), then activate the plugin and theme, then `wp ym setup --country=EG` (or IQ, SA, AE, OM): currency,
    delivery zone, COD only, guest checkout, pages, Arabic date format.
 4. **Cron before anything scheduled is tested** (O10): Site Tools > Devs > Cron Jobs, every 5 minutes per store,
    `cd <store> && php wp-cron.php`. Then run each job once (`wp ym ops-run consent_certify`, `supplier_sweep`,
@@ -82,7 +79,7 @@ here on only staging work, fixes for defects found on staging, and changes a ver
 - Stores are released one after the other; if Iraq fails after Egypt succeeded, Egypt keeps the new release and the
   summary says so. The concurrency group lets one release or mode switch run at a time.
 
-## 4. Taager on Egypt staging (R links, C reads and tests)
+## 4. Taager verification (repeat separately in EG, IQ, SA, AE and OM)
 1. R installs the Taager WooCommerce plugin on the Egypt staging store and links it to the Taager Egypt store;
    record the plugin version.
 2. C reads the plugin's code: which hook sends the order, which meta key holds the Taager reference
@@ -137,3 +134,15 @@ question 9), stock per offer (Iraq's export has none), return window (3 or 14 da
 ## 6. Then
 Native language review on the staging pages (O8), production install from the same release (P0-17), market gates by
 commit. Ads only after P1. Email and video stay off.
+
+## Five-country evidence matrix
+
+For each country record the plugin version, linked Taager country/store ID (no tokens), WooCommerce URL,
+callback destination, SKU mapping and reference/status fields. Run the E1–E10 test cases with that country's
+currency, phone/address rules and supplier catalog; label evidence EG/IQ/SA/AE/OM separately. Include same-item
+quantity discounts and a mixed-item basket: verify quantity, supplier deduction, collected total and shipping.
+Confirm held orders are not transmitted and retries cannot duplicate them. A mismatched country connection
+blocks that store. A shared plugin version or successful Egypt order cannot close another country's checklist.
+
+Checkout and ads remain gated until the relevant evidence is accepted. Five-country simultaneous selling remains
+the launch target, not a claim that Taager or the current host configuration has passed these checks.

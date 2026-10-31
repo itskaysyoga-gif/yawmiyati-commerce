@@ -5,10 +5,19 @@ Owner instruction supersedes the earlier Egypt/Iraq-only launch and development 
 ## Architecture and qualification
 Keep one independent WooCommerce installation and one country-specific Taager connection per country, sharing the existing plugin/theme. Never reuse a connection token across markets. Record the actual plugin version, country mapping, webhook destination and reference keys separately. Run ordinary, held, retry, quantity-discount, mixed-basket, cancellation, return/status and delivered-order checks independently in all five countries. Do not claim Taager supports this arrangement until observed. Each market retains its own catalog/checkout/ads gates. A public country page may explain availability while checkout remains closed if qualification fails; all-five simultaneous selling depends on all-five passing.
 
-## Offer engine delivered in this branch
-research/scripts/offer_decision.py evaluates explicit quantity-specific supplier TOTAL costs in integer minor currency units. It requires current verified cost evidence and explicit outcome probabilities. Missing charges block a recommendation. It never writes live prices. Six regression tests cover quantity math, unknown charges, stale evidence, invalid rates/costs and unverified discounts.
-
-This is a calculation foundation, not a complete selection engine. Competitor comparison validation currently checks required fields only; freshness, currency, identity and pack-size validation must precede production use. Tax, payout and other deductions must be included in the relevant explicit costs after country-specific verification. Scenarios are assumptions, not observed outcomes.
+## Implemented in the work branch
+- Evidence-backed offer evaluator: explicit minor-unit costs, tax/payout/partial losses, supplier quantity totals,
+  stock/cost freshness, zone-specific comparisons, break-even acquisition cost and delivery-included alternatives.
+- Shortlist importer: 157 unverified research dossiers across five countries, including existing quantity SKUs.
+  Full accounting/input contract: docs/OFFER-DECISIONS.md. Sixteen research regression tests pass locally.
+- Five-store staging defaults; duplicate/empty list refusal; fake-host tests for all five destinations and fifth-store
+  mismatch refusing all changes before deployment. Real Taager connections are still untested.
+- Product-copy pipeline accepts all five countries, merges shared Gulf policy text, uses individual voice guides,
+  and charges Gulf drafts to the existing shared Gulf budget envelope. Five new tests pass without paid calls.
+  Structural validation now rejects empty batches, missing text, unknown SKUs and invalid offer labels. These checks
+  do NOT prove factual truth or native fluency. Gulf seed products are still test fixtures, not launch selections.
+- Sage/berry theme groundwork and cache version bump; full Lovable visual adaptation is NOT complete or visually
+  certified. No new assets, live product changes, paid calls or external deployments.
 
 ## Next implementation
 1. Fetch the latest Lovable source (the attached ZIP predates the latest reported edits). Adapt approved design into the existing theme; do not port the demo checkout.
