@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       country:
-        description: eg or iq
+        description: eg, iq, sa, ae or om
         required: true
         default: eg
       skus:
@@ -35,7 +35,7 @@ jobs:
           node-version: '22'
       - name: Validate inputs
         run: |
-          [[ "$COUNTRY" =~ ^(eg|iq)$ ]] || { echo "::error::country must be eg or iq"; exit 1; }
+          [[ "$COUNTRY" =~ ^(eg|iq|sa|ae|om)$ ]] || { echo "::error::country must be eg, iq, sa, ae or om"; exit 1; }
           [[ "$SKUS" =~ ^[A-Z0-9\ ]{0,500}$ ]] || { echo "::error::SKUs: capital letters, digits and spaces only"; exit 1; }
       - name: Facts
         run: node tools/copy/facts.mjs "$COUNTRY"

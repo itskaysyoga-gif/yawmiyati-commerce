@@ -10,7 +10,7 @@
 #   HOST PORT USER_ ROOT   SSH destination; ROOT = the staging document root holding eg/ and iq/ (must contain "staging")
 #   BASE_URL               e.g. https://staging.yawmiyati.shop (variable): the store URLs must be BASE_URL/<cc>/
 #   HTTP_AUTH              user:password of the host's URL protection (secret), for the authenticated health checks
-#   STORES                 default "eg iq"           SHA  the commit being deployed (GITHUB_SHA)
+#   STORES                 default "eg iq sa ae om"           SHA  the commit being deployed (GITHUB_SHA)
 #   YM_SSH                 override of the ssh command (tests)    SUMMARY  file for the run summary (GITHUB_STEP_SUMMARY)
 #
 # Exit codes: 0 deployed or switched (open launch items are reported, not failures); 1 refused or failed (a store whose
@@ -19,7 +19,7 @@
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 SUMMARY="${SUMMARY:-${GITHUB_STEP_SUMMARY:-/dev/null}}"
-STORES="${STORES:-eg iq}"
+STORES="${STORES:-eg iq sa ae om}"
 SHA="${SHA:-${GITHUB_SHA:-}}"
 PORT="${PORT:-18765}"
 RDH='ym-deploy'                      # remote deploy home, relative to the SSH user's home (outside the web root)
@@ -54,7 +54,13 @@ check_config() {
   [ -n "${HTTP_AUTH:-}" ] || die "STAGING_HTTP_AUTH missing: the health checks behind the URL protection cannot run"
   [[ "${BASE_URL:-}" =~ ^https://staging\.[a-z0-9-]+(\.[a-z0-9-]+)+$ ]] || die "BASE_URL must be https://staging.<domain> with no path (got '${BASE_URL:-}'): refusing anything that could be production"
   [[ "$ROOT" == *staging* && "$ROOT" != *..* ]] || die "STAGING_ROOT must be the staging document root (contains 'staging', no '..'): refusing"
-  local cc; for cc in $STORES; do [[ "$cc" =~ ^(eg|iq|sa|ae|om)$ ]] || die "bad store '$cc'"; done
+  local cc seen=" " count=0
+  for cc in $STORES; do
+    [[ "$cc" =~ ^(eg|iq|sa|ae|om)$ ]] || die "bad store '$cc'"
+    [[ "$seen" != *" $cc "* ]] || die "duplicate store '$cc'"
+    seen+="$cc "; count=$((count+1))
+  done
+  [ "$count" -gt 0 ] || die "no stores configured"
 }
 
 # ---------- 1. the release must be an approved main commit ----------

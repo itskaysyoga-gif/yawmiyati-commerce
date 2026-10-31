@@ -1,20 +1,22 @@
 // Draft product copy with the Anthropic API from the fact sheet and the voice guide.
-// Usage: node tools/copy/draft.mjs <eg|iq> [sku ...]  → tools/copy/drafts/<cc>/<sku>.json
+// Usage: node tools/copy/draft.mjs <eg|iq|sa|ae|om> [sku ...]  → tools/copy/drafts/<cc>/<sku>.json
 // Runs in GitHub Actions (.github/workflows/copy-drafts.yml) where the key is a secret. Never paste the key anywhere.
 // Every call goes through the shared API ledger (tools/spend, docs/API-BUDGET.md). Exits 1 when any product failed.
 import fs from 'node:fs';
 import path from 'node:path';
+import { market } from './markets.mjs';
 import { paidCall } from '../spend/anthropic.mjs';
 import { BudgetError } from '../spend/ledger.mjs';
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const [cc, ...only] = process.argv.slice(2).map((s) => s.trim());
 const model = 'claude-sonnet-5-5'; // priced in tools/spend/rates.json; never taken from the environment
-if (!['eg', 'iq'].includes(cc)) { console.error('usage: draft.mjs <eg|iq> [SKU ...]'); process.exit(2); }
+const config = market(cc);
 if (only.length > 20 || only.some((s) => !/^[A-Z0-9]{6,24}$/.test(s))) { console.error('SKUs: up to 20, capital letters and digits only'); process.exit(2); }
 const facts = JSON.parse(fs.readFileSync(path.join(root, `tools/copy/facts/${cc}.json`), 'utf8'));
-const voice = fs.readFileSync(path.join(root, `docs/voice/${cc.toUpperCase()}.md`), 'utf8');
-const dialect = cc === 'eg' ? 'Egyptian Arabic' : 'Iraqi (Baghdadi) Arabic';
+const countryVoice = fs.readFileSync(path.join(root, `docs/voice/${cc.toUpperCase()}.md`), 'utf8');
+const voice = (config.scope === 'gulf' ? fs.readFileSync(path.join(root, 'docs/voice/GULF.md'), 'utf8') + '\n' : '') + countryVoice;
+const dialect = config.dialect;
 
 const system = `You write product page copy for Yawmiyati (يومياتي), a cash-on-delivery home goods store, in ${dialect}.
 Follow this voice guide exactly:
@@ -47,11 +49,14 @@ async function draft(product, attempt = 1) {
 }
 
 async function draftOnce(product) {
-  const { json: body, entry } = await paidCall({ scope: cc, purpose: `copy draft ${cc.toUpperCase()} ${product.sku}`, body: { model, max_tokens: 1200, system, messages: [{ role: 'user', content: `Facts:\n${JSON.stringify(product, null, 2)}` }] } });
+  const { json: body, entry } = await paidCall({ scope: config.scope, purpose: `copy draft ${cc.toUpperCase()} ${product.sku}`, body: { model, max_tokens: 1200, system, messages: [{ role: 'user', content: `Facts:\n${JSON.stringify(product, null, 2)}` }] } });
   const text = body.content.map((c) => c.text || '').join('');
   const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
   return { ...json, _model: model, _usage: body.usage, _ledger: entry.id, _at: new Date().toISOString(), _status: 'draft: not native-reviewed, not fact-approved' };
 }
+
+if (only.some((sku) => !facts.products.some((p) => p.sku === sku))) throw new Error('Requested SKU missing from country fact sheet');
+if (!facts.products.length) throw new Error('No product facts to draft');
 
 const outDir = path.join(root, `tools/copy/drafts/${cc}`);
 fs.mkdirSync(outDir, { recursive: true });

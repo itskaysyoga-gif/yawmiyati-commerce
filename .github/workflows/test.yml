@@ -39,7 +39,9 @@ jobs:
       - name: Start stores
         run: dev/serve.sh && sleep 2 && for p in 8081 8082 8083 8084 8085; do curl -fsS -o /dev/null http://localhost:$p/; done
       - name: Content Studio, API ledger and staging-deploy checks (fake Graph API, spend ledger, fake staging host; no account, no render, no paid call)
-        run: node --test studio/test/*.test.mjs tools/spend/test/*.test.mjs deploy/test/*.test.mjs
+        run: node --test studio/test/*.test.mjs tools/spend/test/*.test.mjs deploy/test/*.test.mjs tools/copy/test/*.test.mjs
+      - name: Offer evidence and pricing checks
+        run: python3 -m unittest discover -s research/scripts -p 'test_*.py'
       - name: Integration checks
         run: |
           for cc in eg iq sa ae om; do dev/wp.sh $cc eval-file "$PWD/tests/integration/run.php"; done

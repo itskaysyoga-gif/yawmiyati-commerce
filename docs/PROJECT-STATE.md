@@ -1,5 +1,21 @@
 # Project state
 
+## Active update — 31 October 2026
+
+The older snapshot below is retained as history, not the current scope. Rashid lifted the freeze and authorized
+implementation on `codex/five-market-commerce`; target is five markets on day one. See
+[FIVE-MARKET-IMPLEMENTATION.md](FIVE-MARKET-IMPLEMENTATION.md) and [OFFER-DECISIONS.md](OFFER-DECISIONS.md).
+
+This round adds strict offer research, a 157-candidate importer, five-market staging checks and five-market copy
+generation support. Research tests: 16 passing. Node tests: 39 passing (34 existing/extended studio, spend and
+staging checks plus 5 copy checks). No API calls or live changes. PHP/MariaDB are unavailable in this workspace;
+full WooCommerce/browser verification must run in CI. CI status must be read independently; not claimed green here.
+The theme has palette/layout groundwork, not a finished Lovable port. Accounts, supplier evidence, real media,
+native review and five independent integration tests remain outstanding. Email off; video deferred.
+
+## Previous verified baseline
+
+
 _Last updated: 2026-10-29 night (staging tightening and development freeze, docs/reports/2026-10-29-staging-tightening.md;
 before that the polish pass and staging preparation, docs/reports/2026-10-29-polish-staging.md)_
 

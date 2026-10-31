@@ -29,10 +29,10 @@ jobs:
       HOST: ${{ secrets.STAGING_SSH_HOST }}
       PORT: ${{ secrets.STAGING_SSH_PORT }}
       USER_: ${{ secrets.STAGING_SSH_USER }}
-      ROOT: ${{ secrets.STAGING_ROOT }}              # e.g. www/staging.yawmiyati.shop/public_html (stores in eg/ and iq/)
+      ROOT: ${{ secrets.STAGING_ROOT }}              # e.g. www/staging.yawmiyati.shop/public_html (five country subdirectories)
       HTTP_AUTH: ${{ secrets.STAGING_HTTP_AUTH }}    # user:password of Site Tools > Security > Protected URLs
       BASE_URL: ${{ vars.STAGING_BASE_URL }}         # https://staging.yawmiyati.shop
-      STORES: ${{ vars.STAGING_STORES || 'eg iq' }}
+      STORES: ${{ vars.STAGING_STORES || 'eg iq sa ae om' }}
       SHA: ${{ github.sha }}
     steps:
       - name: Credentials present?
