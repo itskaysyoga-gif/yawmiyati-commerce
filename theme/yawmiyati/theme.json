@@ -11,7 +11,7 @@
 				{
 					"slug": "ivory",
 					"name": "Ivory (page)",
-					"color": "#FAF6F1"
+					"color": "#FAFBF9"
 				},
 				{
 					"slug": "paper",
@@ -21,17 +21,17 @@
 				{
 					"slug": "ink",
 					"name": "Ink",
-					"color": "#2A2228"
+					"color": "#1D2922"
 				},
 				{
 					"slug": "muted",
 					"name": "Muted text",
-					"color": "#6E6268"
+					"color": "#536158"
 				},
 				{
 					"slug": "rule",
 					"name": "Rule",
-					"color": "#EEE6E0"
+					"color": "#DCE3DC"
 				},
 				{
 					"slug": "berry",
@@ -46,22 +46,22 @@
 				{
 					"slug": "blush",
 					"name": "Blush",
-					"color": "#F7E7E4"
+					"color": "#F5F2EC"
 				},
 				{
 					"slug": "sage",
 					"name": "Sage",
-					"color": "#E7EDE4"
+					"color": "#E5EEE3"
 				},
 				{
 					"slug": "sage-ink",
 					"name": "Sage ink",
-					"color": "#4C6448"
+					"color": "#3F5B45"
 				},
 				{
 					"slug": "diary",
 					"name": "Diary paper",
-					"color": "#FFFDF9"
+					"color": "#F5F7F2"
 				},
 				{
 					"slug": "error",
